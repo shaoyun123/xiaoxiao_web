@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/c ss" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			.auiitem {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				color: #212121;
+				background-color: #ffffff;
+				position: relative;
+				min-height: 2.2 rem;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				display: -webkit-box;
+				display: -webkit-flex;
+				display: flex;
+				-webkit-box-pack: justify;
+				-webkit-justify-content: space-between;
+				justify-content: space-between;
+			}
+			.form-control {
+				display: block;
+				width: 100%;
+				height: 34px;
+				padding: 6px 12px;
+				font-size: 14px;
+				line-height: 1.42857143;
+				color: #555;
+				background-color: #fff;
+				background-image: none;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+				-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+				transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+			}
+			.form-control:focus {
+				border-color: #66afe9;
+				outline: 0;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+				box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
+			}
+			#tabs {
+				margin-top: -45px;
+			}
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			.container {
+				height: 50px;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				overflow: hidden;
+			}
+			.nav {
+				height: 100%;
+				overflow-x: scroll;
+				overflow-y: hidden;
+				/*background-color: #DCDCDC;*/
+				background: rgb(240,240,240);
+			}
+			#con {
+				width: 380px;
+				height: 100%;
+				display: flex;
+				align-items: center;
+			}
+			#con > div {
+				text-align: center;
+				font-size: 18px;
+				width: 120px;
+				list-style: none;
+			}
+			.container ::-webkit-scrollbar {
+				display: none;
+			}
+			.aui-list .aui-list-item-media {
+				width: 6rem;
+			}
+			.items {
+				color: red;
+			}
+			.aa a {
+				margin-right: 10px;
+				color: #0062CC;
+				text-decoration: none;
+			}
+			.disabled {
+			}
+		</style>
+	</head>
+	<body>
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-header" style="font-size:20px;text-align: center">
+					德育成绩历史记录
+				</li>
+				<div class="container">
+					<nav class="nav">
+						<ul id="con">
+							<div class="aui-tab-item aui-active items" onclick="showData(this,2)" id="jiri" style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+								全部
+							</div>
+							<div class="aui-tab-item items" onclick="showData(this,3)" style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+								未填写
+							</div>
+							<div class="aui-tab-item items" onclick="showData(this,0)" style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+								已保存
+							</div>
+							<div class="aui-tab-item items" onclick="showData(this,1)" style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+								已提交
+							</div>
+							<div class="aui-tab-item items" onclick="showData(this,4)" style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+								公示期
+							</div>
+							<div class="aui-tab-item items" onclick="showData(this,5)" style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+								已结束
+							</div>
+						</ul>
+					</nav>
+				</div>
+				<div class="aui-content" id="menu_mun">
+					<ul class="aui-list aui-media-list" id="appContent"></ul>
+				</div>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		var pageNum;
+		var pageSize;
+		var hashNextPage;
+		function initPage() {
+			pageNum = 0;
+			pageSize = 20;
+			hashNextPage = true;
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var searchStatus = '2';
+		function showData(obj, val) {
+			if (searchStatus != val) {
+				searchStatus = val;
+				$('.items').each(function() {
+					$(this).removeClass('aui-active');
+				});
+				$(obj).addClass('aui-active');
+				searchData(searchStatus);
+			}
+		}
+
+		apiready = function() {
+			loadData();
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					//					initPage();
+					searchData(searchStatus);
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0,
+				}
+			}, function(ret, err) {
+				if (hashNextPage) {
+					searchData(searchStatus);
+				}
+			});
+			api.hideProgress();
+			searchData(searchStatus);
+		};
+		function searchData(id) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var xingming = dataInfo.xingMing;
+			var xuehao = dataInfo.xueHao;
+			var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+			var banjiid = dataInfo.banJiID;
+			var token = $api.getStorage("logintoken");
+			var code = studentid + ',zytech,' + xuexiaoXuehao + ',zytech,' + banjiid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_listdeyuchengji",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+					leixing : id,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+					if (id == 4) {
+						if (data) {
+							$api.setStorage('xuhao_deyu', data.xuehao);
+							$api.setStorage('xingming_deyu', data.xingming);
+							for (var i = 0; i < data.length; i++) {
+								html += '<li class="aui-list-item" style="height:100px;">';
+								html += '<div class="aui-media-list-item-inner" onclick="show();" ><div class="">';
+								html += '<div class="aui-list-item-title aui-font-size-18" style="top:10px;">' + data[i].xuenian + '&emsp;第' + data[i].xueqi + '学期</div>';
+								html += '<div class="aui-list-item-title aui-font-size-18" style="top:30px;">德育成绩：' + data[i].manfen + '</div>';
+								html += '</div></div>';
+								html += '</li>';
+							}
+						} else {
+							html += '<li class="aui-list-item" style="width:100%;height:50px;line-height:50px;">';
+							html += '<div class="aui-media-list-item-inner">';
+							html += '<div class="aui-list-item-title aui-font-size-18">&emsp;没有德育成绩公示</div>';
+							html += '</div>';
+							html += '</li>';
+						}
+					} else {
+						if (data) {
+							$api.setStorage('xuhao_deyu', data.xuehao);
+							$api.setStorage('xingming_deyu', data.xingming);
+							for (var i = 0; i < data.length; i++) {
+								html += '<li class="aui-list-item">';
+								html += '<div class="aui-media-list-item-inner" onclick="deyugongshi_xiangqing(\'' + xuehao + '\',\'' + xingming + '\',\'' + data[i].deyufenid + '\',\'' + data[i].xueshengid + '\')"><div class="">';
+								html += '<div class="aui-list-item-title aui-font-size-18">' + data[i].xuenian + '&emsp;第' + data[i].xueqi + '学期</div>';
+								html += '<div class="aui-list-item-title aui-font-size-18">德育成绩：' + data[i].manfen + '</div>';
+								html += '</div></div>';
+								html += '<div class="aui-info">';
+								if (data[i].deyufenid > 0) {
+									if (data[i].leixing == 0) {
+										html += '<div class="aui-info-item aui-font-size-12"><span class="aui-margin-l-5">已保存</span></div>';
+									} else if (data[i].leixing == 1) {
+										html += '<div class="aui-info-item aui-font-size-12"><span class="aui-margin-l-5">已提交</span></div>';
+									} else if (data[i].leixing == 2) {
+										html += '<div class="aui-info-item aui-font-size-12"><span class="aui-margin-l-5">公示审核</span></div>';
+									} else if (data[i].leixing == 3) {
+										html += '<div class="aui-info-item aui-font-size-12"><span class="aui-margin-l-5">已结束</span></div>';
+									}
+								} else {
+									html += '<div class="aui-info-item aui-font-size-12"><span class="aui-margin-l-5">未填写</span></div>';
+								}
+								html += '<div class="aui-info-item aui-font-size-12 aa">';
+								if (data[i].deyufenid > 0) {
+									if (data[i].zhuangtai == 1 || (data[i].zhuangtai == 3 && (data[i].leixing == 1 || data[i].leixing == 0)) || (data[i].zhuangtai == 4 && (data[i].leixing == 1 || data[i].leixing == 0))) {
+										html += '<a onclick="deyu_xiugai(\'' + data[i].xuehao + '\',\'' + data[i].xingming + '\',\'' + data[i].deyufenid + '\',\'' + data[i].xueshengid + '\')">修改</a>';
+									} else {
+										html += '<a class="disabled" disabled="disabled" style="color: #808080;">修改</a>';
+									}
+								} else {
+									if (data[i].zhuangtai == 1) {
+										html += '<a  onclick="deyu_tx(\'' + data[i].xuenian + '\',\'' + data[i].xueqi + '\')">填写</a>';
+									}
+								}
+								html += '</div>';
+								html += '</div>';
+								html += '</li>';
+							}
+						}
+					}
+					if (pageNum > 0) {
+						$('#appContent').append(html);
+					} else {
+						$('#appContent').html(html);
+					}
+					if (data.length < pageSize) {
+						hashNextPage = false;
+					} else {
+						pageNum++;
+					}
+				},
+				error : function() {
+					api.hideProgress();
+					alert("错误RTY");
+				}
+			})
+		}
+
+		function show() {
+			api.openWin({
+				name : 'deyufenggongshiwin',
+				url : 'deyufenggongshiwin.html',
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function deyugongshi_xiangqing(xuehao, xingming, deyufenid, xueshengid) {
+			if (deyufenid > 0) {
+				api.openWin({
+					name : 'deyugongshi_xiangqingwin',
+					url : "deyugongshi_xiangqingwin.html",
+					pageParam : {
+						xuehao : xuehao,
+						xingming : xingming,
+						deyufenid : deyufenid,
+						xueshengid : xueshengid
+					},
+					reload : true,
+					allowEdit : true
+				});
+			} else {
+				alert("未填写德育成绩！！");
+			}
+		}
+
+		function deyu_xiugai(xuehao, xingming, deyufenid, xueshengid) {
+			if (deyufenid == 0) {
+				api.openWin({
+					name : 'tianxiekaopingbiaowin',
+					url : "tianxiekaopingbiaowin.html",
+					reload : true,
+					allowEdit : true
+				});
+			} else {
+				api.openWin({
+					name : 'deyu_xiugaiwin',
+					url : "deyu_xiugaiwin.html",
+					pageParam : {
+						xuehao : xuehao,
+						xingming : xingming,
+						deyufenid : deyufenid,
+						xueshengid : xueshengid,
+					},
+					reload : true,
+					allowEdit : true
+				});
+			}
+		}
+
+		function deyu_tx(xuenian, xueqi) {
+			api.openWin({
+				name : 'tianxiekaopingbiaowin',
+				url : 'tianxiekaopingbiaowin.html',
+				pageParam : {
+					xuenian : xuenian,
+					xueqi : xueqi,
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+	</script>
+</html>

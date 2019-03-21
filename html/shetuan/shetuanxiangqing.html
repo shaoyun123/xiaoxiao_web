@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>shetuanxiangqing</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+    <style>
+        .text-indent {
+            text-indent: 1em;
+        }
+        header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            学生社团
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">社团介绍</li>
+            <nav style="padding-top:40px;">
+                <ul id="shetuandagai">
+
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'shetuanxiangqing',
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var xuexiaoxuehao = dataInfo.xuexiao_xuehao;
+        var leibie = api.pageParam.leibie;
+        if (leibie == "1") {
+            var id = api.pageParam.xueshengzuzhiid;
+            var code = xuexiaoxuehao + ',zytech,' + id;
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl')+"app_XueShengZuZhi",
+                data: {
+                    CODE: code
+                },
+                dataType: 'json',
+                cache: false,
+                timeout: 5000,
+                success: function(data) {
+                    var data = eval(data);
+                    html = "";
+                    if (data.jibenxinxi.xueshengzuzhiid != null) {
+                        html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="font-size:18px;">学生组织名称：' + data.jibenxinxi.mingcheng + '</div><div class="aui-list-item-inner" style="font-size:18px;">指导老师：' + data.jibenxinxi.zhidaojiaoshi + '</div></div>';
+                        html += '<div class="aui-list-item"><div style="font-size:18px;">';
+                        html += '<h4 style="font-size:20px;font-weight:bold;">指导人：' + data.xinxi.zhidaoren + '&emsp;负责人：' + data.xinxi.fuzeren + '&emsp;人数：' + data.xinxi.renshu + '人</h4>';
+                        html += '<h4 style="font-size:20px;font-weight:bold;">介绍：</h4><div class="text-indent" style="width:100%"><font style="font-size:17px;">' + data.jibenxinxi.jianjie + '</font></div>';
+                        html += '</div></div>';
+                        for (var i = 0; i < data.xinxi.bumen.length; i++) {
+                            html += '<div class="aui-list-item"><div><h4 style="font-size:20px;font-weight:bold;">部门:' + data.xinxi.bumen[i].mingcheng + '</h4>';
+                            html += '<div class="text-indent"><h3 style="font-size:20px;">部长：' + data.xinxi.bumen[i].buzhang + '</h3><h3 style="font-size:20px;">部门人数:' + data.xinxi.bumen[i].bumenrenshu +
+                                '人</h3><h3 style="font-size:20px;">职责：</h3>';
+                            html += '<div class="text-indent" style="width:100%;"><font style="font-size:17px;">' + data.xinxi.bumen[i].zhize + '</font></div></div></div></div>';
+                        }
+                    }
+                    $('#shetuandagai').html(html);
+                },
+                error: function() {
+                    alert("错误DFSV");
+                }
+            });
+        } else {
+            var id = api.pageParam.shetuanid;
+            var code = xuexiaoxuehao + ',zytech,' + id;
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl')+"app_SheTuan",
+                data: {
+                    CODE: code
+                },
+                dataType: 'json',
+                cache: false,
+                timeout: 5000,
+                success: function(data) {
+                    var data = eval(data);
+                    html = "";
+                    if (data.shetuanjibenxinxi.shetuanid != null) {
+                        html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="font-size:18px;">社团名称：' + data.shetuanjibenxinxi.mingcheng + '</div><div class="aui-list-item-inner" style="font-size:18px;">指导老师：' + data.shetuanjibenxinxi.zhidaojiaoshi + '</div></div>';
+                        html += '<div class="aui-list-item"><div style="font-size:18px;">';
+                        html += '<h4 style="font-size:20px;font-weight:bold;">星级：' + data.shetuanjibenxinxi.xingji + '&emsp;社长：' + data.shetuanxinxi.shezhang + '&emsp;人数：' + data.shetuanxinxi.sheyuanrenshu + '人</h4>';
+                        html += '<h4 style="font-size:20px;font-weight:bold;">社团介绍：</h4><div class="text-indent" style="width:100%"><font style="font-size:17px;">' + data.shetuanjibenxinxi.shetuanjieshao + '</font></div>';
+                        html += '</div></div>';
+                        for (var i = 0; i < data.shetuanxinxi.bumen.length; i++) {
+                            html += '<div class="aui-list-item" style="width:100%;"><div><h4 style="font-size:20px;font-weight:bold;">部门:' + data.shetuanxinxi.bumen[i].mingcheng + '</h4>';
+                            html += '<div class="text-indent"><h3 style="font-size:20px;">部长：' + data.shetuanxinxi.bumen[i].buzhang + '</h3><h3 style="font-size:20px;">部门人数:' + data.shetuanxinxi.bumen[i].bumenrenshu +
+                                '人</h3><h3 style="font-size:20px;">职责：</h3>';
+                            html += '<div class="text-indent" style="width:100%;"><font style="font-size:17px;">' + data.shetuanxinxi.bumen[i].zhize + '</font></div></div></div></div>';
+                        }
+                    }
+                    $('#shetuandagai').html(html);
+                },
+                error: function() {
+                    alert("错误DFSK");
+                }
+            });
+        }
+    };
+</script>
+
+</html>

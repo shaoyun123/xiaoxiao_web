@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>jiaoliunr_xiangqing</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+    <style>
+    .a-text {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        color: #212121;
+        background-color: #ffffff;
+        position: relative;
+        min-height: 2.2rem;
+        -webkit-box-sizing: border-box;
+        		box-sizing: border-box;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-pack: justify;
+        -webkit-justify-content: space-between;
+        		justify-content: space-between;
+    }
+    header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+  <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;" id="topbar">
+      <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+          <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+      </a>
+      <div class="aui-title border-b" style="font-size:20px;color:gray;">
+          查询提醒
+      </div>
+  </header>
+  <div class="aui-content aui-margin-b-15">
+      <ul class="aui-list aui-form-list">
+          <nav>
+              <ul id="xianshijiaoliunr">
+              </ul>
+          </nav>
+      </ul>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'jiaoliunr_xiangqing',
+        });
+    }
+    apiready = function() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+      var studentid=dataInfo.id;
+      var token = $api.getStorage("logintoken");
+      var status = dataInfo.status;
+      var jiaoliuid=api.pageParam.jiaoliuid;
+      $.ajax({
+        type: "POST",
+        dataType: 'json',
+        url: $api.getStorage('serverUrl')+"app_XianShiJLNR_xiangqing",
+        data: {
+            CODE: jiaoliuid,
+            xueshengid: studentid,
+            status: status,
+            token: token,
+        },
+        cache: false,
+        success: function(data){
+          var data = eval(data);
+          html = "";
+          if(data){
+            html +='<li class="aui-list-header" style="font-size:20px;">'+data.jiaoliumingcheng+'</li>';
+            html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="font-size:20px;">学生汇报：</div></li>';
+            html += '<li class="a-text"><textarea name="xueshengshangchuan" id="xueshengshangchuan" readonly class="form-control" rows="5" cols="100" style="height:100px;border:2px solid #D3D3D3;width:100%;">'+data.xueshengshangchuan+'</textarea></li>';
+            html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="font-size:20px;">导员评价：</div></li>';
+            html += '<li class="a-text"><textarea name="fudaoyuanshenhe" id="fudaoyuanshenhe" class="form-control" readonly rows="5" cols="100" style="height:100px;border:2px solid #D3D3D3;width:100%;">'+data.fudaoyuanshenhe+'</textarea></li>';
+          }
+          else {
+				alert("已登出");
+				api.hideProgress();
+				var jsfun = 'logout();';
+				api.execScript({
+				    name: 'index',
+				    script: jsfun
+				});
+          }
+          $('#xianshijiaoliunr').append(html);
+        },
+        error: function(){
+          alert("错误Q！");
+        }
+      });
+    };
+</script>
+
+</html>

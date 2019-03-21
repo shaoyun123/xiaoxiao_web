@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>shouye_shijianke</title>
+		<link rel="stylesheet" type="text/css" href=" ../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			select {
+				border: 1px solid #666666;
+			}
+			.auiitem {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				border-bottom: 1px solid #ccc;
+				background-color: #ffffff;
+				position: relative;
+				min-height: 2.2 rem;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				/*display: -webkit-box;
+				display: -webkit-flex;
+				display: flex;*/
+				display: flex;
+				-webkit-box-pack: justify;
+				-webkit-justify-content: space-between;
+				justify-content: space-between;
+				margin-top:10px;
+				padding-bottom:10px;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				实践课
+			</div>
+		</header>
+		
+		<div class="aui-content aui-margin-b-15" style="padding-top:70px;">
+			<section class="aui-grid aui-margin-b-15">
+			<div id="menu_muns" style=""></div>
+			<div id="menu_mun" style=""></div>
+			</section>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'shouye_shijianke'
+			});
+			var jsfun = "youtixing();";
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var xingqi = '';
+		var shijiankechengid;
+		var fenzu;
+		var fendazu;
+		var fenxiaozu;
+		var dazuzhangid;
+		var fuzeren;
+		apiready = function() {
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+			init();
+//			var html = "";
+//			html += '<div style="position:relative;">';
+//		 	html += '<li class="auiitem" style="background-color:rgba(0, 0, 0, 0);">';
+//		 	html += '<div class="aui-list-item-inner" style="width:12%;display:inline;text-align:center;line-height:43px;"><span style="color:#09c6d0;">学年:</span></div>';
+//		 	html += '<div class="aui-list-item-inner" style="width:30%;"><select id="xuenian" name="xuenian">';
+//		 	html += '</select></div>';
+//		 	html += '<div class="aui-list-item-inner" style="width:12%;display:inline;text-align:center;line-height: 43px;"><span style="color:#09c6d0;">学期:</span></div>';
+//		 	html += '<div class="aui-list-item-inner" style="width:18%;"><select id="xueqi" name="xueqi">';
+//		 	html += '<option value="1">1</option>';
+//		 	html += '<option value="2">2</option>';
+//		 	html += '<option value="3">3</option>';
+//		 	html += '</select></div>';
+//		 	html += '<div class="aui-list-item-inner" style="padding:2px;width:20%;text-align:right;"><input style="color:#09c6d0;font-size:20px;" onclick="init()" value="查询"></div>';
+//		 	html += '</li>';
+//		 	html += '</div>';
+//			$('#menu_muns').html(html);
+		};
+		
+		var fangshis = '',renkelaoshiid;
+		function init() {
+//			var xuenian = $("#xuenian option:selected").text();
+//			var xueqi = $("#xueqi option:selected").text();
+			var xuenian = '';
+			var xueqi = '';
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var banjiid = dataInfo.banJiID;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				// 获取实践课程，如果有实践课程的id一样，只是上课的时间地点不一样，则只显示一条数据
+				//  如果不分大组，还要请求负责人id和姓名
+				url : $api.getStorage('serverUrl') + "app_getshijiankecheng",
+				data : {
+					xueshengid : studentid,
+					banjiid : banjiid,
+					status : status,
+					token : token,
+					xuenian : xuenian,
+					xueqi : xueqi,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+//				alert($api.jsonToStr(data));
+					if (data.status == 'noshijianke') {
+						alert("没有实践课！");
+						goback();
+					} else {
+//					var xuenian = data.xuenians;
+//					var code = '';
+//					for (var x = 0; x < xuenian.length; x++) {
+//						code += '<option value="' + xuenian[x] + '">' + xuenian[x] + '</option>';
+//					}
+//					$("#xuenian").html(code);	
+					var html = '';								
+						xingqi = '';
+						for (var i = 0; i < data.kechengs.length; i++) {
+							var datas = data.kechengs[i];														
+								if(datas.isyouti == 0||datas.isyouti == '0'){ // 实践课模式
+									fangshis = '1';
+								}else if(datas.isyouti == 1||datas.isyouti == '1'){  // 实习模式
+									fangshis = '2';
+								}
+							renkelaoshiid = datas.fuzeren.fuzerenid;
+							zhuanhuan(datas.zhouCi);
+							shijiankechengid = datas.shijiankechengid;
+							html += '<li style="background:#fff;border-bottom:1px solid #ccc;" onclick="fangshi(' + shijiankechengid + ');">';
+							html += '<form id="forms" name="forms">';
+							html += '<input type="hidden" name="shijiankechengid" value="' + shijiankechengid + '">';
+							html += '<input type="hidden" name="xueshengid" value="' + studentid + '">';
+							html += '<input type="hidden" name="token" value="' + token + '">';
+							html += '<input type="hidden" name="status" value="' + status + '">';
+							html += '<div class="" style="font-size:18px;padding-left:10px;">' + datas.keChengMingCheng + '&nbsp&nbsp&nbsp&nbsp' + datas.renKeJiaoShi + '</div>';
+							html += '<div class="" style="font-size:14px;color:gray;padding-left:10px;">';
+							for (var k = 0; k < datas.laoshixinxi.length; k++) {
+								html += datas.laoshixinxi[k].laoshixingming + '&nbsp&nbsp&nbsp&nbsp';
+							}
+							html += '</div>';
+							html += '<div class="" style="font-size:14px;color:gray;padding-left:10px;">星期<span id="zhouCi">' + xingqi + '</span>&nbsp&nbsp&nbsp&nbsp第' + datas.kaiShiJieCi + '节~第' + datas.jieShuJieCi + '节&nbsp&nbsp&nbsp&nbsp' + datas.jiaoxuelouming + datas.jiaoshiming + '</div>';
+							fendazu = datas.fendazu;
+							fenxiaozu = datas.fenxiaozu;
+							$api.setStorage('fendazu', fendazu);
+							$api.setStorage('fenxiaozu', fenxiaozu);
+							var xiaozurongliang = datas.xiaozurongliang;
+							$api.setStorage('xiaozurongliang', xiaozurongliang);
+							fuzeren = datas.dazuzhang;
+							dazuzhangid = datas.dazuzhangid;
+							if (fendazu == 1 && fenxiaozu == 1) {// 分大组分小组
+								fenzu = 1;
+							} else if (fendazu == 1 && fenxiaozu == 0) {// 分大组不分小组
+								fenzu = 2;
+							} else if (fendazu == 0 && fenxiaozu == 1) {// 不分大组分小组
+								fenzu = 3;
+							} else if (fendazu == 0 && fenxiaozu == 0) {// 不分大组不分小组
+								fenzu = 4;
+							}
+							for (var j = data.kechengs.length - 1; j > i; j--) {
+								var kc = data.kechengs;
+								if (datas.shijiankechengid == data.kechengs[j].shijiankechengid) {
+									zhuanhuan(data.kechengs[j].zhouCi);
+									html += '<div class="" style="font-size:14px;color:gray;padding-left:10px;">星期<span id="zhouCi">' + xingqi + '</span>&nbsp&nbsp&nbsp&nbsp第' + data.kechengs[j].kaiShiJieCi + '节~第' + data.kechengs[j].jieShuJieCi + '节&nbsp&nbsp&nbsp&nbsp' + data.kechengs[j].jiaoxuelouming + data.kechengs[j].jiaoshiming + '</div>';
+									kc.splice(j, 1);
+								}
+								html += '</form>';
+							}
+							html += '</li>';
+						}
+						$('#menu_mun').html(html);
+						api.hideProgress();
+					}
+				},
+				error : function() {
+					console.log("app_getshijiankecheng");
+				}
+			});
+		}
+		
+		function fangshi(kechengid) {
+		    if(fangshis == "1"){  // 分组：实践课模式
+		    	getxiaozu(kechengid);
+		    }else if(fangshis == "2"){ // 分组：实习模式
+		    	gettiku(kechengid);
+		    	fendazu = 1;
+		    	fenxiaozu = 0;
+		    	$api.setStorage('fendazu', fendazu);
+				$api.setStorage('fenxiaozu', fenxiaozu);
+//		    	dazuzhangid = 5000;
+		    	fenzu = 2;
+		    }else{
+		    	alert("老师未设置完整，请稍后")
+		    }
+		}
+		
+		function gettiku(kechengid) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var xueshengid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getkaotis",   // 应该查询shifoushenhe状态为3和4的
+				data : {
+					xueshengid : xueshengid,
+					status : status,
+					token : token,
+					shixiid : kechengid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+//				var data = eval(data);
+//				alert($api.jsonToStr(data));
+					if(data.katilist.length == 0){
+						alert("老师还未发布考题，请稍后");
+						return;
+					}
+			    	for(var i=0;i<data.katilist.length;i++){
+			    	var xueshengxinxi = data.katilist[i].xueshengxinxi;
+			    		for(var j=0;j<xueshengxinxi.length;j++){
+			    			if(xueshengxinxi[j].ID == xueshengid&&data.katilist[i].shiFouShenHe == 4){	    			
+				    			api.openWin({
+				    				name : 'shijianke',
+				    				url : "./shijianke/shijianke.html",
+				    				pageParam : {
+				    					shezhi :　fangshis,   // 1,实践课模式，2,实习模式
+				    					kechengid : kechengid,
+				    					fenzu : fenzu,
+										fuzeren : fuzeren,
+										renkelaoshiid : renkelaoshiid,
+				    				},
+				    				allowEdit : true,
+				    				reload : true,
+				    			});
+				    			return;
+			    			} 
+						}						
+					}
+					api.openWin({
+				    		name : 'xuantiwin',
+				    		url : "./shixi/xuantiwin.html",
+				    		pageParam : {
+				    			data :　data,
+				    			kechengid : kechengid,
+				    		},
+				    		reload : true,
+				    		allowEdit : true,
+				    	});
+				    	return;
+				
+				},
+				error : function() {
+					console.log("app_getkaotis");
+				}
+			});
+		}
+		
+		
+		var tijiao_data;
+		function getxiaozu(kechengid) {//  获取小组信息，如果学生所在小组已经提交，则显示所有已提交的大组小组，如果没有提交或者没有加入小组，显示创建分组页面。
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var banjiid = dataInfo.banJiID;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getxiaozu",
+				data : {
+					xueshengid : studentid,
+					kechengid : kechengid,
+					status : status,
+					token : token,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+//				alert($api.jsonToStr(data));
+					tijiao_data = data;
+					if (data.suoxuanxiaozu.zhuangTai == 1 || data.suoxuanxiaozu.zhuangTai == '1') {// 代表该小组已提交分组，提交后的小组能查看别的已提交的小组
+						if (fenzu == 1 || fenzu == 2) { // fenzu==1||fenzu==2为分大组的情况，刚开始设置的是不分大组，后来又改成分大组的情况！
+							if (data.suoxuanxiaozu.fenZuId == 0 || data.suoxuanxiaozu.fenZuId == '' || data.suoxuanxiaozu.fenZuId == null) {  // 没有大组id
+								api.confirm({
+									title : '没有分配大组，请重新抽签选择大组',
+									buttons : ['抽签', '取消']
+								}, function(ret, err) {
+									var index = ret.buttonIndex;
+									if (index == 2) {
+									} else if (index == 1) {
+										tijiao();
+									}
+								})
+							} else {
+								api.openWin({
+									name : 'shijianke',
+									url : "./shijianke/shijianke.html",
+									pageParam : {
+										shezhi : fangshis,
+										kechengid : kechengid,
+										fenzu : fenzu,
+										fuzeren : fuzeren,
+										renkelaoshiid : renkelaoshiid,
+									},
+									reload : true,
+									allowEdit : true,
+								});
+							}
+						} else {
+							api.openWin({
+								name : 'shijianke',
+								url : "./shijianke/shijianke.html",
+								pageParam : {
+									shezhi : fangshis,
+									kechengid : kechengid,
+									fenzu : fenzu,
+									fuzeren : fuzeren,
+									renkelaoshiid : renkelaoshiid,
+								},
+								reload : true,
+								allowEdit : true,
+							});
+						}
+					} else {
+						if (fenzu == 4 || fenzu == 2) {  // 分小组的情况
+							api.openWin({
+								name : 'chuangjianzu',
+								url : "./shijianke/chuangjianzu.html",
+								pageParam : {
+									data : data,
+									shijiankechengid : shijiankechengid
+								},
+								reload : true,
+								allowEdit : true,
+							});
+						} else {
+							api.openWin({
+								name : 'chuangjianTitle',
+								url : "./shijianke/chuangjianTitle.html",
+								pageParam : {
+									data : data,
+									shijiankechengid : shijiankechengid
+								},
+								reload : true,
+								allowEdit : true,
+							});
+						}
+					}
+				},
+				error : function() {
+					console.log("app_getxiaozu");
+				}
+			})
+		}
+
+		function zhuanhuan(n) {
+			xingqi = '';
+			switch(n) {
+				case 1:
+					xingqi = '一';
+					break;
+				case 2:
+					xingqi = '二';
+					break;
+				case 3:
+					xingqi = '三';
+					break;
+				case 4:
+					xingqi = '四';
+					break;
+				case 5:
+					xingqi = '五';
+					break;
+				case 6:
+					xingqi = '六';
+					break;
+				case 7:
+					xingqi = '日';
+					break;
+			}
+			$("#zhouCi").html(xingqi);
+		}
+		
+		var alldata;
+		function chakan(kechengid) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				// 获取该课程下所有的考评信息
+				type : "POST",
+				url : $api.getStorage('serverUrl') + 'app_getkaoping',
+				data : {
+					shijiankechengid : kechengid,
+					xueshengid : studentid,
+					status : status,
+					token : token,
+					fendazu : fendazu,
+					fenxiaozu : fenxiaozu,
+					dazuzhangid : dazuzhangid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+//						alert($api.jsonToStr(data));
+					if (data == '' || data == null) {
+						api.openWin({
+							name : 'start',
+							url : "./shijianke/start.html",
+							pageParam : {
+								kechengid : kechengid,
+							},
+							reload : true,
+							allowEdit : true
+						});
+					} else {
+						var newdata = data.kaoPing
+						function sortdata(a, b) {
+							return a.zhuangTai - b.zhuangTai;
+						}
+
+						// 对考评信息根据状态从小到大进行排序，因为处于就绪或开始或打分的考评只有一条，就是排序后的第一条
+						// 如果第一条状态就是4，则代表所有的考评都已经完成了
+						newdata.sort(sortdata);
+						//	alert($api.jsonToStr(newdata));
+						for (var i = 0; i < data.kaoPing.length; i++) {
+							if (newdata[0].zhuangTai < 4) {
+								var chouqianstatus = data.kaoPing[0].qiandaoxinxi.chouqian.zhuangTai;
+								if (chouqianstatus == 1) {// 就绪签到
+									api.openWin({
+										name : 'qiandaoTitle',
+										url : "./shijianke/qiandaoTitle.html",
+										pageParam : {
+											datas : newdata[0],
+											fendazu : fendazu,
+											fenxiaozu : fenxiaozu,
+											dazuzhangid : dazuzhangid,
+										},
+										reload : true,
+										allowEdit : true
+									});
+								} else if (chouqianstatus == 2) {// 开始
+									api.openWin({
+										name : 'jianbaoTitle',
+										url : "./shijianke/jianbaoTitle.html",
+										pageParam : {
+											data : data,
+											newdata : newdata[0],
+											fendazu : fendazu,
+											fenxiaozu : fenxiaozu,
+											dazuzhangid : dazuzhangid,
+											dazuzhang : fuzeren,
+										},
+										reload : true,
+										allowEdit : true
+									});
+								} else if (chouqianstatus == 3) {// 打分
+//								alert($api.jsonToStr(newdata[0]));
+								var paixuxiaozu = newdata[0].qiandaoxinxi.chouqian.xiaoZuPaiXu;
+								var paixu_len = paixuxiaozu.split(",");
+								alldata = newdata[0];
+								if(paixu_len.length == 2){
+								   xiugaizhuangtai();
+								}else{								
+									api.openWin({
+										name : 'jianbaoTitle',
+										url : "./shijianke/dafenTitle.html",
+										pageParam : {
+											data : newdata[0],
+											fendazu : fendazu,
+											fenxiaozu : fenxiaozu,
+										},
+										reload : true,
+										allowEdit : true
+									});
+								}	
+								} else if (chouqianstatus == 4) {// 打分完成，查看分数，某个大组完成，考评的状态为1，考评抽签的状态为4
+									api.openWin({
+										name : 'shijiankekaopingwin',
+										url : "./shijianke/shijiankekaopingwin.html",
+										pageParam : {
+											data : data,
+											fenzu : fenzu,
+										},
+										reload : true,
+										allowEdit : true
+									});
+								}
+							} else {// 结束 此时考评的状态为4
+								api.openWin({
+									name : 'shijiankekaopingwin',
+									url : "./shijianke/shijiankekaopingwin.html",
+									pageParam : {
+										data : data,
+										fenzu : fenzu,
+									},
+									reload : true,
+									allowEdit : true
+								});
+							}
+						}
+					}
+				},
+				error : function() {
+					console.log("app_getkaoping");
+				}
+			});
+		}
+
+		function xiugaizhuangtai() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_shixidafen",
+				data : {
+					xueshengid : studentid,
+					status : status,
+					token : token,	
+					dangqianxiaozuid : alldata.qiandaoxinxi.chouqian.dangQianZuID,				
+					kaopingid : alldata.qiandaoxinxi.chouqian.kaoPingID,
+					chouqianid :　alldata.qiandaoxinxi.chouqian.ID,
+				},
+					dataType : 'json',
+					cache : false,
+					success : function(data) {
+						if(data.status == 'success'){
+							alert("学生不能给自己打分，请老师评分");
+						}
+					},
+					error : function() {
+						console.log("app_shixidafen");
+					}
+			});
+
+		}
+
+		function tijiao() {// 组长自己提交
+			var chengyuanid = tijiao_data.suoxuanxiaozu.chengYuanLieBiao;
+			var xiaozuid = tijiao_data.suoxuanxiaozu.id;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var banjiid = dataInfo.banJiID;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_submitxiaozu",
+				data : {
+					xueshengid : studentid,
+					xiaozuid : xiaozuid,
+					chengyuanid : chengyuanid,
+					status : status,
+					token : token,
+					kechengid : tijiao_data.suoxuanxiaozu.shiJianKeChengId,
+					fendazu : fendazu,
+					fenxiaozu :　fenxiaozu,
+				},
+					dataType : 'json',
+					cache : false,
+					success : function(data) {
+						if (data.status == "success") {
+							alert("提交成功");
+						}else if(data.status == "nodazu"){
+							alert("没有大组");
+						}else if(data.status == "full"){
+							alert("所有大组已满");
+						}
+					},
+					error : function() {
+						console.log("app_submitxiaozu");
+					}
+			});
+		}
+	</script>
+</html>

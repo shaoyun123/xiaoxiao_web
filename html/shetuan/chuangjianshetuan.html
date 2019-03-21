@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>chuangjianshetuan</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+    <style>
+		header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            学生社团
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <nav>
+                <ul id="xianshi">
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'chuangjianshetuan',
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+      loadData();
+      html="";
+      html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:60px;"><h4 style="font-size:20px;width:100%;" onclick="chuangjianzuzhi()">创建学生组织</h4></div></div>';
+      html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:60px;"><h4 style="font-size:20px;width:100%;" onclick="chuangjianshetuan()">创建社团</h4></div></div>';
+      html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:60px;"><h4 style="font-size:20px;width:100%;" onclick="chakanjindu()">查看进度</h4></div></div>';
+      $('#xianshi').html(html);
+      api.hideProgress();
+    };
+    function chakanjindu(){
+      api.openWin({
+          name: 'chakanchuangjianjindu',
+          url: 'chuangjianxiangguan/chakanchuangjianjindu.html',
+          reload:true,
+		  allowEdit:true
+      });
+
+    }
+    function chuangjianzuzhi(){
+      api.openWin({
+          name: 'chuangjian',
+          url: 'chuangjianxiangguan/chuangjian.html',
+          pageParam:{
+            key: '1',
+          },
+          reload: true,
+		  allowEdit:true
+      });
+
+    }
+    function chuangjianshetuan(){
+      api.openWin({
+          name: 'chuangjian',
+          url: 'chuangjianxiangguan/chuangjian.html',
+          pageParam:{
+            key: '2',
+          },
+          reload: true,
+		  allowEdit:true
+      });
+    }
+    function fanhuil(){
+      api.closeWin({
+          name: 'chuangjian'
+      });
+      window.location.reload();
+    }
+</script>
+
+</html>

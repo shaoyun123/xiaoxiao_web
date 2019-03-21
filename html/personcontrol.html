@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>personcontrol</title>
+<!--   -->		
+		
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../script/bootstrap-switch.min.js"></script>
+		<style>
+			#main {
+				background-color: #ccc;
+				position: fixed;
+				/*top: 36px;*/
+				bottom: 61px;
+				/*overflow: scroll;*/
+				width: 100%;
+			}
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;height:75px;width:100%;z-index:999;" id="topbar">
+			<div style="width:100%;">
+				<div class="aui-title border-b" style="font-size:20px;color:gray;">
+					账号管理
+				</div>
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-bottom:30px;z-index:0;padding-top:75px;">
+			<ul class="aui-list aui-form-list">
+				<nav>
+					<ul id="person"></ul>
+				</nav>
+			</ul>
+		</div>
+		<footer class="aui-bar aui-bar-tab">
+			<div class="aui-bar-tab-item" tapmode onclick="switchframe('fixed1',0)">
+				<i class="aui-iconfont aui-icon-home"></i>
+				<div class="bottom_btn aui-bar-tab-label">
+					首页
+				</div>
+			</div>
+			<div class="aui-bar-tab-item" tapmode onclick="switchframe('richeng',1)">
+				<i class="aui-iconfont aui-icon-calendar"></i>
+				<div class="bottom_btn aui-bar-tab-label">
+					日程
+				</div>
+			</div>
+			<div class="aui-bar-tab-item" tapmode onclick="switchframe('jiaoliu',2)">
+				<i class="aui-iconfont aui-icon-comment"></i>
+				<div class="bottom_btn aui-bar-tab-label">
+					交流
+				</div>
+			</div>
+			<div class="aui-bar-tab-item aui-active" tapmode onclick="switchframe('personcontrol', 3)">
+				<i class="aui-iconfont aui-icon-my"></i>
+				<div class="bottom_btn aui-bar-tab-label">
+					我的
+				</div>
+			</div>
+		</footer>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		var gFrameIndex;
+		var firstHeaderOffsetH;
+		var main = $api.byId('main');
+		var mainPos = $api.offset(main);
+		var footer = $api.byId('footer');
+		var footerPos = $api.offset(footer);
+		var mkeyTime = new Date().getTime();
+		apiready = function() {
+			api.lockSlidPane();
+			gFrameIndex = 3;
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				//如果当前时间减去标志时间大于2秒，说明是第一次点击返回键，反之为2秒内点了2次，则退出。
+				if ((new Date().getTime() - mkeyTime) > 2000) {
+					mkeyTime = new Date().getTime();
+					api.toast({
+						msg : '再按一次退出程序',
+						duration : 2000,
+						location : 'bottom'
+					});
+				} else {
+					api.closeWidget();
+				}
+			});
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			if (status == "xuesheng") {
+				var xingming = dataInfo.xingMing;
+			} else if (status == "fudaoyuan") {
+				var xingming = dataInfo.xingMing;
+			} else if (status == "laoshi") {
+				var xingming = dataInfo.xingMing;
+			}
+			html = "";
+			html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:50px;"><h4 style="font-size:18px;width:100%;">欢迎你，' + xingming + '</h4></div></li>';
+			html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:50px;"><h4 style="font-size:18px;width:100%;" onclick="xinxi()">基本信息</h4></div></li>';
+			html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:50px;"><h4 style="font-size:18px;width:100%;" onclick="updatepassword()">修改密码</h4></div></li>';
+			
+//			html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:50px;"><h4 style="font-size:18px;width:100%;" onclick="abouts()">关于我们</h4></div></li>';
+			
+			html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:50px;"><button type="button" onclick="logout()" style="text-align:center;font-size:15px;">退出</button></div></li>';
+			
+			
+			$('#person').html(html);
+		};
+		function logout() {
+			$api.clearStorage();
+			if (api) {
+				var ajpush = api.require('ajpush');
+				if (ajpush) {
+					ajpush.stopPush(function(ret) {
+						if (ret && ret.status) {
+							//success
+						}
+					});
+				}
+			}
+			window.location.href = "login.html";
+		}
+		
+//		function abouts(){
+//		alert(111)
+//		}
+
+		function xinxi() {
+			api.openWin({
+				name : 'gerenxinxi',
+				url : 'person/gerenxinxi.html',
+				reload : true,
+				allowEdit:true
+			});
+		}
+
+		function updatepassword() {
+			api.openWin({
+				name : 'updatepassword',
+				url : 'person/updatepassword.html',
+				reload : true,
+				allowEdit:true
+			});
+			api.closeWin({
+            	name:'personcontrol',
+            });
+		}
+
+		function switchframe(type, index1) {
+			//			alert(1);
+			if (index1 === gFrameIndex) {
+				return 0;
+			} else {
+				if (index1 == 2) {
+					//					$("#thiHeader").hide();
+					$("#main").css({
+						"top" : "0"
+					});
+				} else {
+					$("#main").css({
+						"top" : "36px"
+					});
+				}
+				gFrameIndex = index1;
+				//				alert(index1);
+			}
+			switch (type) {
+				case 'fixed1':
+					randomSwitchBtn('fixed1', 0);
+					hideAllFrame();
+					openframeinstance('fixed1', firstHeaderOffsetH, false);
+					break;
+				case 'richeng':
+					randomSwitchBtn('richeng', 1);
+					hideAllFrame();
+					openframeinstance('richeng', firstHeaderOffsetH, false);
+					break;
+				case 'jiaoliu':
+					randomSwitchBtn('jiaoliu', 2);
+					hideAllFrame();
+					openframeinstance('jiaoliu', firstHeaderOffsetH, false);
+					break;
+				case 'personcontrol':
+					randomSwitchBtn('personcontrol', 3);
+					hideAllFrame();
+					openframeinstance('personcontrol', firstHeaderOffsetH, true);
+					break;
+				default:
+					break;
+			}
+		}
+
+		// 随意切换按钮
+		function randomSwitchBtn(name, index) {
+			var lis = $api.domAll('.bottom_btn');
+			var i = 0, len = lis.length;
+			var curLi = lis[index];
+			for (i; i < len; i++) {
+				var thisLi = lis[i];
+				if (thisLi === curLi) {
+					$api.addCls(thisLi, 'activebtn');
+					$api.addCls(thisLi, 'activebtn' + index);
+					continue;
+				} else {
+					if ($api.hasCls(thisLi, 'activebtn')) {
+						$api.removeCls(thisLi, 'activebtn');
+						$api.removeCls(thisLi, 'activebtn' + i);
+					}
+				}
+			}
+			// 切换图片颜色
+			var lis = $api.domAll('.aui-text-default');
+			var i = 0, len = lis.length;
+			var curLi = lis[index];
+			for (i; i < len; i++) {
+				var thisLi = lis[i];
+				if (thisLi === curLi) {
+					$api.addCls(thisLi, 'activebtn');
+					$api.addCls(thisLi, 'activebtn' + index);
+					continue;
+				} else {
+					if ($api.hasCls(thisLi, 'activebtn')) {
+						$api.removeCls(thisLi, 'activebtn');
+						$api.removeCls(thisLi, 'activebtn' + i);
+					}
+				}
+			}
+		}
+
+		// 隐藏所有的一级frame
+		function hideAllFrame() {
+			api.setFrameAttr({
+				name : 'fixed1',
+				hidden : true
+			});
+			api.setFrameAttr({
+				name : 'richeng',
+				hidden : true
+			});
+			api.setFrameAttr({
+				name : 'jiaoliu',
+				hidden : true
+			});
+			api.setFrameAttr({
+				name : 'personcontrol',
+				hidden : true
+			});
+		}
+
+		function openframeinstance(frame, marginTop, isBounce) {
+			var url = './' + frame + '.html';
+			api.openFrame({
+				name : frame,
+				url : url,
+				rect : {
+					x : 0,
+					y : 0,
+					w : 'auto',
+					h : 'auto',
+				},
+				pageParam : {
+					name : 'test'
+				},
+				// bounces: isBounce,
+				bounces : false,
+				reload : true,
+				vScrollBarEnabled : false,
+				hScrollBarEnabled : false,
+				delay : 200,
+				allowEdit:true,
+			});
+		}
+	</script>
+</html>

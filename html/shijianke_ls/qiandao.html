@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<div id="wrap" class="flex-wrap flex-vertical container">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;margin: 0;padding: 0;"  id="topbar">
+				<a class="aui-pull-left  border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+				<div  class="aui-title border-b "  id="title" name="richeng" style="font-size:20px;color:gray;">
+					签到信息
+				</div>
+			</header>
+			<div id="con" class="flex-con"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'qiandao',
+			});
+		}
+
+		// 大组信息
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+			data = api.pageParam.data;
+			var html = '';
+			for (var j = 0; j < data.qiandaoxinxi.baohanxiaozu.length; j++) {
+				html += '<div style="height:50px;font-size:14px;padding:10px;background:#fff;border-bottom:1px solid #ccc;"><span style="width:200px;" class="line-limit-length">' + data.qiandaoxinxi.baohanxiaozu[j].xueXiZuMing + '</span>';
+				if (data.qiandaoxinxi.baohanxiaozu[j].qiandaostatus == 1) {
+					html += '<span id="qiandao" style="float:right;">&nbsp&nbsp&nbsp&nbsp已签到</span>';
+				} else {
+					html += '<span id="qiandao" style="float:right;color:orange;">&nbsp&nbsp&nbsp&nbsp未签到</span>';
+				}
+				html += '<span style="float:right;">' + data.qiandaoxinxi.baohanxiaozu[j].xiaozuzhang + '</span></div>';
+			}
+			html += '<div style="height:50px;font-size:14px;padding:10px;background:#fff;border-bottom:1px solid #ccc;">';
+			html += '<button onclick="goback();" class="aui-btn aui-btn-info" style="left:30%;">返回</button>';
+			html += '<button onclick="shuaxin();" class="aui-btn aui-btn-info" style="left:52%;">刷新</button>';
+			html += '</div>';
+			$("#con").html(html);
+		};
+		function shuaxin() {
+			var dazuid = api.pageParam.dazuid;
+			var jsfun = 'qiandao(' + dazuid + ');';
+			api.execScript({
+				name : 'jinxingzhong',
+				script : jsfun
+			});
+		}
+	</script>
+</html>

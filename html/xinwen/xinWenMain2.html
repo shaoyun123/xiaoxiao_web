@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>新闻</title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			.container {
+				height: 50px;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				overflow: hidden;
+			}
+			.nav {
+				height: 100%;
+				overflow-x: scroll;
+				overflow-y: hidden;
+				background: rgb(240,240,240);
+			}
+			#con {
+				width: 950px;
+				height: 100%;
+				display: flex;
+				align-items: center;
+			}
+			#con > div {
+				text-align: center;
+				font-size: 18px;
+				width: 140px;
+				list-style: none;
+			}
+			.container ::-webkit-scrollbar {
+				display: none;
+			}
+			.aui-list .aui-list-item-media {
+				width: 6rem;
+			}
+			.items {
+				color: red;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<nav class="nav">
+				<ul id="con"></ul>
+			</nav>
+		</div>
+		<div class="aui-content" id="menu_mun">
+			<ul class="aui-list aui-media-list" id="appContent"></ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		var pageNum;
+		var pageSize;
+		var hashNextPage;
+		function initPage() {
+			pageNum = 0;
+			pageSize = 20;
+			hashNextPage = true;
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var searchStatus = '0';
+		function showData(obj, val) {
+			if (searchStatus != val) {
+				searchStatus = val;
+				$('.items').each(function() {
+					$(this).removeClass('aui-active');
+				});
+				$(obj).addClass('aui-active');
+				initPage();
+				searchData(val);
+			}
+		}
+
+		showData($('#jinri'), '0');
+		apiready = function() {
+			loadData();
+			initPage();
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					initPage();
+					searchData(searchStatus);
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 1000,
+				}
+			}, function(ret, err) {
+				if (hashNextPage) {
+					searchData(searchStatus);
+				}
+			});
+			api.hideProgress();
+			newType()
+			searchData(searchStatus);
+		};
+		function newType() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xuexiao = dataInfo.xuexiao_xuehao;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_newsLeiXingList",
+				data : {
+					status : status,
+					token : token,
+					xuexiao : xuexiao,
+					dataInfo : $api.jsonToStr(dataInfo),
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var datas = eval(data.datas);
+					var html = "";
+					html += '<div class="aui-tab-item aui-active items" onclick="showData(this,0)" id="jiri" style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">全部</div>'
+					for (var i = 0; i < datas.length; i++) {
+						html += '<div class="aui-tab-item items"  onclick="showData(this,' + datas[i].id + ')"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">' + datas[i].name + '</div>';
+					}
+					$('#con').html(html);
+				},
+				error : function() {
+					alert("超时");
+					api.hideProgress();
+				}
+			});
+		}
+
+		function searchData(id) {
+			loadData();
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var xuexiao = dataInfo.xuexiao_xuehao;
+			var cal = api.pageParam.cal;
+			alert(cal);
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_newsList",
+				data : {
+					canyurenId : studentid,
+					status : status,
+					token : token,
+					pageNum : pageNum,
+					xuexiao : xuexiao,
+					pageSize : pageSize,
+					type : id,
+					cal : cal,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var datas = eval(data.datas);
+					if (data.status == '-1') {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					} else if (data.status == '1') {
+						var obj = null;
+						if (datas.length > 0) {
+							var html = "";
+							for (var i = 0; i < datas.length; i++) {
+								obj = datas[i];
+								temp = obj.dq == '1' ? "已读取" : "未读取";
+								html += '<li class="aui-list-item" onclick="chakan(\'' + obj.id + '\',\'' + obj.url + '\',\'' + obj.title + '\')">';
+								html += '<div class="aui-media-list-item-inner"><div class="aui-list-item-inner">';
+								html += '<div class="aui-list-item-title aui-font-size-18" >' + obj.title + '</div>';
+								html += '</div></div>';
+								html += '<div class="aui-info" >';
+								html += '<div class="aui-info-item aui-font-size-12" ><span class="aui-margin-l-5">' + obj.name + '</span><span class="aui-margin-l-10">' + obj.time + '</span></div>';
+								if (temp == '已读取') {
+									html += '<div id="' + obj.id + '" class="aui-info-item aui-font-size-12">状态：' + temp + '</div>';
+								} else {
+									html += '<div id="' + obj.id + '" class="aui-info-item aui-font-size-12">状态：' + temp + '</div>';
+								}
+								html += '</div>';
+								html += '<div style="width:20%;font-size:18px;" onclick="chakan(\'' + obj.id + '\',\'' + obj.url + '\',\'' + obj.title + '\')")"></div>';
+								html += '</li>';
+							}
+							if (pageNum > 0) {
+								$('#appContent').append(html);
+							} else {
+								$('#appContent').html(html);
+							}
+							if (data.length < pageSize) {
+								hashNextPage = false;
+							} else {
+								pageNum++;
+							}
+						} else {
+							hashNextPage = false;
+							if (pageNum == 0) {
+								$('#menu_mun').html('<div class="aui-list-item"><div class="aui-list-item-inner">当前时期没有数据</div></div>');
+							}
+						}
+						api.hideProgress();
+					} else if (data.status == '0') {
+						$('#menu_mun').html('<div class="aui-list-item"><div class="aui-list-item-inner">当前时期没有数据</div></div>');
+					}
+				},
+				error : function() {
+					alert("超时");
+					api.hideProgress();
+				}
+			});
+		}
+
+		function chakan(id, url, title) {
+			$('#' + id).html('状态：已读取');
+			var dataJson = {};
+			dataJson.dataId = id;
+			dataJson.content = url;
+			dataJson.title = title;
+			api.openWin({
+				name : 'showManager',
+				url : "../showManager.html",
+				pageParam : {
+					dataJson : dataJson,
+					num : 1
+				},
+				reload : true,
+				allowEdit : true
+			});
+			location.reload(true);
+		}
+	</script>
+</html>

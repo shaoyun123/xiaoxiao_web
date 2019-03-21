@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			.auiitem {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				color: #212121;
+				background-color: #ffffff;
+				position: relative;
+				min-height: 2.2 rem;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				display: -webkit-box;
+				display: -webkit-flex;
+				display: flex;
+				-webkit-box-pack: justify;
+				-webkit-justify-content: space-between;
+				justify-content: space-between;
+			}
+			.form-control {
+				display: block;
+				width: 100%;
+				height: 34px;
+				padding: 6px 12px;
+				font-size: 14px;
+				line-height: 1.42857143;
+				color: #555;
+				background-color: #fff;
+				background-image: none;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+				-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+				transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+			}
+			.form-control:focus {
+				border-color: #66afe9;
+				outline: 0;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+				box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
+			}
+			#tabs {
+				margin-top: -45px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-header" style="font-size:20px;text-align: center">
+					德育成绩历史记录
+				</li>
+				<form id="xuenianxueqi" name="xuenianxueqi" method="post" class="form-horizontal"  role="form" data-toggle="validation" novalidate="novalidate">
+					<li class="aui-list-item" style="background-color:rgba(0, 0, 0, 0);">
+						<nav>
+							<ul id="riqichaxuntiao"></ul>
+						</nav>
+					</li>
+				</form>
+				<nav id="n1">
+					<ul id="gerendeyu"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					searchData();
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				api.closeWin({
+					name : 'tianxiekaopingbiaowin',
+				});
+				api.closeWin({
+					name : 'deyuchengjiwin',
+				});
+			});
+			searchData();
+		};
+		function searchData() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+			var banjiid = dataInfo.banJiID;
+			var token = $api.getStorage("logintoken");
+			var code = studentid + ',zytech,' + xuexiaoXuehao + ',zytech,' + banjiid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_listdeyuchengji",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+					leixing : '2',
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+					if (data) {
+						$api.setStorage('xuhao_deyu', data.xuehao);
+						$api.setStorage('xingming_deyu', data.xingming);
+						html += '<table id="tabs" class="table table-bordered" style="background-color:#FFFFFF;border: 1px solid #8B8B83;">';
+						html += '<th style="text-align:center;">学年</th>';
+						html += '<th style="text-align:center;">学期</th>';
+						html += '<th style="text-align:center;">方案名称</th>';
+						html += '<th style="text-align:center;">德育分</th>';
+						html += '<th colspan="2" style="text-align:center;">操作</th>';
+						for (var i = 0; i < data.length; i++) {
+							html += '<tr>';
+							html += '<td>' + data[i].xuenian + '</td>';
+							html += '<td>' + data[i].xueqi + '</td>';
+							html += '<td>' + data[i].fanganmingcheng + '</td>';
+							html += '<td>'
+							if (data[i].deyufenid == -1) {
+								html += '0.00';
+							} else if (data[i].deyufenid == 0) {
+								html += '0.00';
+							} else {
+								html += ' ' + data[i].manfen + '';
+							}
+							'</td>';
+							html += '';
+							if (data[i].deyufenid > 0) {
+								html += '<td><input type="button" class="aui-btn aui-btn-info"  onclick="deyugongshi_xiangqing(\'' + data[i].xuehao + '\',\'' + data[i].xingming + '\',\'' + data[i].deyufenid + '\',\'' + data[i].xueshengid + '\')" value="详情"></td>';
+								if (data[i].zhuangtai == 1 && data[i].leixing == 0) {
+									html += '<td><input type="button" class="aui-btn aui-btn-info"  onclick="deyu_xiugai(\'' + data[i].xuehao + '\',\'' + data[i].xingming + '\',\'' + data[i].deyufenid + '\',\'' + data[i].xueshengid + '\')" value="修改"></td>';
+								}
+							} else {
+								if (data[i].zhuangtai == 1) {
+									html += '<td><input type="button" class="aui-btn aui-btn-info"  onclick="deyu_tx()" value="填写"></td>';
+								} else {
+									html += '<td colspan="4">本学期无德育成绩</td>';
+								}
+							}
+						}
+						html += '</tr></tbody></table>';
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+					$('#gerendeyu').html(html);
+					api.hideProgress();
+				},
+				error : function() {
+					api.hideProgress();
+					alert("错误RTY");
+				}
+			});
+		}
+
+		function deyugongshi_xiangqing(xuehao, xingming, deyufenid, xueshengid) {
+			api.openWin({
+				name : 'deyugongshi_xiangqingwin',
+				url : "deyugongshi_xiangqingwin.html",
+				pageParam : {
+					xuehao : xuehao,
+					xingming : xingming,
+					deyufenid : deyufenid,
+					xueshengid : xueshengid
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function deyu_xiugai(xuehao, xingming, deyufenid, xueshengid) {
+			if (deyufenid == 0) {
+				api.openWin({
+					name : 'tianxiekaopingbiaowin',
+					url : "tianxiekaopingbiaowin.html",
+					reload : true,
+					allowEdit : true
+				});
+			} else {
+				api.openWin({
+					name : 'deyu_xiugaiwin',
+					url : "deyu_xiugaiwin.html",
+					pageParam : {
+						xuehao : xuehao,
+						xingming : xingming,
+						deyufenid : deyufenid,
+						xueshengid : xueshengid,
+					},
+					reload : true,
+					allowEdit : true
+				});
+			}
+		}
+
+		function deyu_tx() {
+			api.openWin({
+				name : 'tianxiekaopingbiaowin',
+				url : 'deyu/tianxiekaopingbiaowin.html',
+				reload : true,
+				allowEdit : true
+			});
+		}
+	</script>
+</html>

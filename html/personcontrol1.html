@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>personcontrol</title>
+		<link href='../css/google1.css' rel='stylesheet' type='text/css'>
+		<link href='../css/google2.css' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../script/bootstrap-switch.min.js"></script>
+		<style>
+			#main {
+				background-color: #ccc;
+				position: fixed;
+				/*top: 36px;*/
+				bottom: 61px;
+				/*overflow: scroll;*/
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<!--<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;">
+		<ul class="aui-list aui-form-list">
+		<nav>
+		<ul id="person">
+		</ul>
+		</nav>
+		</ul>
+		</div>-->
+		<section class="aui-content aui-margin-t-10" id="person">
+			<!--<ul class="aui-list aui-list-in aui-margin-b-15">
+				<li class="aui-list-item">
+					<div class="aui-list-item-label-icon">
+						<i class="aui-iconfont  aui-icon-like aui-text-danger"></i>
+					</div>
+					<div class="aui-list-item-inner aui-list-item-arrow" onclick="openWin('my_childreninfo')">
+						<div class="aui-list-item-title">
+							欢迎你：哈哈哈哈
+						</div>
+					</div>
+				</li>
+				<li class="aui-list-item">
+					<div class="aui-list-item-label-icon">
+						<i class="aui-iconfont  aui-icon-flag aui-text-info"></i>
+					</div>
+					<div class="aui-list-item-inner aui-list-item-arrow" onclick="openWin('my_reviews')">
+						<div class="aui-list-item-title">
+							基本信息
+						</div>
+					</div>
+				</li>
+			</ul>-->
+			
+		<!--	<ul class="aui-list aui-list-in aui-margin-b-15">
+				<li class="aui-list-item">
+					<div class="aui-list-item-label-icon">
+						<i class="aui-iconfont aui-icon-more aui-text-info"></i>
+					</div>
+					<div class="aui-list-item-inner aui-list-item-arrow"onclick="openWin('my_configmessage')">
+						<div class="aui-list-item-title">
+							修改密码
+						</div>
+					</div>
+				</li>
+			</ul>-->
+			
+			<!--<ul class="aui-list aui-list-in aui-margin-b-15">
+				<li class="aui-list-item">
+					<div class="aui-list-item-label-icon">
+						<i class="aui-iconfont aui-icon-gear aui-text-info"></i>
+					</div>
+					<div class="aui-list-item-inner aui-list-item-arrow" onclick="openWin('edition')">
+						<div class="aui-list-item-title">
+							关于我们
+						</div>
+						<div class="aui-list-item-right"></div>
+					</div>
+				</li>
+				<li class="aui-list-item">
+					<div class="aui-list-item-label-icon">
+						<i class="aui-iconfont aui-icon-recovery aui-text-info"></i>
+					</div>
+					<div class="aui-list-item-inner aui-list-item-arrow" onclick="exitUser()">
+						<div class="aui-list-item-title">
+							退出登录
+						</div>
+						<div class="aui-list-item-right"></div>
+					</div>
+				</li>
+			</ul>-->
+		
+		</section>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			api.lockSlidPane();
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			if (status == "xuesheng") {
+				var xingming = dataInfo.xingMing;
+			} else if (status == "fudaoyuan") {
+				var xingming = dataInfo.xingMing;
+			} else if (status == "jiaoshi") {
+				var xingming = dataInfo.xingMing;
+			} else if (status == "laoshi") {
+				var xingming = dataInfo.xingMing;
+			}
+			html = "";
+//			html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:50px;"><h4 style="font-size:18px;width:100%;">欢迎你，' + xingming + '</h4></div></li>';
+			html += '<ul class="aui-list aui-list-in aui-margin-b-15">';
+			html += '<li class="aui-list-item"><div class="aui-list-item-label-icon"><i class="aui-iconfont  aui-icon-like aui-text-danger"></i></div>';
+			html += '<div class="aui-list-item-inner aui-list-item-arrow">';
+			html += '<div class="aui-list-item-title">欢迎你 ,' + xingming + '</div></div></li>';
+			if (status == "xuesheng" || status == "laoshi" || status == "fudaoyuan") {
+//				html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:50px;"><h4 style="font-size:18px;width:100%;" onclick="xinxi()">基本信息</h4></div></li>';
+			html += '<li class="aui-list-item"><div class="aui-list-item-label-icon"><i class="aui-iconfont  aui-icon-flag aui-text-info"></i></div>';
+			html += '<div class="aui-list-item-inner aui-list-item-arrow" onclick="xinxi()">';
+			html += '<div class="aui-list-item-title">基本信息</div></div></li>';
+			html += '</ul>';
+				
+//				html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:50px;"><h4 style="font-size:18px;width:100%;" onclick="updatepassword()">修改密码</h4></div></li>';
+			html += '<ul class="aui-list aui-list-in aui-margin-b-15">';
+			html += '<li class="aui-list-item"><div class="aui-list-item-label-icon"><i class="aui-iconfont aui-icon-more aui-text-info"></i></div>';
+			html += '<div class="aui-list-item-inner aui-list-item-arrow" onclick="updatepassword()">';
+			html += '<div class="aui-list-item-title">修改密码</div></div></li>';
+			html += '</ul>';
+			
+				
+//				html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:50px;"><h4 style="font-size:18px;width:100%;" onclick="abouts()">关于我们</h4></div></li>';
+			html += '<ul class="aui-list aui-list-in aui-margin-b-15">';
+			html += '<li class="aui-list-item"><div class="aui-list-item-label-icon"><i class="aui-iconfont aui-icon-gear aui-text-info"></i></div>';
+			html += '<div class="aui-list-item-inner aui-list-item-arrow" onclick="abouts()">';
+			html += '<div class="aui-list-item-title">关于我们</div></div></li>';
+			}
+//			html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:50px;"><button type="button" onclick="logout()" style="text-align:center;font-size:15px;">退出</button></div></li>';
+			html += '<li class="aui-list-item"><div class="aui-list-item-label-icon"><i class="aui-iconfont aui-icon-recovery aui-text-info"></i></div>';
+			html += '<div class="aui-list-item-inner aui-list-item-arrow" onclick="logout()">';
+			html += '<div class="aui-list-item-title">退出登录</div></div></li>';
+			html += '</ul>';
+			$('#person').html(html);
+		};
+		function logout() {
+			var jsfun = 'logout();';
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+		}
+
+		function xinxi() {
+			api.openWin({
+				name : 'gerenxinxi',
+				url : 'person/gerenxinxi.html',
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function updatepassword() {
+			api.openWin({
+				name : 'updatepassword',
+				url : 'person/updatepassword.html',
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function abouts() {
+			api.openWin({
+				name : 'about1',
+				url : 'person/about1.html',
+				reload : true,
+				allowEdit : true
+			});
+		}
+	</script>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>shouye_richeng</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				详情
+			</div>
+		</header>
+		<div id="menu_mun" style="background: #fff;margin-top: 70px;"></div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin();
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0,
+				}
+			}, function(ret, err) {
+				goback();
+			});
+			xiangqing();
+		};
+
+		function xiangqing() {
+		var kaotiid = api.pageParam.ketiid;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var yonghuid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getxuesheng", // 根据每一个课题id，查询该课题的学生
+				data : {
+					yonghuid : yonghuid,
+					status : status,
+					token : token,
+					kaotiid : kaotiid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var html = '';
+					if (data.xueshengxin.length == 0) {
+						alert("学生还未加入");
+					} else {
+						html += '<div>';
+//						html += '<span style="font-size:22px;"><b>' + allkaoti.allkaoti[i].fabumingcheng + '</b></span>';
+						for (var j = 0; j < data.xueshengxin.length; j++) {
+							html += '<div style="border-bottom:1px solid #ccc;">';
+							html += '<span>' + data.xueshengxin[j].xingming + '</span>';
+							html += '<span style="float:right;">' + data.xueshengxin[j].banjimingcheng + '</span>';
+							html += '</div>';
+						}
+//						html += '<button onclick="fanhui();" style="margin-left:40%;margin-top:10px;margin-bottom:10px;" class="aui-btn aui-btn-info">返回</button>';
+						html += '</div>';
+					}
+					$("#menu_mun").html(html);
+					
+				},
+				error : function() {
+					console.log("app_getxuesheng");
+				}
+			})
+		}
+	</script>
+</html>

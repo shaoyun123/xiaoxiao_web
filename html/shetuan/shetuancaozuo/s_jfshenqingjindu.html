@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>s_jfshenqingjindu</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../script/bootstrap-switch.min.js"></script>
+    <style>
+		header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            我的社团
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">经费申请进度</li>
+            <nav style="padding-top:40px;">
+                <ul id="caozuo">
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 's_jfshenqingjindu',
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var shetuanxinxiid = api.pageParam.xinxiid;
+        var mingcheng = api.pageParam.mingcheng;
+        var xueshengid = dataInfo.id;
+        loadData();
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_JingFeisqjd",
+            data: {
+                shetuanxinxiid: shetuanxinxiid,
+                xueshengid: xueshengid,
+            },
+            dataType: 'json',
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                var data = eval(data);
+                html = "";
+                if (data) {
+                    if (data.jingfeis.length > 0) {
+                        html += '<div class="aui-list-item"><div class="aui-list-item-inner"><h2 style="width:100%;font-size:20px;">' + mingcheng + '</h2></div></div>';
+                        for (var i = 0; i < data.jingfeis.length; i++) {
+                            html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="font-size:18px;">金额：' + data.jingfeis[i].jine + '<br>用途：' + data.jingfeis[i].yongtu + '<br>';
+                            html += '申请时间：' + data.jingfeis[i].shenqingshijian + '<br>申请人：' + data.shenqingren[i] + '<br>';
+                            if (data.jingfeis[i].shifoupizhun == "0") {
+                                html += '状态：待处理';
+                            } else if (data.jingfeis[i].shifoupizhun == "1") {
+                                html += '状态：已通过';
+                            } else if (data.jingfeis[i].shifoupizhun == "2") {
+                                html += '状态：被驳回';
+                            }
+                            if (data.jingfeis[i].pizhunren = "") {
+                                html += '<br>审批人：';
+                            } else {
+                                html += '<br>审批人：' + data.jingfeis[i].pizhunren;
+                            }
+                            html += '<br>审批时间：' + data.jingfeis[i].pizhunshijian + '</div>';
+                            html += '</div>';
+                        }
+                        $('#caozuo').html(html);
+                        api.hideProgress();
+                    }
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function() {
+                api.hideProgress();
+                alert("超时");
+            }
+        });
+    };
+</script>
+
+</html>

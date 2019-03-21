@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				分组概况
+			</div>
+		</header>
+		<div class="aui-tab" id="tab" style="background:  rgb(240,240,240);margin-top:70px;">
+			<div class="aui-tab-item aui-active items" id="tijiao" onclick="showData(this,'1')">
+				课题
+			</div>
+			<div class="aui-tab-item items" onclick="showData(this,'2')">
+				分组
+			</div>
+			<!--<div class="aui-tab-item items" onclick="showData(this,'3')">
+			未分组
+			</div>-->
+		</div>
+		<div id="timu" style="background: #fff; "></div>
+		<div id="timus" style="background: #fff; "></div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin()
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var searchStatus = '1';
+		function showData(obj, val) {
+			if (searchStatus != val) {
+				searchStatus = val;
+				$('.items').each(function() {
+					$(this).removeClass('aui-active');
+				});
+				$(obj).addClass('aui-active');
+				init();
+			}
+		}
+
+		apiready = function() {
+			showData($('#tijiao'), '1');
+			init();
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				$api.rmStorage('loginpages');
+			});
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+			});
+		};
+		function init() {
+			var kechengid = api.pageParam.kechengid;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var xueshengid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getkaotis", // 应该查询状态为3和4的
+				data : {
+					xueshengid : xueshengid,
+					status : status,
+					token : token,
+					shixiid : kechengid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					$("#timus").css("display", "none");
+					$("#timu").css("display", "block");
+					//					alert($api.jsonToStr(data));
+					var html = '';
+					if (searchStatus == '1') {
+						for (var i = 0; i < data.katilist.length; i++) {
+							if (data.katilist[i].shiFouShenHe == 4) {
+								html += '<div style="border-bottom:1px solid #ccc;height:60px;" onclick="ketixiangqing(' + data.katilist[i].kaotiid + ');">';
+								html += '<span style="width:100%;height:70%;line-height:42px;">' + data.katilist[i].fabumingcheng + '</span>';
+								html += '<span style="float:right;height:30%;line-height:18px;color:gray;">' + data.katilist[i].laoshixingming + '</span>';
+								html += '</div>';
+							}
+						}
+					} else if (searchStatus == '2') {
+						fenzu();
+					}
+					$("#timu").html(html);
+				},
+				error : function() {
+				}
+			})
+		}
+		var zuyuan;
+		function fenzu() {
+			var kechengid = api.pageParam.kechengid;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var xueshengid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_kaotifenzuxinxi",
+				data : {
+					xueshengid : xueshengid,
+					status : status,
+					token : token,
+					shixiid : kechengid,
+					laoshiid : api.pageParam.renkelaoshiid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+//					alert($api.jsonToStr(data));
+					zuyuan = data;
+					$("#timu").css("display", "none");
+					$("#timus").css("display", "block");
+					var html = '';
+					for (var i = 0; i < data.kaotifenzuxinxi.length; i++) {
+						//							if (data.katilist[i].shiFouShenHe == 4) {
+						html += '<div style="border:1px solid #ccc;height:60px;" onclick="fenzuxiangqing('+i+');">';
+						html += '<span style="width:100%;height:70%;line-height:42px;">'+ data.kaotifenzuxinxi[i].zuMingCheng +'</span>';
+						html += '<span style="float:right;height:30%;line-height:18px;color:gray;">'+data.kaotifenzuxinxi[i].dazuzhangming+'</span>';
+						html += '</div>';
+						//							}
+					}
+					$("#timus").html(html);
+				},
+				error :function() {
+					console.log("app_getkaotis");
+				}
+			})
+		}
+
+		function fenzuxiangqing(i) {
+		var zuyuans = zuyuan.kaotifenzuxinxi[i].xueshengxinxi;
+			api.openWin({
+				name : 'fenzuxiangqing.html',
+				url : "fenzuxiangqing.html",
+				reload : true,
+				allowEdit : true,
+				pageParam : {
+				zuyuans : zuyuans,
+				}
+			});
+		}
+
+		function ketixiangqing(ketiid) {
+			api.openWin({
+				name : 'ketixiangqing.html',
+				url : "ketixiangqing.html",
+				reload : true,
+				allowEdit : true,
+				pageParam : {
+					ketiid : ketiid,
+				}
+			});
+		}
+	</script>
+</html>

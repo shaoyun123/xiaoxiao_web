@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>底部导航</title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/style1.css"/>
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			html, body {
+				height: 100%;
+				background: transparent;
+			}
+			.content {
+				background: transparent;
+				position: absolute;
+				display: -webkit-box;
+				-webkit-box-pack: end;
+				-webkit-box-align: end;
+				width: 100%;
+				top: 30px;
+			}
+			.content img {
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body onclick="closeThis()">
+		<div class="content">
+			<div class="content" id="top-right">
+				<div id="content" class="aui-popup-content">
+					<ul class="aui-list aui-list-noborder">
+						<li class="aui-list-item" onclick="showNews('3')">
+							<div class="aui-list-item-label-icon">
+								<i class="aui-iconfont aui-icon-date aui-text-info"></i>
+							</div>
+							<div class="aui-list-item-inner aui-list-item-middle">
+								最近三个月
+							</div>
+						</li>
+						<li class="aui-list-item" onclick="showNews('6')">
+							<div class="aui-list-item-label-icon">
+								<i class="aui-iconfont aui-icon-date aui-text-info"></i>
+							</div>
+							<div class="aui-list-item-inner">
+								最近六个月
+							</div>
+						</li>
+						<li class="aui-list-item" onclick="showNews('9')">
+							<div class="aui-list-item-label-icon">
+								<i class="aui-iconfont aui-icon-date aui-text-info"></i>
+							</div>
+							<div class="aui-list-item-inner">
+								最近九个月
+							</div>
+						</li>
+						<li class="aui-list-item" onclick="showNews('12')">
+							<div class="aui-list-item-label-icon">
+								<i class="aui-iconfont aui-icon-date aui-text-info"></i>
+							</div>
+							<div class="aui-list-item-inner">
+								最近一年
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<img src=""  id="show"/>
+		</div>
+	</body>
+</html>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/hammer.js"></script>
+<script type="text/javascript" src="../../script/hammerPluin.js"></script>
+<script type="text/javascript">
+	apiready = function() {
+		$('#top-right').show();
+	}
+	var temp = true;
+	function closeThis() {
+		if (temp) {
+			api.closeFrame();
+		}
+	}
+
+	function showNews(cal) {
+		api.openWin({
+			name : 'shouye_xinwen',
+			url : "xinwen.html",
+			pageParam : {
+				cal : cal,
+			},
+			reload : true,
+			allowEdit : true
+		});
+		location.reload(true);
+	}
+</script>

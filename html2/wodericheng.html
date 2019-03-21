@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>wodericheng</title>
+		<link rel="stylesheet" type="text/css" href="../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link href="../script/fullcalendar/fullcalendar.min.css" rel="stylesheet" />
+		<link href="../script/fullcalendar/fullcalendar.print.min.css" rel="stylesheet" media="print" />
+		<script src="../script/fullcalendar/moment.min.js"></script>
+		<script src="../script/fullcalendar/jquery.min.js"></script>
+		<script src="../script/fullcalendar/fullcalendar.min.js"></script>
+		<script src="../script/fullcalendar/locale-all.js"></script>
+		<style>
+			#main {
+				background-color: #ccc;
+				position: fixed;
+				bottom: 61px;
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body style="background: rgb(245,245,245);">
+		<div id="wrap" class="flex-wrap flex-vertical container" style="padding-top: 20px;">
+			<header class="aui-bar aui-bar-nav aui-bar-light" id="aui-header" style="background-color:white;">
+				<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+				<div class="aui-title border-b " style="color:gray;font-size:20px;">
+					校校
+				</div>
+			</header>
+			<div style="height: 90%;">
+				<div style="height: 700px;width: 100%;">
+					<div id="appContent" class="aui-content" style="overflow: hidden;background-color: #e7e7ef;">
+						<div class="aui-card-list" id='calendarHtml' style="overflow: hidden;"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/aui-popup.js"></script>
+	
+	<script type="text/javascript">
+		var gFrameIndex;
+		var firstHeaderOffsetH;
+		var main = $api.byId('main');
+		var mainPos = $api.offset(main);
+		var footer = $api.byId('footer');
+		var footerPos = $api.offset(footer);
+		var mkeyTime = new Date().getTime();
+		var thisDate = new Date();
+		var h = $(window).height() - $('#header').height();
+		var wodericheng;
+		function goback() {
+			api.closeWin({
+				name : 'wodericheng'
+			});
+			api.execScript({
+				name : 'richeng',
+			});
+		}
+
+		apiready = function() {
+			api.lockSlidPane();
+			wodericheng = api.pageParam.wodericheng;
+			if (wodericheng && wodericheng == 'wodericheng') {
+				$api.setStorage('addMessager_rc', 'wodericheng');
+				$('#back').show();
+				$('#appFooter').hide();
+				$('#appTitle').html('我的日程');
+				$('#calendar').height(h - 10);
+				$('#appContent').height(h - 10);
+				h = h - 80;
+			} else {
+				$api.setStorage('addMessager_rc', 'richeng');
+				$('#calendar').height(h - 10);
+				$('#appContent').height(h - 10);
+				h = h - 80;
+			}
+			gFrameIndex = 1;
+			$(document).ready(function() {
+				$("#calendarHtml").load("calendarHtml.html?t=" + new Date().getTime());
+			});
+			$(document).ready(function() {
+				//				searchDtaes()
+				var status = 'xuesheng';
+				if (status == "xuesheng") {
+					$("#calendarHtml").load("calendarHtml.html?t=" + new Date().getTime());
+				} else {
+					api.hideProgress();
+				}
+			});
+		};
+		function fanhuichongzai() {
+			$("#calendarHtml").html('');
+			$("#calendarHtml").load("calendarHtml.html?t=" + new Date().getTime());
+		}
+
+	</script>
+</html>

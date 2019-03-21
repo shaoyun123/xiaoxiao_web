@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+	</head>
+	<body>
+		<div class="" id="menu_mun" style="">
+			<!--<ul class="aui-list aui-media-list" id="sjk"></ul>-->
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var xingqi = '';
+		var fendazu;
+		var fenxiaozu;
+		var dazuzhangid, fuzeren;
+		apiready = function() {
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				$api.rmStorage('loginpages');
+				api.closeWin({
+					name : 'shixiwin',
+				});
+				api.closeWin({
+					name : 'shixifrms',
+				});
+			});
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					api.refreshHeaderLoadDone();
+				}, 1000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0,
+				}
+			}, function(ret, err) {
+			});
+			var data = api.pageParam.data;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var yonghuid = dataInfo.id;
+			//						alert($api.jsonToStr(data));
+			var html = "";
+			xingqi = '';
+			for (var i = 0; i < data.kechengs.length; i++) {
+				var datas = data.kechengs[i];
+				zhuanhuan(datas.zhouCi);
+				if (datas.shixixinxi.sheZhi == '' || datas.shixixinxi.sheZhi == null) {
+					html += '<li style="background:#fff;border-bottom:1px solid #ccc;" onclick="warn();">';
+				} else {
+					html += '<li style="background:#fff;border-bottom:1px solid #ccc;" onclick="guodu(' + i + ');">';
+				}
+				html += '<div class="" style="font-size:18px;padding-left:10px;">' + datas.keChengMingCheng + '&nbsp&nbsp&nbsp&nbsp' + datas.renKeJiaoShi + '</div>';
+				for (var k = 0; k < datas.laoshixinxi.length; k++) {
+					html += '<div class="" style="font-size:14px;color:gray;padding-left:10px;">' + datas.laoshixinxi[k].laoshixingming;
+					html += '</div>';
+				}
+				html += '<div class="" style="font-size:14px;color:gray;padding-left:10px;">星期<span id="zhouCi">' + xingqi + '</span>&nbsp&nbsp&nbsp&nbsp第' + datas.kaiShiJieCi + '节~第' + datas.jieShuJieCi + '节&nbsp&nbsp&nbsp&nbsp' + datas.jiaoxuelouming + datas.jiaoshiming;
+				html += '</div>';
+				for (var j = data.kechengs.length - 1; j > i; j--) {
+					var kc = data.kechengs;
+					if (datas.shixiid == data.kechengs[j].shixiid) {
+						zhuanhuan(data.kechengs[j].zhouCi);
+						html += '<div class="" style="font-size:14px;color:gray;padding-left:10px;">星期<span id="zhouCi">' + xingqi + '</span>&nbsp&nbsp&nbsp&nbsp第' + data.kechengs[j].kaiShiJieCi + '节~第' + data.kechengs[j].jieShuJieCi + '节&nbsp&nbsp&nbsp&nbsp' + data.kechengs[j].jiaoxuelouming + data.kechengs[j].jiaoshiming + '</div>';
+						kc.splice(j, 1);
+					}
+				}
+				html += '</div>';
+				html += '</li>';
+			}
+			$('#menu_mun').html(html);
+			api.hideProgress();
+		};
+		function warn() {
+			alert("负责人未设置完整，请稍后");
+		}
+		
+		function guodu(i) {
+			var data = api.pageParam.data;
+			api.openWin({
+				name : 'shixi_index',
+				url : "shixi_index.html",
+				allowEdit : true,
+				reload : true,
+				pageParam : {
+					data : data.kechengs[i],
+				}
+			});
+		}
+
+		function zhuanhuan(n) {
+			xingqi = '';
+			switch(n) {
+				case 1:
+					xingqi = '一';
+					break;
+				case 2:
+					xingqi = '二';
+					break;
+				case 3:
+					xingqi = '三';
+					break;
+				case 4:
+					xingqi = '四';
+					break;
+				case 5:
+					xingqi = '五';
+					break;
+				case 6:
+					xingqi = '六';
+					break;
+				case 7:
+					xingqi = '日';
+					break;
+			}
+			$("#zhouCi").html(xingqi);
+		}
+	</script>
+</html>

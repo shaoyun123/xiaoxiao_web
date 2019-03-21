@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>确认两次密码一致</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<style>
+		</style>
+	</head>
+	<body>
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-item">
+					<div class="aui-list-item-inner">
+						<div class="aui-list-item-label" style="color: gray;">
+							输入邮箱
+						</div>
+						<div class="aui-list-item-input">
+							<input type="text" placeholder="email" id="youXiang">
+						</div>
+					</div>
+				</li>
+				<!--<li class="aui-list-item" style="display: none;" id="yanZhengMa">
+					<div class="aui-list-item-inner">
+						<div class="aui-list-item-label">
+							验证码
+						</div>
+						<div class="aui-list-item-input">
+							<input type="text" placeholder="yanZhenMa" id="yanZhenMa">
+						</div>
+					</div>
+				</li>
+			</ul>
+			<span style="color: red" id="message" style="display: none;"></span>-->
+			<p>
+				<div class="aui-btn aui-btn-info aui-pull-left" id="next" onclick="commit()" style="width: 90%;margin-left: 16px;margin-top: 6px;">
+					获取验证码
+				</div>
+			</p>
+			
+			<div style="display: none;margin-bottom: 50px;margin-top: 40px;" id="xianshi">
+				<!--<span> 您修改了邮箱，但还没有验证该邮箱，验证通过后才能使用通过邮箱取回密码功能。</span>-->
+				<span>  新的验证码为：</span> <span id="code"  style="color:red"></span>
+				<span>请使用绑定的邮箱：</span> <span id="self"  style="color:red"></span>
+				<span>发送该验证码给：</span> <span id="fasong"  style="color:red"></span>
+				<span>邮箱！  我们收到您的验证码后，会自动验证您的邮箱。我们的邮箱设置了自动回复功能，如果您收到了自动回复邮件，表明我们已经收到了您的验证码。</span>
+				<span>  点击“确定”按钮将正常登录系统。</span>
+			</div>
+			<div class="aui-btn aui-btn-primary aui-btn-block" id="components" onclick="component()" style="display: none">
+				确定
+			</div>
+			<!--<div class="aui-btn aui-btn-primary aui-btn-block" id="next" onclick="commit()">
+			绑定
+			</div>-->
+			<!--<div class="aui-btn aui-btn-primary aui-btn-block" id="components" onclick="component()">
+			暂不绑定
+			</div>-->
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+		};
+		function commit() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var youXiang = document.getElementById("youXiang").value;
+			var username= dataInfo.yongHuMing;
+			if (youXiang == "") {
+				alert("邮箱不能为空!");
+				api.hideProgress();
+				return;
+			}else{
+				var myReg=/^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+				if(!myReg.test(youXiang)){
+　　　　				alert("邮箱格式不对!");
+					return;
+				}
+			}
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_checkemail", //如果地址访问不到会请求出错，请填写自己的接口地址
+				data : {
+					youXiang : youXiang,
+					userName: username
+				},
+				dataType : 'json',
+				cache : false,
+				crossDomain : true,
+				timeout : 5000,
+				success : function(data) {
+					if (data.retInfo == "fail") {
+						alert("未找到信息!");
+						api.hideProgress();
+						return;
+					} else {
+						//var message = "请发送验证码到:" + data.fasongyouxiang;
+						//$('#yanZhenMa').val(data.yanZhengMa);
+						//$('#yanZhengMa').show();
+						//$('#message').html(message);
+						
+						var dataInfo = $api.getStorage('loginDataInfo');
+						dataInfo.youXiang = $('#youXiang').val();
+						$api.setStorage('loginDataInfo',dataInfo);
+						var tempStr = '尊敬的' + dataInfo.xingMing + '老师：';
+						var tempCon = '';
+						if ($api.getStorage('loginstatus') == "xuesheng") {
+							tempStr = dataInfo.xingMing + '同学：';
+						}
+							$("#code").html(data.yanZhengMa);
+							$("#self").html($('#youXiang').val());
+							$("#fasong").html(data.fasongyouxiang);
+							$("#next").css('display','none');
+							$("#xianshi").css('display','block');
+							$("#components").css('display','block');
+//						tempCon = "        新的验证码为："+data.yanZhengMa;
+//						tempCon += "\n        请使用绑定的邮箱："+$('#youXiang').val()+"发送验证码到："+data.fasongyouxiang;
+//						tempCon += '\n        我们收到您的验证码后，会自动验证您的邮箱。我们的邮箱设置了自动回复功能，如果您收到了自动回复邮件，表明我们已经收到了您的验证码。';
+//						tempCon += '\n        点击“确定”按钮将正常登录系统。';
+//						api.alert({
+//							title : tempStr,
+//							msg : tempCon,
+//							buttons : ['确定']
+//						}, function(ret, err) {
+//							if (ret.buttonIndex == 1) {
+//								var jsfun = 'closeWin();';
+//								api.execScript({
+//									name : 'newpage-win',
+//									script : jsfun
+//								});
+//								jsfun = 'toPage();';
+//								api.execScript({
+//									name : 'root',
+//									script : jsfun
+//								});
+//							}
+//						});
+					}
+				},
+				error : function() {
+					alert("超时！！");
+					api.hideProgress();
+				}
+			});
+			
+		}
+
+		function component() {
+		  var jsfun = 'closeWin();';
+			api.execScript({
+				name : 'newpage-win',
+				script : jsfun
+			});
+			jsfun = 'toPage();';
+			api.execScript({
+				name : 'root',
+				script : jsfun
+			});
+//			var jsfun = 'closeWin()';
+//			api.execScript({
+//				name : 'youxian2-win',
+//				script : jsfun
+//			});
+//			jsfun = 'toPage(1)';
+//			api.execScript({
+//				name : 'root',
+//				script : jsfun
+//			});
+		}
+	</script>
+</html>

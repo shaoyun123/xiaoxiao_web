@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>qingjia</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			header {
+				background-color: #f2f2f2;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="">
+			<header class="aui-bar-nav" style="background-color: white;margin: 0;padding: 0;"  id="topbar">
+				<a class="aui-pull-left  border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+				<div  class="aui-title border-b "  id="title" name="richeng" style="font-size:20px;color:gray;">
+					我的请假条
+				</div>
+				<!--  顶部右端的添加符号    -->
+				<!--<a class="aui-pull-right  border-b aui-btn " onclick="jianchatianjia()"> <span class="aui-iconfont aui-icon-info aui-icon-plus " style="font-size: 20px;color:gray;"></span> </a>-->
+			</header>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'myApplicationwin',
+			});
+			api.execScript({
+				name : 'index',
+			});
+		}
+
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			funIniGroup();
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		};
+		function funIniGroup() {
+			api.openFrame({
+				name : 'myApplicationfrm2',
+				url : "myApplicationfrm2.html",
+				rect : {
+					x : 0,
+					y : $api.dom('header').offsetHeight,
+					w : api.winWidth,
+					h : 'auto'
+				},
+				bounces : false,
+				allowEdit : true,
+				pageParam : {
+					name : api.pageParam.name,
+					password : api.pageParam.password,
+					studentid : api.pageParam.studentid,
+					xueshengid : api.pageParam.xueshengid,
+					zong : api.pageParam.zong,
+				},
+			});
+		}
+		
+		
+		
+	</script>
+</html>

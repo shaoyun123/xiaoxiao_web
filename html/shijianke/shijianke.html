@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>shouye_richeng</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				实践课
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+			<section class="aui-grid aui-margin-b-15">
+				<div class="aui-row" id="menu_mun" style="background: rgb(245,245,245);"></div>
+			</section>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'shijianke'
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			var html = '';
+			html += '<div class="aui-col-xs-4 aui-col-sm-4"><i><img  src="../../image/sjkjianbao.png" style="width:35%;height:60px;" onclick="xuanze(2)"></i><div class="aui-grid-label">简报</div></div>';
+			html += '<div class="aui-col-xs-4 aui-col-sm-4"><i><img  src="../../image/sjkchakan.png" style="width:35%;height:60px;" onclick="xuanze(3)"></i><div class="aui-grid-label">查看分组</div></div>';
+			html += '<div class="aui-col-xs-4 aui-col-sm-4"><i><img  src="../../image/sjkshangchuan.png" style="width:35%;height:60px;" onclick="xuanze(1)"></i><div class="aui-grid-label">上传</div></div>';
+			$('#menu_mun').html(html);
+		};
+		function xuanze(action) {
+			if (action == "1") {// 上传文档
+				api.openWin({
+					slidBackEnabled : false,
+					name : 'shangchuan',
+					url : "shangchuan.html",
+					pageParam : {
+						data : api.pageParam.kechengid,
+					},
+					reload : true,
+					allowEdit : true
+				});
+			} else if (action == "2") {// 简报			
+				var kechengid = api.pageParam.kechengid;
+				var jsfun = 'chakan(' + kechengid + ');';
+				api.execScript({
+					name : 'shouye_shijianke',
+					script : jsfun
+				});
+			} else if (action == "3") {// 查看小组
+			var shezhi = api.pageParam.shezhi;
+//			alert(shezhi);
+				if(shezhi == '1'){  // 实践课分组
+					shijianke();
+				}else if(shezhi == '2') {  // 实习分组
+					shixi();
+				}				
+			}
+		}
+		
+		function shixi() {
+			api.openWin({
+					name : 'shixifenzu',
+					url : "../shixi/shixifenzu.html",
+					pageParam : {
+						kechengid :  api.pageParam.kechengid,
+						renkelaoshiid : api.pageParam.renkelaoshiid,
+					},
+					reload : true,
+					allowEdit : true,
+				});
+		}
+		
+		function shijianke () {
+		var fenzu = api.pageParam.fenzu;
+				if (fenzu == 1 ||fenzu == 2) {// 分大分小
+					chakandazu();
+				} else if (fenzu == 3 || fenzu == 4) {// 不分大分小
+					var dataInfo = $api.getStorage('loginDataInfo');
+					var status = dataInfo.status;
+					var studentid = dataInfo.id;
+					var kechengid = api.pageParam.kechengid;
+					var token = $api.getStorage("logintoken");
+					$.ajax({
+						type : "POST",
+						url : $api.getStorage('serverUrl') + "app_getxiaozu",
+						data : {
+							xueshengid : studentid,
+							kechengid : kechengid,
+							status : status,
+							token : token,
+						},
+						dataType : 'json',
+						cache : false,
+						success : function(data) {
+							api.openWin({
+								name : 'chakanxiaozus',
+								url : "chakanxiaozus.html",
+								pageParam : {
+									data : data,
+									fuzeren : api.pageParam.fuzeren,
+									fenzu : fenzu,
+								},
+								reload : true,
+								allowEdit : true,
+							});
+						},
+						error : function() {
+							console.log("app_getxiaozu");
+						}
+					})
+				}
+		}
+		
+
+		function chakandazu() {
+			api.openWin({
+				name : 'chakandazu',
+				url : "chakandazu.html",
+				pageParam : {
+					kechengid : api.pageParam.kechengid,
+				},
+				reload : true,
+				allowEdit : true,
+			});
+		}
+	</script>
+</html>

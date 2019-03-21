@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>chuangjian</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+	</head>
+	<style>
+		.line-limit-length {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;/*文本不换行，这样超出一行的部分被截取，显示...*/
+		}
+		.data {
+			width: 49%;
+		}
+		.container {
+			height: 50px;
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+			overflow: hidden;
+		}
+		.nav {
+			height: 100%;
+			overflow-x: scroll;
+			overflow-y: hidden;
+			background: rgb(240,240,240);
+		}
+		#con {
+			width: 400px;
+			height: 100%;
+			display: flex;
+			align-items: center;
+		}
+		#con > div {
+			text-align: center;
+			font-size: 18px;
+			width: 200px;
+			list-style: none;
+		}
+		.container ::-webkit-scrollbar {
+			display: none;
+		}
+		.aui-list .aui-list-item-media {
+			width: 4rem;
+		}
+		.items {
+			color: red;
+		}
+		a {
+			margin-right: 10px;
+			color: #0062CC;
+		}
+		#opacity {
+			opacity: 0.8;
+			background: #424242;
+			display: none;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;margin-top: 20px;padding: 0;"  id="topbar">
+			<a class="aui-pull-left  border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+			<div  class="aui-title border-b "  id="title" name="richeng" style="font-size:20px;color:gray;">
+				题目审核
+			</div>
+		</header>
+		<div class="container">
+			<nav class="nav">
+				<ul id="con">
+					<div class="aui-tab-item aui-active items"  onclick="showData(this,0)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						未审核
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,1)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						已审核
+					</div>
+				</ul>
+			</nav>
+		</div>
+		<div class="aui-content" id="alltimu"></div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'shenhe'
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var searchStatus = 0;
+		function showData(obj, val) {
+			if (searchStatus != val) {
+				searchStatus = val;
+				$('.items').each(function() {
+					$(this).removeClass('aui-active');
+				});
+				$(obj).addClass('aui-active');
+				allkaoti(searchStatus);
+			}
+		}
+
+		apiready = function() {
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				$api.rmStorage('loginpages');
+			});
+			allkaoti(searchStatus);
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					allkaoti(searchStatus);
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0,
+				}
+			}, function(ret, err) {
+				goback();
+			});
+		};
+		function allkaoti(val) {// 负责人查看所有考题并审核通过，驳回，发布
+			var data = api.pageParam.data;
+			var shixiid = api.pageParam.shixiid;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var yonghuid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_allkaoti",
+				data : {
+					yonghuid : yonghuid,
+					status : status,
+					token : token,
+					shixiid : shixiid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(datas) {
+					var html = '';
+					for (var i = 0; i < datas.allkaoti.length; i++) {
+						if (val == 0 && datas.allkaoti[i].shiFouShenHe == 0) {//未审核
+							html += '<div style="height:50px;font-size:14px;padding:10px;background:#fff;border-bottom:1px solid #ccc;"><span style="width:200px;" class="line-limit-length">';
+							if (datas.allkaoti[i].fabumingcheng == '' || datas.allkaoti[i].fabumingcheng == null) {
+								html += '<input type="checkbox" name="yidaos" class="qxs" value="' + datas.allkaoti[i].kaotiid + '"/>' + datas.allkaoti[i].kaotimingcheng + '</span>';
+							} else {
+								html += '<input type="checkbox" name="yidaos" class="qxs" value="' + datas.allkaoti[i].kaotiid + '"/>' + datas.allkaoti[i].fabumingcheng + '</span>';
+							}
+							if (datas.allkaoti[i].rongLiang != 1) {
+								html += '<img src="../../image/bianji.png" style="width:15%;float:right;margin-top:-15px;" onclick="xiugai(' + datas.allkaoti[i].kaotiid + ');">';
+							}
+							html += '<span id="qiandao" style="float:right;">&nbsp&nbsp&nbsp&nbsp' + datas.allkaoti[i].laoshixingming + '</span>';
+							html += '<span id="qiandao" style="float:right;">&nbsp&nbsp&nbsp&nbsp' + datas.allkaoti[i].rongLiang + '人</span>';
+							html += '</div>';
+						} else if (val == 1 && datas.allkaoti[i].shiFouShenHe == 1) {//已审核
+							html += '<div style="height:50px;font-size:14px;padding:10px;background:#fff;border-bottom:1px solid #ccc;"><span style="width:200px;" class="line-limit-length">';
+							if (datas.allkaoti[i].fabumingcheng == '' || datas.allkaoti[i].fabumingcheng == null) {
+								html += '<input type="checkbox" name="yidaos" class="qxs" value="' + datas.allkaoti[i].kaotiid + '"/>' + datas.allkaoti[i].kaotimingcheng + '</span>';
+							} else {
+								html += '<input type="checkbox" name="yidaos" class="qxs" value="' + datas.allkaoti[i].kaotiid + '"/>' + datas.allkaoti[i].fabumingcheng + '</span>';
+							}
+							html += '<span id="qiandao" style="float:right;">&nbsp&nbsp&nbsp&nbsp' + datas.allkaoti[i].laoshixingming + '</span>';
+							html += '<span id="qiandao" style="float:right;">&nbsp&nbsp&nbsp&nbsp' + datas.allkaoti[i].rongLiang + '人</span>';
+							html += '</div>';
+							
+						}
+					}
+					if (val == 0) {//未审核
+						html += '<div class="" style="font-size:18px;padding:20px;background:#fff;border-bottom:1px solid #ccc;height:70px;">';
+						html += '<input type="checkbox" onclick="quanxuan(this)" />全选<br />';
+						html += '<input type="button" onclick="tongguo(1)" class="aui-btn aui-btn-info" style="font-size:14px;margin-top:-45px;margin-left:45%;" value="审核通过">';
+						html += '</div>';
+					} else if (val == 1) {//已审核
+						html += '<div class="" style="font-size:18px;padding:20px;background:#fff;border-bottom:1px solid #ccc;height:70px;">';
+						html += '<input type="checkbox" onclick="quanxuan(this)" />全选<br />';
+						html += '<input type="button" onclick="tongguo(3)" class="aui-btn aui-btn-info" style="font-size:14px;margin-top:-45px;margin-left:45%;" value="发布">';
+						html += '</div>';
+					}
+					$("#alltimu").html(html);
+				},
+				error : function() {
+					console.log("app_allkaoti");
+				}
+			})
+		}
+
+		function xiugai(kaotiid) {
+			api.prompt({
+				title : "请输入修改后的人数",
+				buttons : ['确定', '取消']
+			}, function(ret, err) {
+				var index = ret.buttonIndex;
+				var text = ret.text;
+				if (/^[0-9]+$/.test(text) || text == '') {// 检查输入的是否是正整数
+				} else {
+					alert("请输入正整数");
+					return;
+				}
+				if (index == 2) {
+				} else if (index == 1) {
+					var dataInfo = $api.getStorage('loginDataInfo');
+					var status = dataInfo.status;
+					var yonghuid = dataInfo.id;
+					var token = $api.getStorage("logintoken");
+					$.ajax({
+						type : "POST",
+						url : $api.getStorage('serverUrl') + "app_updatekaoti",
+						data : {
+							yonghuid : yonghuid,
+							status : status,
+							token : token,
+							kaotiid : kaotiid,
+							rongliang : text,
+						},
+						dataType : 'json',
+						cache : false,
+						success : function(data) {
+							if (data.status == "success") {
+								alert("修改成功");
+							}
+							var i = api.pageParam.i;
+							jsfun = 'shenhe(' + i + ');';
+							api.execScript({
+								name : 'shixiwin',
+								frameName : 'shixifrm',
+								script : jsfun
+							});
+						},
+						error : function() {
+							console.log("app_updatekaoti");
+						}
+					})
+				}
+			})
+		}
+
+		var kaotidata;
+		function init() {// 老师从题库选取自己的考题
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var yonghuid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getkaoti",
+				data : {
+					yonghuid : yonghuid,
+					status : status,
+					token : token,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(datas) {
+					kaotidata = datas;
+					var html = '';
+					for (var i = 0; i < datas.kaoti.length; i++) {
+						html += '<div style="height:50px;font-size:14px;padding:10px;background:#fff;border-bottom:1px solid #ccc;" class="check">';
+						html += '<span style="width:70%;" class="line-limit-length"><input type="checkbox" name="yidao" class="qx" value="' + datas.kaoti[i].id + '"/>' + datas.kaoti[i].mingcheng + '</span>';
+						html += '<span style="float:right;width:30%;" class="hide"><input style="border:1px solid #ccc;width:70%;" class="' + datas.kaoti[i].id + '" />人</span>';
+						html += '</div>';
+					}
+					html += '<div class="" style="font-size:18px;padding:20px;background:#fff;border-bottom:1px solid #ccc;height:70px;">';
+					html += '<input type="checkbox" onclick="quanxuan(this)" />全选<br />';
+					html += '<input type="button" onclick="next()" class="aui-btn aui-btn-info" style="font-size:14px;margin-top:-30px;margin-left:35%;" value="提交">';
+					html += '</div>';
+					$("#timu").html(html);
+				},
+				error : function() {
+					console.log("app_getkaoti");
+				}
+			})
+		}
+
+		function tongguo(isTongGuo) {// 负责人审核考题，参数1是通过，2是未通过，3是发布
+			var obj = document.getElementsByName("yidaos");
+			var check_val = [];
+			for (k in obj) {
+				if (obj[k].checked) {
+					check_val.push(obj[k].value);
+				}
+			}
+			if (check_val.length == 0) {
+				alert("未选取，请重新提交");
+				return;
+			}
+			var kaotiid = check_val.join(',');
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var yonghuid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_shenhekaoti",
+				data : {
+					yonghuid : yonghuid,
+					status : status,
+					token : token,
+					kaotiid : kaotiid,
+					isTongGuo : isTongGuo,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(datas) {
+					if (datas.status == 'success') {
+						alert("成功");
+					}
+					window.location.reload();
+				},
+				error : function() {
+					console.log("app_shenhekaoti");
+				}
+			})
+		}
+
+		function quanxuan(a) {
+			var ck = document.getElementsByClassName("qxs");
+			for (var i = 0; i < ck.length; i++) {
+				if (a.checked) {
+					ck[i].setAttribute("checked", "checked");
+				} else {
+					ck[i].removeAttribute("checked");
+				}
+			}
+		}
+
+		function next() {
+			var text = '';
+			var obj = document.getElementsByName("yidao");
+			var check_val = [];
+			for (k in obj) {
+				if (obj[k].checked) {
+					var rongliang = $('.' + obj[k].value).val();
+					if (rongliang == '') {
+						alert("信息不完整，请检查后再次提交");
+						return;
+					} else {
+						text += obj[k].value + ',' + rongliang + ';';
+						// 判断是否有空！！！
+						tijiao(text);
+					}
+				}
+			}
+		}
+
+		function tijiao(text) {
+			var data = api.pageParam.data;
+			var shixiid = data.shixiid;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var yonghuid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_laoshixuanti",
+				data : {
+					yonghuid : yonghuid,
+					status : status,
+					token : token,
+					shixiid : shixiid,
+					timu : text,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					if (data.status == "success") {
+						alert("提交成功");
+					}
+				},
+				error : function() {
+					console.log("app_laoshixuanti");
+				}
+			});
+		}
+	</script>
+</html>

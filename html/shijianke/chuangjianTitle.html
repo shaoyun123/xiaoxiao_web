@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<!--#d6e40b-->
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+	</head>
+	<body>
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+			<div  class="aui-title  border-b"  id="title" name="richeng" style="font-size:20px;color:gray;">
+				小组信息
+			</div>
+			<a class="aui-pull-right border-b aui-btn" onclick="tianjia()" id="tianjia" style="display:none;"> <span class="aui-iconfont aui-icon-info aui-icon-plus" style="color:gray;font-size: 20px;"></span> </a>
+		</header>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'chuangjianTitle'
+			});
+		}
+
+		apiready = function() {
+			var data = api.pageParam.data;
+			if (data.suoxuanxiaozu == '' || data.suoxuanxiaozu == null) {  // 学生还没有加入小组
+				$("#tianjia").css("display", "block");
+			} else {
+				$("#tianjia").css("display", "none");
+			}
+			funIniGroup();
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		};
+		function funIniGroup() {
+			var data = api.pageParam.data;
+			var kechengid = api.pageParam.shijiankechengid;
+			api.openFrame({
+				name : 'jiaruxiaozu',
+				url : "jiaruxiaozu.html",
+				rect : {
+					x : 0,
+					y : $api.dom('header').offsetHeight,
+					w : api.winWidth,
+					h : 'auto'
+				},
+				pageParam : {
+					data : data,
+					kechengid : kechengid,
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				allowEdit : true,
+				reload : true,
+			});
+		}
+
+		function tianjia() {    // 学生创建小组
+			var data = api.pageParam.data;
+			api.prompt({
+				title : "请输入小组名",
+				buttons : ['确定', '取消']
+			}, function(ret, err) {
+				var index = ret.buttonIndex;
+				var text = ret.text;
+				if (index == 2) {
+				} else if (index == 1) {
+					if (text.length == 0) {
+						alert("组名不能为空");
+						tianjia();
+					} else {
+						var dataInfo = $api.getStorage('loginDataInfo');
+						var status = dataInfo.status;
+						var studentid = dataInfo.id;
+						var banjiid = dataInfo.banJiID;
+						var token = $api.getStorage("logintoken");
+						$.ajax({
+							type : "POST",
+							url : $api.getStorage('serverUrl') + "app_insertxiaozu",
+							data : {
+								xueshengid : studentid,
+								kechengid : api.pageParam.shijiankechengid,
+								status : status,
+								token : token,
+								xiaozuming : text,
+							},
+							dataType : 'json',
+							cache : false,
+							success : function(data) {
+								//	alert($api.jsonToStr(data));
+								if (data.status == 'samename') {
+									alert("小组名已存在，请换一个小组名");
+									tianjia();
+								} else if (data.status == 'success') {
+									alert("创建成功");
+									var datas = api.pageParam.data;
+									var kechengid = api.pageParam.shijiankechengid;
+									var jsfun = 'getxiaozu(' + kechengid + ');';
+									api.execScript({
+										name : 'shouye_shijianke',
+										script : jsfun
+									});
+								}
+							},
+							error : function() {
+								console.log("app_insertxiaozu");
+							}
+						})
+					}
+				}
+			});
+		}
+	</script>
+</html>

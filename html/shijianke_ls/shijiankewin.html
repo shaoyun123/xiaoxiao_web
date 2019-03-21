@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			select {
+				border: 1px solid #666666;
+			}
+			.auiitem {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				color: #212121;
+				background-color: #ffffff;
+				position: relative;
+				min-height: 2.2 rem;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				display: -webkit-box;
+				display: -webkit-flex;
+				display: flex;
+				-webkit-box-pack: justify;
+				-webkit-justify-content: space-between;
+				justify-content: space-between;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<div id="wrap" class="flex-wrap flex-vertical container">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;margin: 0;padding: 0;height: 70px;"  id="topbar">
+				<div style="">
+					<div style="">
+						<a class="aui-pull-left  border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+						<div  class="aui-title border-b "  id="title" name="richeng" style="font-size:20px;color:gray;">
+							实践课
+						</div>
+					</div>
+					<br />
+					<!--<div id="menu_mun" style="height: 50%;border-top:1px solid #ccc;padding: 10px; "></div>-->
+				</div>
+			</header>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'shijiankewin',
+			});
+			var jsfun = "youtixing();";
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+		}
+
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+			getshijianke();
+			var html = '';
+			html += '<li class="auiitem" style="background-color:rgba(0, 0, 0, 0);">';
+			html += '<div class="aui-list-item-inner" style="width:12%;display:inline;text-align:center;line-height:43px;"><span style="color:#09c6d0;">学年:</span></div>';
+			html += '<div class="aui-list-item-inner" style="width:30%;"><select id="xuenian" name="xuenian">';
+			html += '</select></div>';
+			html += '<div class="aui-list-item-inner" style="width:12%;display:inline;text-align:center;line-height: 43px;"><span style="color:#09c6d0;">学期:</span></div>';
+			html += '<div class="aui-list-item-inner" style="width:18%;"><select id="xueqi" name="xueqi">';
+			html += '<option value="1">1</option>';
+			html += '<option value="2">2</option>';
+			html += '<option value="3">3</option>';
+			html += '</select></div>';
+			//			html += '<div class="aui-list-item-inner" style="width:20%;text-align:right;margin:8px;"><div style="text-align:right;border:1px solid #000;"><input type="button" class="aui-btn aui-btn-info" onclick="getshijianke()" value="查询"></div></div>';
+			html += '<div class="aui-list-item-inner" style="padding:2px;width:20%;text-align:right;"><input type="button" class="aui-btn" style="color:#09c6d0;font-size:20px;" onclick="getshijianke()" value="查询"></div>';
+			html += '</li>';
+//			$('#menu_mun').html(html);
+		};
+		function getshijianke() {// 获取老师的实践课
+			var xuenian = $("#xuenian option:selected").text();
+			var xueqi = $("#xueqi option:selected").text();
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var yonghuid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				//				url : $api.getStorage('serverUrl') + "app_getshijiankelist",
+				url : $api.getStorage('serverUrl') + "app_getshixilist",
+				data : {
+					yonghuid : yonghuid,
+					status : status,
+					token : token,
+					xuenian : xuenian,
+					xueqi : xueqi,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(datas) {
+//				alert($api.jsonToStr(datas));
+//							查询学年学期
+//					var xuenian = datas.xuenians;
+//					var html = '';
+//					for (var i = 0; i < xuenian.length; i++) {
+//						html += '<option value="' + xuenian[i] + '">' + xuenian[i] + '</option>';
+//					}
+//					$("#xuenian").html(html);
+					if (datas.kechengs.length == 0 || datas.kechengs == '') {
+						alert("没有实践课！");
+						goback();
+					} else {
+						api.openFrame({
+							name : 'shijiankefrms',
+							url : "shijiankefrms.html",
+							rect : {
+								x : 0,
+								y : $api.dom('header').offsetHeight,
+								w : api.winWidth,
+								h : 'auto'
+							},
+							bgColor : 'rgba(0,0,0,0.6)',
+							reload : true,
+							pageParam : {
+								data : datas,
+							}
+						});
+					}
+				},
+				error : function() {
+					console.log("app_getshijiankelist");
+				}
+			});
+		}
+	</script>
+</html>

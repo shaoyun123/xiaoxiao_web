@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>historyhuodong</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;">
+				<a class="aui-pull-left border-b aui-btn" onclick="goback()" id="gaisi"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+				<a class="aui-pull-left border-b aui-btn"  id="gaisi2" style="display: none;"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+				<div  class="aui-title border-b active" style="color:gray;font-size:20px;" id="title" name="historyhuodongMain">
+					校校
+				</div>
+			</header>
+			<div id="main" class="flex-con"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			var jsfun = 'shuaxin();';
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+			$api.rmStorage('loginpages');
+			api.closeWin({
+				name : 'historyhuodong'
+			});
+		}
+
+		apiready = function() {
+			$('#title').html("历史活动");
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			funIniGroup();
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		};
+		function funIniGroup() {
+			api.openFrame({
+				name : 'historyhuodongMain',
+				url : 'historyhuodongMain.html',
+				rect : {
+					x : 0,
+					y : $api.dom('header').offsetHeight,
+					w : api.winWidth,
+					h : $api.dom('#main').offsetHeight
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				allowEdit : true,
+			});
+		}
+
+		function guanbi() {
+			document.getElementById("gaisi").style.display = "none";
+			document.getElementById("gaisi2").style.display = "block";
+		}
+
+		function kaiqi() {
+			document.getElementById("gaisi").style.display = "block";
+			document.getElementById("gaisi2").style.display = "none";
+		}
+	</script>
+</html>

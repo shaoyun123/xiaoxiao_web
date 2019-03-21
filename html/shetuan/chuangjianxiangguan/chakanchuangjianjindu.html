@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>chakanchuangjianjindu</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../script/bootstrap-switch.min.js"></script>
+    <style>
+		header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            学生社团
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">创建进度</li>
+            <nav style="padding-top:40px;">
+                <ul id="xiangxi">
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'chakanchuangjianjindu',
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+      loadData();
+      	var dataInfo = $api.getStorage('loginDataInfo');
+      var xueshengid=dataInfo.id;
+      $.ajax({
+        type: "POST",
+        url: $api.getStorage('serverUrl')+"app_XianShiChuangJianJinDu",
+        data: {
+            xueshengid: xueshengid
+        },
+        dataType: 'json',
+        cache: false,
+        timeout: 5000,
+        success: function(data){
+          var data=eval(data);
+          html ="";
+          if(data){
+            if(data.length>0){
+              for(var i=0;i<data.length;i++){
+                html += '<div class="aui-list-item"><div style="width:100%;font-size:18px;;"><h4 style="font-size:18px;">ID：'+data[i].chuangjianid+'</h4>';
+                html += '<h4 style="font-size:18px;">名称：'+data[i].mingcheng+'</h4>';
+                if(data[i].leixing==true){
+                  html += '<h4 style="font-size:18px;">类型：学生组织</h4>';
+                }
+                else {
+                  html += '<h4 style="font-size:18px;">类型：社团</h4>';
+                }
+                if(data[i].zhuangtai=="0"){
+                  html += '<h4 style="font-size:18px;">状态：待处理</h4>';
+                }
+                else if (data[i].zhuangtai=="1") {
+                  html += '<h4 style="font-size:18px;">状态：已经辅导员审核</h4>';
+                }
+                else if (data[i].zhuangtai=="2") {
+                  html += '<h4 style="font-size:18px;">状态：已通过</h4>';
+                }
+                else {
+                  html += '<h4 style="font-size:18px;">状态：未通过</h4>';
+                }
+                html += '</div></div>';
+              }
+            }
+            else {
+              html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:60px;"><h4 style="font-size:20px;width:100%;">当前无进度</h4></div></div>';
+            }
+          }
+          $('#xiangxi').html(html);
+          api.hideProgress();
+        },
+        error: function(){
+          alert("超时");
+          api.hideProgress();
+        }
+      });
+    };
+</script>
+
+</html>

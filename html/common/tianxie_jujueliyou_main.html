@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+		</style>
+	</head>
+	<body>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">
+					拒绝理由
+				</li>
+				<nav style="padding-top:40px;">
+					<ul id="tianxieliyou"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			html = "";
+			html += '<div class="aui-list-item"><div class="aui-list-item-inner"><div><font style="">填写理由：</font><font style="color:#ec344d;">(注意不要使用英文逗号)</font></div></div></div>';
+			html += '<div class="aui-list-item"><div class="aui-list-item-inner"><textarea  name="liyou" id="liyou"  class="form-control" style="height:250px;margin-left:10px;resize:none;width:90%;font-size:18px;"></textarea>';
+			html += '</div></div>';
+			html += '<div class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-title"></div><div class="aui-list-item-right" style="margin-right:3px;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" value="提交" onclick="tijiaoliyou()"></div></div></div></div>';
+			$('#tianxieliyou').html(html);
+		};
+		function tijiaoliyou() {
+			loadData();
+			var huodongid = api.pageParam.huodongid;
+			var num = api.pageParam.num;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var studentid = dataInfo.id;
+			var liyou = $('#liyou').val();
+			var code = huodongid + ',zytech,' + studentid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_JuJueHuoDong",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+					liyou : liyou,
+				},
+				dataType : 'text',
+				cache : false,
+				success : function(data) {
+					if (data) {
+						if (data == "success") {
+							api.hideProgress();
+							if (num == "2") {
+								var jsfun = 'fanhuidaiquren();';
+								api.execScript({
+									name : 'daiquerenhuodong',
+									script : jsfun
+								});
+							} else if (num == "1") {
+								var jsfun = 'fanhuimyricheng();';
+								api.execScript({
+									name : 'wodericheng',
+									script : jsfun
+								});
+							} else if (num == "4") {
+								var jsfun = 'fanhuihistoryricheng();';
+								api.execScript({
+									name : 'historyhuodong',
+									frameName : 'historyhuodongMain',
+									script : jsfun
+								});
+							} else if (num == "5") {
+								var jsfun = 'fanhuichongzai();';
+								var jsName = 'index';
+								api.execScript({
+									name : jsName,
+									frameName : 'richeng',
+									script : jsfun
+								});
+								var jsfun = 'fanhuitotixingxq();';
+								api.execScript({
+									name : 'tixing',
+									script : jsfun
+								});
+								api.closeWin({
+									name : 'tixingxiangqing'
+								});
+								api.closeWin({
+									name : 'richeng_to_huodong_title'
+								});
+								api.closeWin({
+									name : 'tianxie_jujueliyou_title'
+								});
+							} else {
+								var fromindex = api.pageParam.formindex;
+								if (fromindex) {
+								} else {
+									var jsfun = 'fanhuichongzai();';
+									var jsName = $api.getStorage('addMessager_rc');
+									if (jsName && jsName == 'richeng') {
+										api.execScript({
+											name : 'index',
+											frameName : jsName,
+											script : jsfun
+										});
+									} else {
+										api.execScript({
+											name : jsName,
+											frameName : jsName,
+											script : jsfun
+										});
+									}
+								}
+								api.closeWin({
+									name : 'richeng_to_huodong_title'
+								});
+								api.closeWin({
+									name : 'tianxie_jujueliyou_title'
+								});
+							}
+						} else {
+							api.hideProgress();
+							alert("活动已过时间");
+							if (num == "2") {
+								var jsfun = 'fanhuidaiquren();';
+								api.execScript({
+									name : 'daiquerenhuodong',
+									script : jsfun
+								});
+							} else if (num == "1") {
+								var jsfun = 'fanhuimyricheng();';
+								api.execScript({
+									name : 'wodericheng',
+									script : jsfun
+								});
+							} else if (num == "4") {
+								var jsfun = 'fanhuihistoryricheng();';
+								api.execScript({
+									name : 'historyhuodong',
+									frameName : 'historyhuodongMain',
+									script : jsfun
+								});
+							} else if (num == "5") {
+								var jsfun = 'fanhuichongzai();';
+								var jsName = 'index';
+								api.execScript({
+									name : jsName,
+									frameName : 'richeng',
+									script : jsfun
+								});
+								var jsfun = 'fanhuitotixingxq();';
+								api.execScript({
+									name : 'tixing',
+									script : jsfun
+								});
+								api.closeWin({
+									name : 'tixingxiangqing'
+								});
+								api.closeWin({
+									name : 'richeng_to_huodong_title'
+								});
+								api.closeWin({
+									name : 'tianxie_jujueliyou_title'
+								});
+							} else {
+								var fromindex = api.pageParam.formindex;
+								if (fromindex) {
+								} else {
+									var jsfun = 'fanhuichongzai();';
+									var jsName = $api.getStorage('addMessager_rc');
+									if (jsName && jsName == 'richeng') {
+										api.execScript({
+											name : 'index',
+											frameName : jsName,
+											script : jsfun
+										});
+									} else {
+										api.execScript({
+											name : jsName,
+											frameName : jsName,
+											script : jsfun
+										});
+									}
+								}
+								api.closeWin({
+									name : 'richeng_to_huodong_title'
+								});
+								api.closeWin({
+									name : 'tianxie_jujueliyou_title'
+								});
+							}
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误ASA");
+				}
+			});
+		}
+	</script>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/c ss" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			.aui-list .aui-list-item-media {
+				width: 6rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<div class="aui-content" id="menu_mun">
+					<ul class="aui-list aui-media-list" id="appContent"></ul>
+					<ul class="aui-list aui-media-list" id="appContent1"></ul>
+				</div>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'shijiankekaopingfrm'
+			});
+		}
+
+		apiready = function() {
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+			});
+			var html = '';
+			var new_data = api.pageParam.data;
+			for (var i = 0; i < new_data.kaoPing.length; i++) {
+				var datas = new_data.kaoPing[i];
+				if (new_data.kaoPing[i].zhuangTai == 1) {
+					html += '<li class="aui-list-item" style="height:80px;line-height:60px;" onclick="dazus(' + i + ');">';
+					// 考评状态为1，抽签状态为4
+				} else {
+					html += '<li class="aui-list-item" style="height:80px;line-height:60px;" onclick="dazu(' + i + ');">';
+					// 考评状态为4，抽签状态为4
+				}
+				html += '<div>';
+				html += '<div class="aui-font-size-18" style="display:inline;">' + datas.kaoPingMingCheng + '</div>';
+				html += '<div style="font-size:14px;color:gray;margin-top:-30px;">开始时间：' + datas.kaiShiShiJian + '</div>';
+				html += '</div>';
+				html += '</li>';
+			}
+			var shijiankechengid = new_data.kaoPing[0].keChengID;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var yonghuid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getkaopinglist", // 学生能查看所有的考评，已结束的考评才能查看，否则只能显示时间
+				data : {
+					yonghuid : yonghuid,
+					status : status,
+					token : token,
+					shijiankechengid : shijiankechengid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					for (var i = 0; i < new_data.kaoPing.length; i++) {
+						var kaopingids = new_data.kaoPing[i].ID;
+						var datas = new_data.kaoPing[i];
+						for (var j = 0; j < data.kaoPing.length; j++) {
+							var kaopingid = data.kaoPing[j].ID;
+							var del_data = data.kaoPing;
+							if (kaopingid == kaopingids) {
+								del_data.splice(j, 1);
+							} else {
+							}
+						}
+					}
+					for (var k = 0; k < del_data.length; k++) {
+						var datas = del_data[k];
+						html += '<li class="aui-list-item" style="height:70px;line-height:58px;">';
+						html += '<div>';
+						html += '<div class="aui-font-size-18" style="display:inline;">' + datas.kaoPingMingCheng + '</div>';
+						html += '<div style="font-size:14px;color:gray;margin-top:-32px;">开始时间：' + datas.kaiShiShiJian + '</div>';
+						html += '</div>';
+						html += '</li>';
+					}
+					$('#appContent').html(html);
+				},
+				error : function() {
+					console.log("app_getkaopinglist");
+				}
+			})
+		};
+		function dazu(a) {// 考评状态为4，抽签状态为4
+			var fenzu = api.pageParam.fenzu;
+			var data = api.pageParam.data;
+			if (fenzu == 1 || fenzu == 2) {// fendazu==1&&fenxiaozu==1
+				api.openWin({
+					name : 'kaopingdazu',
+					url : 'kaopingdazu.html',
+					pageParam : {
+						data : data,
+						a : a,
+					},
+					reload : true,
+					allowEdit : true
+				});
+			} else if (fenzu == 3 || fenzu == 4) {// fendazu==0&&fenxiaozu==1
+				var dataInfo = $api.getStorage('loginDataInfo');
+				var status = dataInfo.status;
+				var studentid = dataInfo.id;
+				var token = $api.getStorage("logintoken");
+				var fendazu = $api.getStorage("fendazu");
+				var dazuid;
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_score",
+					data : {
+						xueshengid : studentid,
+						status : status,
+						token : token,
+						kaopingid : data.kaoPing[a].ID,
+						kechengid : data.kaoPing[a].keChengID,
+						dazuid : dazuid,
+						fendazu : fendazu,
+					},
+					dataType : 'json',
+					cache : false,
+					success : function(data) {
+						api.openWin({
+							name : 'allkaoping',
+							url : "allkaoping.html",
+							pageParam : {
+								data : data, // 考评状态为1
+							},
+							reload : true,
+							allowEdit : true
+						});
+					},
+					error : function() {
+						console.log("app_score");
+					}
+				});
+			}
+		}
+
+		function dazus(a) {// 考评状态为1，抽签状态为4
+			var fenzu = api.pageParam.fenzu;
+			var data = api.pageParam.data;
+			var dazuid;
+			if (fenzu == 1||fenzu == 2) {// 分大组
+				api.openWin({
+					name : 'dazudefen',
+					url : "dazudefen.html",
+					pageParam : {
+						data : data.kaoPing[a], // 考评状态为1
+					},
+					reload : true,
+					allowEdit : true
+				});
+			} else if (fenzu == 3 || fenzu == 4) {// 不分大组，分小组
+				var dataInfo = $api.getStorage('loginDataInfo');
+				var status = dataInfo.status;
+				var studentid = dataInfo.id;
+				var token = $api.getStorage("logintoken");
+				var dazuid;
+				var fendazu = $api.getStorage("fendazu");
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_score",
+					data : {
+						xueshengid : studentid,
+						status : status,
+						token : token,
+						kaopingid : data.kaoPing[a].ID,
+						kechengid : data.kaoPing[a].keChengID,
+						dazuid : dazuid,
+						fendazu : fendazu,
+					},
+					dataType : 'json',
+					cache : false,
+					success : function(data) {
+						api.openWin({
+							name : 'allkaoping',
+							url : "allkaoping.html",
+							pageParam : {
+								data : data, // 考评状态为1
+							},
+							reload : true,
+							allowEdit : true
+						});
+					},
+					error : function() {
+						console.log("app_score");
+					}
+				});
+			}
+		}
+	</script>
+</html>

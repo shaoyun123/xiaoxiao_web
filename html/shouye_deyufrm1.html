@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			body {
+			}
+		</style>
+	</head>
+	<body>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+			<ul class="aui-list aui-form-list">
+				<nav>
+					<ul id="menu_mun"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			loadData();
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var code = status;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getmenu",
+				data : {
+					CODE : code
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					html = "";
+					for (var i = 0; i < data.length; i++) {
+						if (data[i].fatherid == "-1" && data[i].menuname == "德育分") {
+							//						continue;
+							for (var j = 0; j < data.length; j++) {
+								if (data[i].id == data[j].fatherid) {
+									//								continue;
+									html += '<div class="aui-list-item" style="height:50px;width:100%;"><div class="aui-list-item-inner" style="width:100%;"><font style="color:#666666;font-size:25px;width:100%;" onclick="xuanze(\'' + data[j].action + '\')">' + data[j].menuname + '</font></div></div>';
+								}
+							}
+						}
+					}
+					$('#menu_mun').html(html);
+					api.hideProgress();
+				},
+				error : function() {
+					api.hideProgress();
+					alert("错误");
+				}
+			});
+		};
+		
+			function xuanze(action) {
+//			var xuexiaoXuehao = $api.getStorage('loginxuexiaoXuehao');
+//			var banjiid = $api.getStorage('loginbanjiid');
+//			var status = $api.getStorage('loginstatus');
+//			var code = banjiid + ',zytech,' + xuexiaoXuehao;
+//			alert(code)
+//			$.ajax({
+//				type : "POST",
+//				url : $api.getStorage('serverUrl') + "app_getstatus",
+//				data : {
+//					CODE : code,
+//					status : status
+//				},
+//				dataType : 'json',
+//				cache : false,
+//				success : function(data) {
+//				
+//				alert($api.jsonToStr(data));
+//				
+//				if(data.zhuangtai == '1'){
+//					if(action == "deyuchengji"){
+//						api.openWin({
+//						name : 'deyuchengjiwin',
+//						url : 'deyu/deyuchengjiwin.html',
+//						reload : true,
+//						allowEdit : true
+//						});
+//					}else if (action == "tianxiekaopingbiao") {
+//						api.openWin({
+//							name : 'tianxiekaopingbiaowin',
+//							url : 'deyu/tianxiekaopingbiaowin.html',
+//							reload : true,
+//							allowEdit : true
+//						});
+//					}
+//				
+//				}
+//				if(data.zhuangtai == '2' || data.zhuangtai == undefined){
+//					api.openWin({
+//						name : 'deyuchengjiwin',
+//						url : 'deyu/deyuchengjiwin.html',
+//						reload : true,
+//						allowEdit : true
+//						});
+//				}
+//				if(data.zhuangtai == '3' ){
+//					api.openWin({
+//					name : 'deyufenggongshiwin',
+//					url : 'deyu/deyufenggongshiwin.html',
+//					reload : true,
+//					allowEdit : true
+//					});
+//				}
+//				
+//				
+//				},
+//				error : function() {
+//					api.hideProgress();
+//					alert("错误");
+//				}
+//			});
+
+//			if (action == "deyufengongshi") {
+//				api.openWin({
+//					name : 'deyufenggongshiwin',
+//					url : 'deyu/deyufenggongshiwin.html',
+//					reload : true,
+//					allowEdit : true
+//				});
+//			} else if (action == "deyuchengji") {
+//				api.openWin({
+//					name : 'deyuchengjiwin',
+//					url : 'deyu/deyuchengjiwin.html',
+//					reload : true,
+//					allowEdit : true
+//				});
+//			} else if (action == "tianxiekaopingbiao") {
+//				api.openWin({
+//					name : 'tianxiekaopingbiaowin',
+//					url : 'deyu/tianxiekaopingbiaowin.html',
+//					reload : true,
+//					allowEdit : true
+//				});
+//			}
+		}
+	</script>
+</html>

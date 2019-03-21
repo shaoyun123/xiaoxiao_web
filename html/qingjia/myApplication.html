@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>myApplication</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				我的请假条
+			</div>
+			<a class="aui-pull-right border-b aui-btn" onclick="tianjia()"> <span class="aui-iconfont aui-icon-info aui-icon-plus" style="color:gray;font-size: 20px;"></span> </a>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-item-inner" style="background-color:#BDBDBD; position:fixed;width:100%;z-index:5;">
+					<div class="x" style="width:26%;text-align:center;">
+						请假类别
+					</div>
+					<div class="xx" style="width:26%;text-align:center;">
+						状态
+					</div>
+					<div class="xxxx" style="width:28%;text-align:center;">
+						开始时间
+					</div>
+					<div class="xxx" style="width:20%;text-align:center;">
+						操作
+					</div>
+				</li>
+				<nav style="padding-top:46px;">
+					<ul id="qingjiatiao"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//   关闭页面
+		function goback() {
+			$api.rmStorage('loginpages');
+			api.closeWin({
+				name : 'myApplication',
+			});
+			var jsfun = "youtixing();";
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var pag;
+		var cou = 0;
+		apiready = function() {
+			loadData();
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				$api.rmStorage('loginpages');
+				api.closeWin({
+					name : 'forApplication',
+				});
+				api.closeWin({
+					name : 'myApplication',
+				});
+				var jsfun = "youtixing();";
+				api.execScript({
+					name : 'index',
+					script : jsfun
+				});
+			});
+			chushi();
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					cou = 0;
+					chushi();
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0,
+				}
+			}, function(ret, err) {
+				xiala();
+			});
+		};
+		function chushi() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var name = dataInfo.yongHuMing;
+			var password = dataInfo.miMaMD5;
+			var studentid = dataInfo.id;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var code = studentid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_toqingjiatiao",
+				data : {
+					CODE : code,
+					page : "",
+					status : status,
+					token : token,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+					if (data) {
+						if (data.page != null && data.page != "") {
+							pag = data.page;
+							$api.setStorage('loginpages', data.pages);
+							for (var i = 0; i < data.jiatiao.length; i++) {
+								var cl = '<li class="aui-list-item" style="height:100px;"><div class="aui-list-item-inner">';
+								if (data.jiatiao[i].qingjialeibie == "1") {
+									html += cl + '<div class="q" style="width:26%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')"><font style="text-align:center;">事假</font></div>';
+								} else {
+									html += cl + '<div class="q" style="width:26%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')"><font style="text-align:center;">病假</font></div>';
+								}
+								if (data.jiatiao[i].zhuangtai == "1") {
+									html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">待处理</div>';
+									html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+									html += '<div style="width:20%;text-align:center;">';
+									html += '<div class="aui-btn aui-btn-info" style="text-align:center;" onclick="xiugai(\'' + data.jiatiao[i].qingjiaid + '\')">修改</div></div>';
+								} else if (data.jiatiao[i].zhuangtai == "2") {
+									html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">已通过</div>';
+									html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+									html += '<div style="width:20%;text-align:center;">';
+									html += '<div class="aui-btn aui-btn-info" style="text-align:center;" onclick="xiaojia(\'' + data.jiatiao[i].qingjiaid + '\')">销假</div></div>';
+								} else if (data.jiatiao[i].zhuangtai == "3") {
+									html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">被驳回</div>';
+									html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+									if (data.jiatiao[i].tijiaocishu < 2) {
+										html += '<div style="width:20%;text-align:center;">';
+										html += '<div class="aui-btn aui-btn-info" style="text-align:center;" onclick="zaitijiao(\'' + data.jiatiao[i].qingjiaid + '\')">再提交</div></div>';
+									} else {
+										html += '<div class="qqq" style="width:20%;text-align:center;"></div>';
+									}
+								} else if (data.jiatiao[i].zhuangtai == "4") {
+									html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">待销假</div>';
+									html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+									html += '<div class="qqqq" style="width:20%;text-align:center;"><input type="button" style="width:100%;"  onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')"></div>';
+								} else if (data.jiatiao[i].zhuangtai == "5") {
+									html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">已销假</div>';
+									html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+									html += '<div class="qqqq" style="width:20%;text-align:center;"><input type="button" style="width:100%;"  onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')"></div>';
+								} else if (data.jiatiao[i].zhuangtai == "6" || data.jiatiao[i].zhuangtai == "7") {
+									html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">已上报</div>';
+									html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+									html += '<div class="qqqq" style="width:20%;text-align:center;"><input type="button" style="width:100%;"  onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')"></div>';
+								}
+								html += '</div></li>';
+							}
+							$('#qingjiatiao').html(html);
+							api.hideProgress();
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					api.hideProgress();
+					alert("错误！");
+				}
+			});
+		}
+
+		function xiala() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var zong = $api.getStorage("loginpages");
+			var studentid = dataInfo.id;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			if (pag < zong) {
+				loadData();
+				pag = pag + 1;
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_toqingjiatiao",
+					data : {
+						CODE : studentid,
+						page : pag,
+						status : status,
+						token : token,
+					},
+					dataType : 'json',
+					cache : false,
+					success : function(data) {
+						var data = eval(data);
+						html = "";
+						if (data) {
+							if (data.page != null && data.page != "") {
+								for (var i = 0; i < data.jiatiao.length; i++) {
+									var cl = '<li class="aui-list-item" style="height:100px;"><div class="aui-list-item-inner">';
+									if (data.jiatiao[i].qingjialeibie == "1") {
+										html += cl + '<div class="q" style="width:26%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')"><font style="text-align:center;">事假</font></div>';
+									} else {
+										html += cl + '<div class="q" style="width:26%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')"><font style="text-align:center;">病假</font></div>';
+									}
+									if (data.jiatiao[i].zhuangtai == "1") {
+										html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">待处理</div>';
+										html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+										html += '<div style="width:20%;text-align:center;">';
+										html += '<div class="aui-btn aui-btn-info" style="text-align:center;" onclick="xiugai(\'' + data.jiatiao[i].qingjiaid + '\')">修改</div></div>';
+									} else if (data.jiatiao[i].zhuangtai == "2") {
+										html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">已通过</div>';
+										html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+										html += '<div style="width:20%;text-align:center;">';
+										html += '<div class="aui-btn aui-btn-info" style="text-align:center;" onclick="xiaojia(\'' + data.jiatiao[i].qingjiaid + '\')">销假</div></div>';
+									} else if (data.jiatiao[i].zhuangtai == "3") {
+										html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">被驳回</div>';
+										html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+										if (data.jiatiao[i].tijiaocishu < 2) {
+											html += '<div style="width:20%;text-align:center;">';
+											html += '<div class="aui-btn aui-btn-info" style="text-align:center;" onclick="zaitijiao(\'' + data.jiatiao[i].qingjiaid + '\')">再提交</div></div>';
+										} else {
+											html += '<div class="qqq" style="width:20%;text-align:center;"></div>';
+										}
+									} else if (data.jiatiao[i].zhuangtai == "4") {
+										html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">待销假</div>';
+										html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+										html += '<div class="qqqq" style="width:20%;text-align:center;"><input type="button" style="width:100%;"  onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')"></div>';
+									} else if (data.jiatiao[i].zhuangtai == "5") {
+										html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">已销假</div>';
+										html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+										html += '<div class="qqqq" style="width:20%;text-align:center;"><input type="button" style="width:100%;"  onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')"></div>';
+									} else if (data.jiatiao[i].zhuangtai == "6" || data.jiatiao[i].zhuangtai == "7") {
+										html += '<div class="qq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">已上报</div>';
+										html += '<div class="qqqq" style="width:28%;text-align:center;font-size:18px;" onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')">' + data.jiatiao[i].qingjiakaishishijian + '</div>';
+										html += '<div class="qqqq" style="width:20%;text-align:center;"><input type="button" style="width:100%;"  onclick="xianshi(\'' + data.jiatiao[i].qingjiaid + '\')"></div>';
+									}
+									html += '</div></li>';
+								}
+								$('#qingjiatiao').append(html);
+								api.hideProgress();
+							} else {
+								alert("已登出");
+								api.hideProgress();
+								var jsfun = 'logout();';
+								api.execScript({
+									name : 'index',
+									script : jsfun
+								});
+							}
+						}
+					},
+					error : function() {
+						api.hideProgress();
+						alert("错误！");
+					}
+				});
+			} else {
+				if (cou == 0) {
+					html = $("#qingjiatiao").html();
+					if (zong == 1) {
+						html += '<h4 style="text-align:center;position:fixed;bottom:0px;height:15px;width:100%;font-size:12px;">已到最底端，没有更多数据</h4>';
+					} else {
+						html += '<h4 style="text-align:center;bottom:0px;height:10px;width:100%;">已到最底端，没有更多数据</h4>';
+					}
+					$('#qingjiatiao').html(html);
+					cou = cou + 1;
+				}
+			}
+		}
+
+		function xianshi(qingjiaid) {
+			api.openWin({
+				name : 'xianshixiangqing',
+				url : 'xianshixiangqing.html',
+				pageParam : {
+					xinxi : qingjiaid
+				},
+				reload : true,
+				allowEdit : true
+			});
+		};
+		function xiugaijiatiao(qingjiaid) {
+			api.openWin({
+				name : 'xiugaiqingjiatitle',
+				url : 'xiugaiqingjiatitle.html',
+				pageParam : {
+					xinxi : qingjiaid,
+					choose : '1'
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function xiugai(qingjiaid) {
+			xiugaijiatiao(qingjiaid);
+		};
+		function zaitijiaojiatiao(qingjiaid) {
+			api.openWin({
+				name : 'xiugaiqingjiaMain',
+				url : 'xiugaiqingjiaMain.html',
+				pageParam : {
+					xinxi : qingjiaid,
+					choose : '3'
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function zaitijiao(qingjiaid) {
+			zaitijiaojiatiao(qingjiaid);
+		}
+
+		function fanhuile() {
+			api.closeWin({
+				name : 'forApplication',
+			});
+			window.location.reload();
+		}
+
+		function reload_html() {
+			api.closeWin({
+				name : 'xiugaiqingjiaMain',
+			});
+			window.location.reload();
+		}
+
+		function queren() {
+			if (confirm("确认到校并销假？") == true) {
+				return true;
+			} else {
+				return false;
+			}
+		};
+		function xiaojia(qingjiaid) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			if (queren()) {
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_xiaojia",
+					data : {
+						CODE : qingjiaid,
+						token : token,
+						status : status,
+						id : studentid,
+					},
+					dataType : 'text',
+					cache : false,
+					success : function(data) {
+						if (data) {
+							if (data == "success") {
+								alert("销假成功！");
+								window.location.reload();
+							} else {
+								alert("销假失败！");
+								window.location.reload();
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("错误！");
+					}
+				});
+			}
+		};
+		function tianjia() {
+			api.openWin({
+				name : 'forApplication',
+				url : 'forApplication.html',
+				reload : true,
+				allowEdit : true
+			});
+		};
+	</script>
+</html>

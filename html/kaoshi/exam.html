@@ -1,0 +1,960 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/style1.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css"/>
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<script type="text/javascript" src="../../script/jquery.runner-min.js"></script>
+		<style type="text/css">
+			.container-fluid {
+				min-height: 100%;
+				height: 100%;
+				background: #772953;
+				text-align: center;
+			}
+			.fill {
+				width: 100%;
+				height: 100%;
+				min-height: 100%;
+				background: #772953;
+			}
+			#runner {
+				font-size: 3rem;
+				color: #fff;
+				font-family: 'Nixie One', cursive;
+				font-weight: 300;
+				text-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+			}
+			input, textarea {
+				-webkit-user-select: auto !important;
+				-khtml-user-select: auto !important;
+				-moz-user-select: auto !important;
+				-ms-user-select: auto !important;
+				-o-user-select: auto !important;
+				user-select: auto !important;
+			}
+			.funkyradio-info {
+				margin: 5px;
+			}
+			.funkyradio-info label {
+				display: inline-block;
+				text-align: left;
+				position: relative;
+			}
+			.funkyradio-info label input {
+				width: 15px;
+				vertical-align: bottom;
+				margin-right: 0.1 rem;
+				opacity: 0;
+			}
+			.funkyradio-info .spot {
+				display: inline-block;
+				width: 20px;
+				height: 20px;
+				background: url("../../image/mrdh.png") no-repeat; /*默认的样式图片*/
+				background-size: 16px;
+				position: absolute;
+				top: 0.2 rem;
+				left: 0;
+				z-index: 5;
+			}
+			input:checked + .spot {
+				width: 20px;
+				height: 20px;
+				background: url("../../image/dh.png") no-repeat; /*选中后的样式图片*/
+				background-size: 19px;
+			}
+			#shade {
+				width: 100%;
+				height: 130%;
+				opacity: 0.3;
+				z-index: 9999;
+				display: none;
+				position: absolute;
+				left: 0px;
+				top: 0px;
+				background-color: gray;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-bottom: 10px;display: none;">
+				<a class="aui-btn aui-pull-left" onclick="goback()"> <span class="aui-iconfont aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+				<div  class="aui-title " style="color:black;font-size:20px;" id="title" name="richeng">
+					在线考试
+				</div>
+			</header>
+			<div id="xianshi" onclick="" class="flex-con"></div>
+		</div>
+		<div id="shade" onclick="" class="shade"></div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			var jsfun = 'funIniGroup()';
+			api.execScript({
+				name : 'shouye_kaoshi',
+				script : jsfun
+			});
+			api.closeWin();
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		function loadData1() {
+			api.showProgress({
+				title : '正在交卷...',
+				text : '请稍等...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var id = dataInfo.id;
+			var banjiid = api.pageParam.banjiid;
+			api.readFile({//  先读一下本地有没有文件，如果有直接打开文件，否则把试卷下载到手机
+				path : 'fs://' + banjiid + '/' + id + '.txt',
+			}, function(ret, err) {
+				if (ret.status) {
+					var datas = ret.data;
+					if (datas == 0 || datas == '' || datas == null) {
+						alert('提交答卷时，我们将记录您答题设备的设备号，以便查询您的答题记录');
+						init_quiz_object();
+					} else {
+						var a = eval('(' + datas + ')');
+						quiz = a.kaoti;
+						maxtime = a.shijian;
+						daans = a.daans;
+						funIniGroup();
+						xianshis();
+						timer = setInterval("CountDown()", 1000);
+						api.hideProgress();
+					}
+				} else {
+					alert('提交答卷时，我们将记录您答题设备的设备号，以便查询您的答题记录');
+					init_quiz_object();
+				}
+			});
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			loadData();
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		}
+		function CountDown() {// 倒计时  maxtime单位为秒，后台会传过来分钟。
+			local();
+			if (maxtime >= 0) {
+				minutes = Math.floor(maxtime / 60);
+				seconds = Math.floor(maxtime % 60);
+				msg = minutes + ":" + seconds;
+				document.all["runner"].innerHTML = msg;
+				if (maxtime == 5 * 60)
+					alert("还剩5分钟");
+				--maxtime;
+			} else {
+				clearInterval(timer);
+				alert("时间到，强制交卷!");
+				SubmitExam(1);
+				// 强制交卷，强制交卷参数为1.
+			}
+		}
+
+		function funIniGroup() {// 初始化试卷的数据
+			var html = '';
+			html += '<div class="row">';
+			html += '<div class="col-lg-12">';
+			html += '<div class="panel panel-default">';
+			html += '<div class="panel-heading">';
+			html += '<div class="exam-title">';
+			html += '题目 ';
+			html += '</div> ';
+			html += ' </div>  ';
+			html += '<div class="panel-body">  ';
+			html += '<div class="container-fluid">';
+			html += '<div class="col-xs-12 fill"> ';
+			html += '<span id="runner"></span><br><br>';
+			html += '</div>';
+			html += '</div>';
+			html += '<div class="alert alert-info">';
+			html += '<div class="exam-question">';
+			html += '考题题目';
+			html += '</div>';
+			html += '</div>';
+			html += '<div class="panel panel-default">';
+			html += '<div class="panel-heading">';
+			html += '<div class="exam-choice-title">';
+			html += '题目选项 ';
+			html += '</div>';
+			html += '</div>';
+			html += '<div class="panel-body">';
+			html += '<div class="exam-choice">';
+			html += '<textarea id="wenda" style="width: 100%;height: 200px;display:none;user-select:auto;" placeholder="请输入答案"></textarea>';
+			html += '<div id="tk">';
+			html += '<div id="tk1" class="tks" style="display:none;">①<input id="tks1" name="tk" style="user-select:auto;border-bottom:1px solid #000;width:100%;"></input></div>';
+			html += '<div id="tk2" class="tks" style="display:none;">②<input id="tks2" name="tk" style="user-select:auto;border-bottom:1px solid #000;width:100%;"></input></div>';
+			html += '<div id="tk3" class="tks" style="display:none;">③<input id="tks3" name="tk" style="user-select:auto;border-bottom:1px solid #000;width:100%;"></input></div>';
+			html += '<div id="tk4" class="tks" style="display:none;">④<input id="tks4" name="tk" style="user-select:auto;border-bottom:1px solid #000;width:100%;"></input></div>';
+			html += '<div id="tk5" class="tks" style="display:none;">⑤<input id="tks5" name="tk" style="user-select:auto;border-bottom:1px solid #000;width:100%;"></input></div>';
+			html += '</div>';
+			html += '<div class="funkyradio">';
+			// 多选
+			html += '<div class="funkyradio-infos radios1" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox1" value="1" /> A&nbsp&nbsp';
+			html += '<label for="radio1" id="radio111">A 选项</label>';
+			html += '</div>';
+			html += '<div class="funkyradio-infos radios2" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox2" value="2" /> B&nbsp&nbsp';
+			html += '<label for="radio2" id="radio222">B 选项</label>';
+			html += '</div>';
+			html += '<div class="funkyradio-infos radios3" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox3" value="3" /> C&nbsp&nbsp';
+			html += '<label for="radio3" id="radio333">C 选项</label>';
+			html += '</div>';
+			html += '<div class="funkyradio-infos radios4" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox4" value="4" /> D&nbsp&nbsp';
+			html += '<label for="radio4" id="radio444">D 选项</label>';
+			html += '</div>';
+			html += '<div class="funkyradio-infos radios5" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox5" value="5" /> E&nbsp&nbsp';
+			html += '<label for="radio5" id="radio555">C 选项</label>';
+			html += '</div>';
+			html += '<div class="funkyradio-infos radios6" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox6" value="6" /> F&nbsp&nbsp';
+			html += '<label for="radio6" id="radio666">D 选项</label>';
+			html += '</div>';
+			html += '<div style="display:none;" class="pds radio1 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio0" value="0"/> A&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio1" id="radio11"></span>';
+			html += '</label></div>';
+			html += '<div style="display:none;" class="pds radio2 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio1" value="1"/> B&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio2" id="radio22"></span>';
+			html += '</label></div>';
+			html += '<div style="display:none;" class="pd radio3 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio2" value="2"/> C&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio3" id="radio33"></span>';
+			html += '</label></div>';
+			html += '<div style="display:none;" class="pd radio4 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio3" value="3"/> D&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio4" id="radio44"></span>';
+			html += '</label></div>';
+			html += '<div style="display:none;" class="pd radio5 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio4" value="4"/> E&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio5" id="radio55"></span>';
+			html += '</label></div>';
+			html += '<div style="display:none;" class="pd radio6 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio5" value="5"/> F&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio6" id="radio66"></span>';
+			html += '</label></div>';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			html += '<div class="panel panel-default">';
+			html += '<div class="panel-heading">';
+			html += '题目操作';
+			html += '</div>';
+			html += '<div class="panel-body">';
+			html += '<button type="button" class="btn btn-outline btn-primary btn-lg btn-block btn-success" onclick="pres()">上一题';
+			html += '</button>';
+			html += '<button type="button" class="btn btn-outline btn-primary btn-lg btn-block btn-success" onclick="nexts()">下一题 ';
+			html += '</button>';
+			html += '<button id="submit" type="button" class="btn btn-lg btn-block btn-success" onclick="SubmitExam(' + 0 + ')" style="display:none;">';
+			html += '交卷 ';
+			html += '</button>';
+			html += '<div id="footer" class="btn btn-outline btn-primary btn-lg btn-block" style="color:#000;height:50px;font-size: small;border:1px solid #ccc;border-radius:5px;">';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			$("#xianshi").html(html);
+		}
+
+		var quiz;
+		var i = 0;
+		var maxtime;
+		var daans;
+		function init_quiz_object() {// 获取考卷
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var id = dataInfo.id;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var kaoshiid = api.pageParam.kaoshiid;
+			var kaoshixueshengid = api.pageParam.kaoshixueshengid;
+			var xuehao = dataInfo.xueHao;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getcontent",
+				data : {
+					kaoshiid : kaoshiid,
+					xueshengid : id,
+					kaoshixueshengid : kaoshixueshengid,
+					status : status,
+					token : token,
+					banjiid : api.pageParam.banjiid,
+					ischongkao : 'no',
+					xuehao : xuehao,
+				},
+				cache : false,
+				dataType : 'json',
+				success : function(data) {
+					if (data.contentmap == '' || data.contentmap == null) {
+						setTimeout(function() {//  如果考卷内容为空，则每五秒发送一次请求，直到接收到有内容的考卷
+							init_quiz_object();
+						}, 5000);
+					} else {
+						funIniGroup();
+						quiz = data;
+						maxtime = data.kaoshishijian * 60;
+						// 把分钟转换成秒
+						xianshis();
+						timer = setInterval("CountDown()", 1000);
+						//  倒计时
+						api.hideProgress();
+					}
+				},
+				error : function() {
+					setTimeout(function() {
+						init_quiz_object();
+					}, 5000);
+				}
+			})
+		}
+
+		function xianshis() {// 显示考卷内容
+			if (i == 0) {
+				var jsonObj = daans;
+				//  本地记录学生答过的答案
+				if (daans[i] != null) {
+					if (daans[i].daan != null || daans[i].daan != '') {// 略过这个题没有做，但是已经有记录了
+						var leixing = quiz.kaoti[i].leixing;
+						if (leixing == 1 || leixing == 4) {
+							$("input[name='radio']").attr("checked", false);
+							var historydaan = jsonObj[i].daan;
+							//				$("#radio1").attr("checked", true);!!!!!!!!!!!!
+							$("#radio" + historydaan).prop("checked", true);
+						} else if (leixing == 2) {
+							$("input[name='radios']").attr("checked", false);
+							var historydaan = jsonObj[i].daan;
+							for (var x = 0; x < historydaan.length; x++) {
+								$("#checkbox" + historydaan[x]).prop("checked", true);
+							}
+						} else if (leixing == 3) {
+							var t = quiz.kaoti[i].item[2];
+							var kongge = t.split("qzxj")[0];
+							for (var x = 0; x < kongge; x++) {
+								var y = x;
+								y++;
+								$("#tks" + y).val(jsonObj[i].daan[x]);
+							}
+						} else if (leixing == 7) {
+							$("#wenda").val(jsonObj[i].daan);
+						}
+					} else {
+						$("input[name='radio']").attr("checked", false);
+						$("input[name='radios']").attr("checked", false);
+						$("#wenda").val('');
+						$("input[name='tk']").val('');
+					}
+				} else {
+					$("input[name='radio']").attr("checked", false);
+					$("input[name='radios']").attr("checked", false);
+					$("#wenda").val('');
+					$("input[name='tk']").val('');
+				}
+			}
+			var kaoti = quiz.kaoti[i];
+			var neirong = kaoti.kaotineirong;
+			if (kaoti.leixing == 1) {
+				var timus = neirong.split("zqxj");
+				var len = timus.length - 2;
+				for (var y = 1; y < timus.length - 1; y++) {
+					var timu = timus[0];
+					$('.exam-title').text("题目（单选题）");
+					// 题目（单选题）
+					$('.exam-question').html(timu);
+					// 考题题目
+					$('.exam-choice-title').text('以下选项只有一个为正确选项');
+					// 题目选项
+					$(".funkyradio").css("display", "block");
+					$("#wenda").css("display", "none");
+					$(".radio" + y).css("display", "block");
+					$(".funkyradio-infos").css("display", "none");
+					$("#tk").css("display", "none");
+					$('#radio' + y + y).text(timus[y]);
+				}
+			} else if (kaoti.leixing == 2) {
+				var timus = neirong.split("zqxj");
+				for (var y = 1; y < timus.length - 1; y++) {
+					var timu = timus[0];
+					$('.exam-title').text("题目（多选题）");
+					$('.exam-question').html(timu);
+					$('.exam-choice-title').text('以下选项中有一个或者多个为正确选项');
+					$("#wenda").css("display", "none");
+					$("#tk").css("display", "none");
+					$(".radios" + y).css("display", "block");
+					$(".funkyradio-info").css("display", "none");
+					$('#radio' + y + y + y).text(timus[y]);
+				}
+			} else if (kaoti.leixing == 3) {
+				$('.exam-title').text("题目（填空题）");
+				$(".funkyradio").css("display", "none");
+				$("#tk").css("display", "block");
+				var tktimus = neirong.split("qzxj");
+				var tktimu = '';
+				var shuzi = ['①', '②', '③', '④', '⑤'];
+				var sz = 0;
+				for (var y = 0; y < tktimus.length - 1; y++) {
+					if (y % 2 == 0) {
+						tktimu += tktimus[y];
+					} else {
+						tktimus[y] = '__' + shuzi[sz++] + '__';
+						tktimu += tktimus[y];
+						$("#tk" + sz).css("display", "block");
+						for (var szs = 5; szs > sz; szs--) {
+							$("#tk" + szs).css("display", "none");
+						}
+					}
+					$('.exam-question').html(tktimu);
+					$('.exam-choice-title').text('请在对应的位置填上正确答案');
+					$("#wenda").css("display", "none");
+				}
+			} else if (kaoti.leixing == 4) {
+				$('.exam-title').text("题目（判断题）");
+				$('.exam-question').html(neirong);
+				// 考题题目
+				$('.exam-choice-title').text('判断题目说法的正确性');
+				// 题目选项
+				$(".funkyradio").css("display", "block");
+				$(".funkyradio-info").css("display", "block");
+				$("#tk").css("display", "none");
+				$(".funkyradio-infos").css("display", "none");
+				$('.pd').css("display", "none");
+				$("#wenda").css("display", "none");
+				$(".pds").css("display", "block");
+				$('#radio11').text('错误');
+				$('#radio22').text('正确');
+			} else if (kaoti.leixing == 7) {
+				$("#tk").css("display", "none");
+				$('.exam-title').text("题目（问答题）");
+				$(".funkyradio").css("display", "none");
+				$('.exam-question').html(neirong);
+				$('.exam-choice-title').text('请在该区域作答');
+				$("#wenda").css("display", "block");
+			}
+			footer();
+		}
+
+		function footer() { // 底部的考试进度
+			var len = '';
+			var init1 = 0, init2 = 0, init3 = 0, init4 = 0, init7 = 0;
+			var datas = quiz.contentmap.daJuanNeiRong;
+			var datass = datas.split("zqxj");
+			var jsonObj = daans;
+			if (jsonObj == null) {
+			} else {
+				for (var j = 0; j < jsonObj.length; j++) {
+					if (jsonObj[j].daan == '' || jsonObj[j].daan == null || jsonObj[j].daan[0].length == '' || jsonObj[j].daan[0].length == null) {
+					} else {
+						if ((jsonObj[j].leixing == 1 && jsonObj[j].daan != '') || (jsonObj[j].leixing == 1 && jsonObj[j].daan != null)) {
+							init1++;
+						} else if ((jsonObj[j].leixing == 2 && jsonObj[j].daan != '') || (jsonObj[j].leixing == 2 && jsonObj[j].daan != null)) {
+							init2++;
+						} else if (jsonObj[j].leixing == 3 && jsonObj[j].daan.length != 0) {
+							init3++;
+						} else if ((jsonObj[j].leixing == 4 && jsonObj[j].daan != '') || (jsonObj[j].leixing == 4 && jsonObj[j].daan != null)) {
+							init4++;
+						} else if (jsonObj[j].leixing == 7 && jsonObj[j].daan.length != 0) {
+							init7++;
+						}
+					}
+				}
+			}
+			// 一共有几类题
+			var zong = 0, zongs = 0;
+			for (var j = 1; j < datass.length - 1; j++) {
+				var timu = datass[j].split("xjzq");
+				// 每类题再次拆分
+				var timuleixing = timu[0].split("_")[0];
+				// 题目类型
+				zong += (datass[j].split("xjzq").length - 2);
+				if (timuleixing == 1) {
+					len += init1 + '/' + (timu.length - 2) + '单选';
+				} else if (timuleixing == 2) {
+					len += init2 + '/' + (timu.length - 2) + '多选';
+				} else if (timuleixing == 3) {
+					len += init3 + '/' + (timu.length - 2) + '填空';
+				} else if (timuleixing == 4) {
+					len += init4 + '/' + (timu.length - 2) + '判断';
+				} else if (timuleixing == 7) {
+					len += init7 + '/' + (timu.length - 2) + '问答';
+				}
+				//				switch(timuleixing) {
+				//					case 1:
+				//						len += init1 + '/' + (timu.length - 2) + '单选';
+				//						break;
+				//					case 2:
+				//						len += init2 + '/' + (timu.length - 2) + '多选';
+				//						break;
+				//					case 3:
+				//						len += init3 + '/' + (timu.length - 2) + '填空';
+				//						break;
+				//					case 4:
+				//						len += init4 + '/' + (timu.length - 2) + '判断';
+				//						break;
+				//					case 7:
+				//						len += init7 + '/' + (timu.length - 2) + '问答';
+				//						break;
+				//				}
+			}
+			zongs = init1 + init2 + init3 + init4 + init7;
+			len = '已完成' + len;
+			$("#footer").empty();
+			$("#footer").append(len);
+			if (zong <= zongs) {
+				$("#submit").css("display", "block");
+			}
+		}
+
+		var storage = window.sessionStorage;
+		var daans = [];
+		function local() {// 存入sessionstorage
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var id = dataInfo.id;
+			var banjiid = api.pageParam.banjiid;
+			var check_val = [];
+			var leixing = quiz.kaoti[i].leixing;
+			if (leixing == 1 || leixing == 4) {
+				var obj = document.getElementsByName("radio");
+				for (k in obj) {
+					if (obj[k].checked)
+						check_val.push(obj[k].value);
+				}
+			} else if (leixing == 2) {
+				var obj = document.getElementsByName("radios");
+				for (k in obj) {
+					if (obj[k].checked)
+						check_val.push(obj[k].value);
+				}
+			} else if (leixing == 3) {
+				var t = quiz.kaoti[i].item[2];
+				var kongge = t.split("qzxj")[0];
+				// 空格数
+				for (var x = 0; x < kongge; x++) {
+					var y = x;
+					y++;
+					check_val[x] = $("#tks" + y).val();
+				}
+			} else if (leixing == 7) {
+				check_val = $("#wenda").val();
+			}
+			var daan = {
+				id : quiz.kaoti[i].item[0],
+				daan : check_val,
+				leixing : quiz.kaoti[i].leixing,
+				fenzhi : quiz.kaoti[i].item[1]
+			};
+			if (daans[i] != null) {
+				daans[i] = daan;
+			} else {
+				daans.push(daan);
+			}
+			var d = JSON.stringify(daans);
+			storage.setItem("daans", d);
+			api.writeFile({
+				path : 'fs://' + banjiid + '/' + id + '.txt',
+				data : {
+					shijian : maxtime,
+					kaoti : quiz,
+					daans : daans
+				}
+			}, function(ret, err) {
+				if (ret.status) {
+					//成功
+				} else {
+				}
+			});
+		}
+
+
+		document.addEventListener('touchend', local, false);
+		function nexts() {
+			if (i >= quiz.kaoti.length - 1) {
+				xianshis();
+			} else {
+				i++;
+				var jsonObj = daans;
+				//				var json = storage.getItem("daans");
+				//				var jsonObj = JSON.parse(json);
+				if (daans[i] != null) {// 还没数据
+					if (daans[i].daan != null || daans[i].daan != '') {// 略过这个题没有做，但是已经有记录了
+						var leixing = quiz.kaoti[i].leixing;
+						if (leixing == 1 || leixing == 4) {
+							$("input[name='radio']").attr("checked", false);
+							var historydaan = jsonObj[i].daan;
+							//				$("#radio1").attr("checked", true);!!!!!!!!!!!!
+							$("#radio" + historydaan).prop("checked", true);
+						} else if (leixing == 2) {
+							$("input[name='radios']").attr("checked", false);
+							var historydaan = jsonObj[i].daan;
+							for (var x = 0; x < historydaan.length; x++) {
+								$("#checkbox" + historydaan[x]).prop("checked", true);
+							}
+						} else if (leixing == 3) {
+							var t = quiz.kaoti[i].item[2];
+							var kongge = t.split("qzxj")[0];
+							for (var x = 0; x < kongge; x++) {
+								var y = x;
+								y++;
+								$("#tks" + y).val(jsonObj[i].daan[x]);
+							}
+						} else if (leixing == 7) {
+							$("#wenda").val(jsonObj[i].daan);
+						}
+					} else {
+						$("input[name='radio']").attr("checked", false);
+						$("input[name='radios']").attr("checked", false);
+						$("#wenda").val('');
+						$("input[name='tk']").val('');
+					}
+				} else {
+					$("input[name='radio']").attr("checked", false);
+					$("input[name='radios']").attr("checked", false);
+					$("#wenda").val('');
+					$("input[name='tk']").val('');
+				}
+				xianshis();
+			}
+		}
+
+		function pres() {
+			var jsonObj = daans;
+			if (i <= 0) {
+			} else {
+				i--;
+				if (daans[i].daan != null || daans[i].daan != '') {
+					var leixing = quiz.kaoti[i].leixing;
+					if (leixing == 1 || leixing == 4) {
+						$("input[name='radio']").attr("checked", false);
+						var historydaan = jsonObj[i].daan;
+						if (historydaan == '' || historydaan == null) {
+							$("#radio" + historydaan).prop("checked", false);
+						} else {
+							$("#radio" + historydaan).prop("checked", true);
+						}
+					} else if (leixing == 2) {
+						$("input[name='radios']").attr("checked", false);
+						var historydaan = jsonObj[i].daan;
+						for (var x = 0; x < historydaan.length; x++) {
+							$("#checkbox" + historydaan[x]).prop("checked", true);
+						}
+					} else if (leixing == 3) {
+						var t = quiz.kaoti[i].item[2];
+						var kongge = t.split("qzxj")[0];
+						for (var x = 0; x < kongge; x++) {
+							var y = x;
+							y++;
+							$("#tks" + y).val(jsonObj[i].daan[x]);
+						}
+					} else if (leixing == 7) {
+						$("#wenda").val(jsonObj[i].daan);
+					}
+				} else {
+					$("input[name='radio']").attr("checked", false);
+					$("input[name='radios']").attr("checked", false);
+					$("#wenda").val('');
+					$("input[name='tk']").val('');
+				}
+				xianshis();
+			}
+		}
+
+		var zfc = '', zfc1 = '', zfc2 = '', zfc3 = '', zfc4 = '', zfc7 = '';
+		function SubmitExam(isqiangzhi) {
+			var datas = quiz.contentmap.daJuanNeiRong;
+			var datass = datas.split("zqxj");
+			// 一共有几类题
+			var zongfens = '';
+			for (var j = 1; j < datass.length - 1; j++) {
+				var timu = datass[j].split("xjzq");
+				var zongfen = timu[0].split("jqxz");
+				// 每种题型的总分
+				zongfens += zongfen;
+				// 每类题再次拆分
+				var timuleixing = timu[0].split("_")[0];
+				// 题目类型
+				for (var x = 1; x < timu.length; x++) {
+					var timuid = timu[x].split("_")[0];
+					// 题目id
+				}
+			}
+			//			var json = storage.getItem("daans");
+			//			// 本地
+			//			var jsonObj = JSON.parse(json);
+			var jsonObj = daans;
+			var tixing = 0;
+			var datas = quiz.contentmap.daJuanNeiRong;
+			var datass = datas.split("jqxzxjzq");
+			for (var s = 0; s < datass.length - 1; s++) {
+				var data_new = datass[s].split("zqxj")[1];
+				var data_one = data_new.split("_")[0];
+				var data_two = data_new.split("_")[1];
+				if (data_one == 1) {
+					zfc1 = 'zqxj1_' + data_two + 'jqxz';
+				} else if (data_one == 2) {
+					zfc2 = 'zqxj2_' + data_two + 'jqxz';
+				} else if (data_one == 3) {
+					zfc3 = 'zqxj3_' + data_two + 'jqxz';
+				} else if (data_one == 4) {
+					zfc4 = 'zqxj4_' + data_two + 'jqxz';
+				} else if (data_one == 7) {
+					zfc7 = 'zqxj7_' + data_two + 'jqxz';
+				}
+			}
+			for (var j = 0; j < jsonObj.length; j++) {
+				if (jsonObj[j].leixing == 1) {// 单选
+					if (jsonObj[j].daan == '' || jsonObj[j].daan == null) {
+						zfc1 += 'xjzq' + jsonObj[j].id + '_' + jsonObj[j].fenzhi + '_-1';
+					} else {
+						zfc1 += 'xjzq' + jsonObj[j].id + '_' + jsonObj[j].fenzhi + '_' + jsonObj[j].daan;
+					}
+				} else if (jsonObj[j].leixing == 2) {// 1,2,3,4代表A,B,C,D
+					var duoxuan = [0, 0, 0, 0, 0, 0], duoxuans = '';
+					if (jsonObj[j].daan == '' || jsonObj[j].daan == null) {
+						zfc2 += 'xjzq' + jsonObj[j].id + '_' + jsonObj[j].fenzhi + '_000000';
+					} else {
+						var kaoti = quiz.kaoti[i];
+						var neirong = kaoti.kaotineirong;
+						var timus = neirong.split("zqxj").length - 2;
+						for (var x = 0; x < jsonObj[j].daan.length; x++) {
+							// 1,2,3,4    jsonObj[j].daan[x];
+							var duoxuandaan = jsonObj[j].daan[x] - 1;
+							duoxuan[duoxuandaan] = 1;
+						}
+						for (var x = 0; x < 6; x++) {
+							duoxuans += duoxuan[x];
+						}
+						zfc2 += 'xjzq' + jsonObj[j].id + '_' + jsonObj[j].fenzhi + '_' + duoxuans;
+					}
+				} else if (jsonObj[j].leixing == 3) {
+					tixing = 1;
+					var t = quiz.kaoti[j].item[2];
+					var kongge = t.split("qzxj")[0];
+					// 空的数量
+					zfc3 += 'xjzq' + jsonObj[j].id + '_' + jsonObj[j].fenzhi + '_' + kongge;
+					for (var a = 0; a < kongge; a++) {
+						if (jsonObj[j].daan[a] == "" || jsonObj[j].daan[a] == null) {
+							zfc3 += 'qzxj0_zqjx-1';
+						} else {
+							zfc3 += 'qzxj' + ChangeStringToHtml(jsonObj[j].daan[a]).length + '_' + ChangeStringToHtml(jsonObj[j].daan[a]) + 'zqjx-1';
+						}
+					}
+				} else if (jsonObj[j].leixing == 4) {
+					if (jsonObj[j].daan == '' || jsonObj[j].daan == null) {
+						zfc4 += 'xjzq' + jsonObj[j].id + '_' + jsonObj[j].fenzhi + '_-1';
+					} else {
+						zfc4 += 'xjzq' + jsonObj[j].id + '_' + jsonObj[j].fenzhi + '_' + jsonObj[j].daan;
+					}
+				} else if (jsonObj[j].leixing == 7) {
+					tixing = 1;
+					if (jsonObj[j].daan == '' || jsonObj[j].daan == null) {
+						zfc7 += 'xjzq' + jsonObj[j].id + '_' + jsonObj[j].fenzhi + '_-1_-1qzxj';
+					} else {
+						zfc7 += 'xjzq' + jsonObj[j].id + '_' + jsonObj[j].fenzhi + '_-1_-1qzxj' + ChangeStringToHtml(jsonObj[j].daan);
+					}
+				}
+			}
+			if (tixing == 1) {
+				zfc = zfc1 + 'xjzq' + zfc3 + 'xjzq' + zfc4 + 'xjzq' + zfc7 + 'xjzq' + 'zqxj';
+			} else {
+				zfc = zfc1 + 'xjzq' + zfc2 + 'xjzq' + zfc4 + 'xjzq' + 'zqxj';
+			}
+			if (isqiangzhi == 0) {
+				api.confirm({
+					title : '确定提交？',
+					buttons : ['确定', '取消']
+				}, function(ret, err) {
+					loadData1();
+					var indexs = ret.buttonIndex;
+					if (indexs == 2) {
+						api.hideProgress();
+					} else if (indexs == 1) {
+						$("#shade").css("display", "block");
+						var dataInfo = $api.getStorage('loginDataInfo');
+						var id = dataInfo.id;
+						var status = dataInfo.status;
+						var token = $api.getStorage("logintoken");
+						var kaoshiid = api.pageParam.kaoshiid;
+						var kaoshixueshengid = api.pageParam.kaoshixueshengid;
+						var device = api.deviceId + '_' + api.deviceModel;
+						var banjiid = api.pageParam.banjiid;
+						$.ajax({
+							type : "POST",
+							url : $api.getStorage('serverUrl') + "app_updatedajuan",
+							data : {
+								kaoshiid : kaoshiid,
+								xueshengid : id,
+								kaoshixueshengid : kaoshixueshengid,
+								status : status,
+								token : token,
+								dajuanneirong : zfc,
+								device : device,
+							},
+							cache : false,
+							dataType : 'json',
+							success : function(data) {
+								$("#shade").css("display", "none");
+								api.hideProgress();
+								if (data.status == 'success') {
+									alert("交卷成功");
+									api.writeFile({
+										path : 'fs://' + banjiid + '/' + id + '.txt',
+										data : '',
+									}, function(ret, err) {
+										if (ret.status) {
+											//成功
+											//	alert(ret.status);
+										} else {
+										}
+									});
+									goback();
+								} else if (data.status == 'fail') {
+									alert("交卷失败，可能含有特殊字符，请检查后再次提交");
+								}
+							},
+							error : function() {
+								api.writeFile({
+									path : 'fs://' + banjiid + '/' + id + '.txt',
+									data : '',
+								}, function(ret, err) {
+									if (ret.status) {
+										//成功
+									} else {
+									}
+								});
+								goback();
+								api.hideProgress();
+								$("#shade").css("display", "none");
+							}
+						})
+					}
+				})
+			} else {
+				var dataInfo = $api.getStorage('loginDataInfo');
+				var id = dataInfo.id;
+				var status = dataInfo.status;
+				var token = $api.getStorage("logintoken");
+				var kaoshiid = api.pageParam.kaoshiid;
+				var kaoshixueshengid = api.pageParam.kaoshixueshengid;
+				var device = api.deviceId + '_' + api.deviceModel;
+				var banjiid = api.pageParam.banjiid;
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_updatedajuan",
+					data : {
+						kaoshiid : kaoshiid,
+						xueshengid : id,
+						kaoshixueshengid : kaoshixueshengid,
+						status : status,
+						token : token,
+						dajuanneirong : zfc,
+						device : device,
+					},
+					cache : false,
+					dataType : 'json',
+					success : function(data) {
+						api.hideProgress();
+						if (data.status == 'success') {
+							alert("交卷成功");
+							api.writeFile({
+								path : 'fs://' + banjiid + '/' + id + '.txt',
+								data : '',
+							}, function(ret, err) {
+								if (ret.status) {
+									//成功
+								} else {
+								}
+							});
+							goback();
+						} else if (data.status == 'fail') {
+							alert("交卷失败，可能含有特殊字符，请检查后再次提交");
+						}
+					},
+					error : function() {
+						api.writeFile({
+							path : 'fs://' + banjiid + '/' + id + '.txt',
+							data : '',
+						}, function(ret, err) {
+							if (ret.status) {
+								//成功
+							} else {
+							}
+						});
+						goback();
+						api.hideProgress();
+					}
+				})
+			}
+		}
+
+		function ChangeStringToHtml(str) {
+			//				var reg = new RegExp("<","g");//g,表示全部替换。
+			//              str = str.toString().replace(reg,"&lt;");
+			var rega = new RegExp("<P.*?>", "g");
+			var regb = new RegExp("&", "g");
+			var regc = new RegExp("<", "g");
+			var regd = new RegExp("'", "g");
+			var rege = new RegExp(">", "g");
+			var regf = new RegExp("\"", "g");
+			var regg = new RegExp("\n", "g");
+			var regh = new RegExp("&lt;BR&gt;", "g");
+			var regi = new RegExp("&lt;br&gt;", "g");
+			var regj = new RegExp("&lt;P&gt;", "g");
+			var regk = new RegExp("&lt;p&gt;", "g");
+			var regl = new RegExp("&lt;/P&gt;", "g");
+			var regm = new RegExp("&lt;/p&gt;", "g");
+			str = str.toString().replace(rega, "<P>");
+			str = str.toString().replace(rega, "<p>");
+			str = str.toString().replace(rega, "<P>");
+			str = str.toString().replace(rega, "<p>");
+			str = str.toString().replace(regb, "&amp;");
+			str = str.toString().replace(regc, "&lt;");
+			str = str.toString().replace(regd, "kjdssdjk");
+			str = str.toString().replace(rege, "&gt;");
+			str = str.toString().replace(regf, "&quot;");
+			str = str.toString().replace(regg, "<br>");
+			str = str.toString().replace(regh, "<br>");
+			str = str.toString().replace(regi, "<br>");
+			str = str.toString().replace(regj, "<p>");
+			str = str.toString().replace(regk, "<p>");
+			str = str.toString().replace(regl, "</p >");
+			str = str.toString().replace(regm, "</p >");
+			return str;
+		}
+	</script>
+</html>

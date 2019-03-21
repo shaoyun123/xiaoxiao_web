@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				老师课程
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+			<section class="aui-grid aui-margin-b-15">
+				<div class="aui-row" id="menu_mun" style="background: rgb(245,245,245);"></div>
+			</section>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'shixi_index'
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			var html = '';
+			html += '<div class="aui-col-xs-4 aui-col-sm-4"><i><img  src="../../image/sjkjianbao.png" style="width:35%;height:60px;" onclick="xuanze(1)"></i><div class="aui-grid-label">实习</div></div>';
+			html += '<div class="aui-col-xs-4 aui-col-sm-4"><i><img  src="../../image/sjkchakan.png" style="width:35%;height:60px;" onclick="xuanze(2)"></i><div class="aui-grid-label">查看选题</div></div>';
+			$('#menu_mun').html(html);
+		}
+		function xuanze(action) {
+			var data = api.pageParam.data;
+			var shixiid = data.shixiid;
+			if (action == "1") {// 实习
+			} else if (action == "2") {// 查看选题
+				var data = api.pageParam.data;
+				api.openWin({
+					name : 'xuantiwin',
+					url : "xuantiwin.html",
+					allowEdit : true,
+					reload : true,
+					pageParam : {
+						data : data,
+					}
+				});
+
+//				var data = api.pageParam.data;
+//				api.openWin({
+//					name : 'fabu',
+//					url : "fabu.html",
+//					allowEdit : true,
+//					reload : true,
+//					pageParam : {
+//						data : data,
+//					}
+//				});
+			}
+		}
+	</script>
+</html>

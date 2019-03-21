@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/c ss" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+	</head>
+	<style>
+		.line-limit-length {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;/*文本不换行，这样超出一行的部分被截取，显示...*/
+		}
+	</style>
+	<body>
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				小组信息
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="padding-top:70px;">
+			<section class="aui-grid aui-margin-b-15">
+				<div class="aui-row" id="menu_mun" style="background: #fff;"></div>
+			</section>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'chakanxiaozus'
+			});
+		}
+
+		apiready = function() {// 不分大组，取所有小组信息
+			var fuzeren = api.pageParam.fuzeren;
+			var data = api.pageParam.data;
+			var fenzu = api.pageParam.fenzu;
+			//			alert($api.jsonToStr(data));
+			var html = '';
+			html += '<div style="border-bottom:1px solid #ccc;font-size:20px;">负责人：' + fuzeren + '</div>';
+			if (fenzu == 4) {
+				for (var i = 0; i < data.allXiaoZu.length; i++) {
+					html += '<span style="padding:5px;font-size:18px;">&nbsp&nbsp&nbsp&nbsp&nbsp' + data.allXiaoZu[i].xiaozuzhang + ',</span>';
+				}
+			} else {
+				for (var i = 0; i < data.allXiaoZu.length; i++) {
+					html += '<div style="border-bottom:1px solid #ccc;">';
+					html += '<div style="height:40px;line-height:40px;">';
+					html += '<span class="line-limit-length" style="width:70%;">&nbsp&nbsp&nbsp' + data.allXiaoZu[i].xueXiZuMing + '</span><span style="float:right;">' + data.allXiaoZu[i].xiaozuzhang + '&nbsp&nbsp&nbsp</span>';
+					html += '</div>';
+					var chengyuans = '';
+					for (var j = 0; j < data.allXiaoZu[i].chengyuan.length; j++) {
+						var chengyuan = data.allXiaoZu[i].chengyuan;
+						if (chengyuan[j].ID == data.allXiaoZu[i].xueShengID) {
+						} else {
+							chengyuans += chengyuan[j].xingming + ',&nbsp&nbsp&nbsp';
+						}
+					}
+					html += '<div style="color:gray;font-size:14px;height:20px;line-height:20px;">&nbsp&nbsp&nbsp' + chengyuans + '</div>';
+					html += '</div>';
+				}
+			}
+			$('#menu_mun').html(html);
+		};
+	</script>
+</html>

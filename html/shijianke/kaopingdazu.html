@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/c ss" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			.aui-list .aui-list-item-media {
+				width: 6rem;
+			}
+		</style>
+	</head>
+	<body>
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				大组信息
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="padding-top:70px;">
+			<ul class="aui-list aui-form-list">
+				<div class="aui-content" id="menu_mun">
+					<ul class="aui-list aui-media-list" id="appContent"></ul>
+					<ul class="aui-list aui-media-list" id="appContent1"></ul>
+				</div>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'kaopingdazu'
+			});
+		}
+
+		apiready = function() {
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			var a = api.pageParam.a;
+			dazu(a);
+		};
+		function dazu(a) {
+			var data = api.pageParam.data;
+			var html = '';
+			var datas = data.kaoPing[a];
+			//			alert($api.jsonToStr(datas));
+			for (var j = 0; j < datas.qiandaoxinxi.dazuxinxi.length; j++) {
+				var dazuming = datas.qiandaoxinxi.dazuxinxi[j].dazuming;
+				var dazuid = datas.qiandaoxinxi.dazuxinxi[j].fenzuid;
+				html += '<li class="aui-list-item" style="height:60px;line-height:60px;" onclick="show(' + dazuid + ')">';
+				html += '<div style="display:inline;">';
+				html += '<div class="aui-font-size-18">' + dazuming + '</div>';
+				html += '</div>';
+				html += '</li>';
+			}
+			$('#appContent1').html(html);
+		}
+
+		function show(id) {
+			var datas = api.pageParam.data;
+			var a = api.pageParam.a;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var fendazu = $api.getStorage("fendazu");
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_score",
+				data : {
+					xueshengid : studentid,
+					status : status,
+					token : token,
+					kaopingid : datas.kaoPing[a].ID,
+					kechengid : datas.kaoPing[a].keChengID,
+					dazuid : id,
+					fendazu : fendazu,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					//	alert($api.jsonToStr(data));
+					if (data) {
+						api.openWin({
+							name : 'allkaoping',
+							url : 'allkaoping.html',
+							pageParam : {
+								data : data,
+								kaopingid : datas.kaoPing[a].ID,
+							},
+							reload : true,
+							allowEdit : true
+						});
+					}
+				},
+				error : function() {
+					console.log("app_score");
+				}
+			});
+		}
+	</script>
+</html>

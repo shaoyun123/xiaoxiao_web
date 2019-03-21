@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>fudaoanpai</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+    <style>
+		header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;z-index:15;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span>
+        </a>
+        <div class="aui-title border-b"  style="font-size:20px;color:gray;">
+            上传汇报
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;z-index:10;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">任务列表</li>
+            <nav style="padding-top:40px;">
+                <ul id="xianshijiaoliunr">
+
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        $api.rmStorage('loginpages');
+        api.closeWin({
+            name: 'fudaoanpai',
+        });
+    }
+    var pag;
+    var cou = 0;
+    apiready = function() {
+        loadData();
+        cou = 0;
+        chushi();
+        api.setRefreshHeaderInfo({
+            visible: true,
+            bgColor: '#ccc',
+            textColor: '#fff',
+            textDown: '下拉刷新...',
+            textUp: '松开刷新...',
+            showTime: true
+        }, function(ret, err) {
+            setTimeout(function() {
+                cou = 0;
+                chushi();
+                api.refreshHeaderLoadDone();
+            }, 2000)
+        });
+        api.addEventListener({
+            name: 'keyback'
+        }, function(ret, err) {
+            $api.rmStorage('loginpages');
+            api.closeWin({
+                name: 'fudaoanpai',
+            });
+        });
+        api.addEventListener({
+            name: 'scrolltobottom',
+            extra: {
+                threshold: 0,
+            }
+        }, function(ret, err) {
+            xiala();
+        });
+    };
+
+    function chushi() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var studentid = dataInfo.id;
+        var token = $api.getStorage("logintoken");
+        var status = dataInfo.status;
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            url: $api.getStorage('serverUrl')+"app_XianShijiaoliuneirong1",
+            data: {
+                CODE: studentid,
+                page: "",
+                status: status,
+                token: token,
+            },
+            cache: false,
+            success: function(data) {
+                var data = eval(data);
+                html = "";
+                if (data) {
+                    if (data.page != null && data.page != "") {
+                        pag = data.page;
+                        $api.setStorage('loginpages', data.pages);
+                        for (var i = 0; i < data.jlnr.length; i++) {
+                            html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="font-size:18px;width:60%;">';
+                            html += '交流名称：' + data.jlnr[i].jiaoliumingcheng + '<br>';
+                            html += '截止日期：'+ data.jlnr[i].jiezhiriqi+'<br>';
+                            if (data.jlnr[i].shangchuanzhuangtai == "0") {
+                                html += '上传状态：未上传<br>';
+                                html += '上次上传日期：';
+                                if (data.jlnr[i].shangchuanriqi != null) {
+                                    html += data.jlnr[i].shangchuanriqi;
+                                }
+                                html += '<br>';
+                                html += '审核状态：未审核<br>';
+                                html += '审核人：' + data.jlnr[i].shenheren + '</div>';
+                                html +=
+                                    '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="修改" onclick="xiugai_Weishangchuan_jlnr(' +
+                                    data.jlnr[i].jiaoliuid + ',' + data.jlnr[i].anpaiid + ')"></div></div>';
+                                html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="上传" onclick="jlnrshangchuan(' +
+                                    data.jlnr[i].jiaoliuid + ')"></div></div>';
+                                html += '</li>';
+                            } else {
+                                html += '上传状态：已上传<br>';
+                                html += '上次上传日期：';
+                                if (data.jlnr[i].shangchuanriqi != null) {
+                                    html += data.jlnr[i].shangchuanriqi;
+                                }
+                                html += '<br>';
+                                html += '审核状态：未审核<br>';
+                                html += '审核人：' + data.jlnr[i].shenheren + '</div>';
+                                html +=
+                                    '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="查看" onclick="chakan_Weishenhe_jlnr(' +
+                                    data.jlnr[i].jiaoliuid + ',' + data.jlnr[i].anpaiid + ')"></div></div>';
+                                html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="撤回" onclick="jlnrchehui(' + data.jlnr[
+                                        i]
+                                    .jiaoliuid + ')"></div></div>';
+                                html += '</li>';
+                            }
+                        }
+                    }
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+                $('#xianshijiaoliunr').html(html);
+                api.hideProgress();
+            },
+            error: function() {
+                api.hideProgress();
+                alert("错误！");
+            }
+        });
+    }
+
+    function xiala() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var zong = $api.getStorage("loginpages");
+        var studentid = dataInfo.id;
+        var token = $api.getStorage("logintoken");
+        var status = dataInfo.status;
+        if (pag < zong) {
+            loadData();
+            pag = pag + 1;
+            $.ajax({
+                type: "POST",
+                dataType: 'json',
+                url: $api.getStorage('serverUrl')+"app_XianShijiaoliuneirong1",
+                data: {
+                    CODE: studentid,
+                    page: pag,
+                    status: status,
+                    token: token,
+                },
+                cache: false,
+                success: function(data) {
+                    var data = eval(data);
+                    html = "";
+                    if (data) {
+                        if (data.page != null && data.page != "") {
+                            for (var i = 0; i < data.jlnr.length; i++) {
+                                html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="font-size:18px;width:60%;">';
+                                html += '交流名称：' + data.jlnr[i].jiaoliumingcheng + '<br>';
+                                if (data.jlnr[i].shangchuanzhuangtai == "0") {
+                                    html += '上传状态：未上传<br>';
+                                    html += '上次上传日期：';
+                                    if (data.jlnr[i].shangchuanriqi != null) {
+                                        html += data.jlnr[i].shangchuanriqi;
+                                    }
+                                    html += '<br>';
+                                    html += '审核状态：未审核<br>';
+                                    html += '审核人：' + data.jlnr[i].shenheren + '</div>';
+                                    html +=
+                                        '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="修改" onclick="xiugai_Weishangchuan_jlnr(' +
+                                        data.jlnr[i].jiaoliuid + ',' + data.jlnr[i].anpaiid + ')"></div></div>';
+                                    html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="上传" onclick="jlnrshangchuan(' +
+                                        data.jlnr[i].jiaoliuid + ')"></div></div>';
+                                    html += '</li>';
+                                } else {
+                                    html += '上传状态：已上传<br>';
+                                    html += '上次上传日期：';
+                                    if (data.jlnr[i].shangchuanriqi != null) {
+                                        html += data.jlnr[i].shangchuanriqi;
+                                    }
+                                    html += '<br>';
+                                    html += '审核状态：未审核<br>';
+                                    html += '审核人：' + data.jlnr[i].shenheren + '</div>';
+                                    html +=
+                                        '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="查看" onclick="chakan_Weishenhe_jlnr(' +
+                                        data.jlnr[i].jiaoliuid + ',' + data.jlnr[i].anpaiid + ')"></div></div>';
+                                    html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="撤回" onclick="jlnrchehui(' +
+                                        data.jlnr[
+                                            i]
+                                        .jiaoliuid + ')"></div></div>';
+                                    html += '</li>';
+                                }
+                            }
+                        }
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                    $('#xianshijiaoliunr').html(html);
+                    api.hideProgress();
+                },
+                error: function() {
+                    api.hideProgress();
+                    alert("错误！");
+                }
+            });
+        } else {
+            if (cou == 0) {
+                html = $("#xianshijiaoliunr").html();
+                if (zong == 1) {
+                    html += '<h4 style="text-align:center;position:fixed;bottom:0px;height:15px;width:100%;z-index:5;font-size:12px;">已到最底端，没有更多数据</h4>';
+                } else {
+                    html += '<h4 style="text-align:center;bottom:0px;height:10px;width:100%;">已到最底端，没有更多数据</h4>';
+                }
+                $('#xianshijiaoliunr').html(html);
+                cou = cou + 1;
+            }
+        }
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+
+    function xiugai_Weishangchuan_jlnr(jiaoliuid, anpaiid) {
+        api.openWin({
+            name: 'chulijiaoliuneirong',
+            url: 'chulijiaoliuneirong.html',
+            pageParam: {
+                jiaoliuid: jiaoliuid,
+                anpaiid: anpaiid,
+                choose: 'xiugai',
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function chakan_Weishenhe_jlnr(jiaoliuid, anpaiid) {
+        api.openWin({
+            name: 'chulijiaoliuneirong',
+            url: 'chulijiaoliuneirong.html',
+            pageParam: {
+                jiaoliuid: jiaoliuid,
+                anpaiid: anpaiid,
+                choose: 'chakan',
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function queren_shangchuan() {
+        if (confirm("确认上传？") == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //上传交流内容
+    function jlnrshangchuan(jiaoliuid) {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var token = $api.getStorage("logintoken");
+        var status = dataInfo.status;
+        var studentid = dataInfo.id;
+        if (queren_shangchuan()) {
+            $.ajax({
+                type: "POST",
+                dataType: 'text',
+                url: $api.getStorage('serverUrl')+"app_ShangChuanjiaoliuneirong",
+                data: {
+                    CODE: jiaoliuid,
+                    xueshengid: studentid,
+                    status: status,
+                    token: token,
+                },
+                cache: false,
+                success: function(data) {
+                    if (data) {
+                        if (data == "success") {
+                            alert("上传成功");
+                            window.location.reload();
+                        } else if (data == "fail") {
+                            alert("该内容可能已被修改");
+                            window.location.reload();
+                        } else if (data == "timeup") {
+                            alert("超过提交时限");
+                            window.location.reload();
+                        } else {
+                            alert("没有该记录");
+                            window.location.reload();
+                        }
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                },
+                error: function(e) {
+                    alert("错误WW！" + e);
+                    window.location.reload();
+                }
+            });
+        }
+    }
+
+    function queren_chehui() {
+        if (confirm("确认撤回？") == true) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+    //撤回交流内容
+    function jlnrchehui(jiaoliuid) {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var token = $api.getStorage("logintoken");
+        var status = dataInfo.status;
+        var studentid = dataInfo.id;
+        if (queren_chehui()) {
+            $.ajax({
+                type: "POST",
+                dataType: 'text',
+                url: $api.getStorage('serverUrl')+"app_CheHuijiaoliuneirong",
+                data: {
+                    CODE: jiaoliuid,
+                    xueshengid: studentid,
+                    status: status,
+                    token: token,
+                },
+                cache: false,
+                success: function(data) {
+                    if (data) {
+                        if (data == "success") {
+                            alert("撤回成功");
+                            window.location.reload();
+                        } else if (data == "fail") {
+                            alert("该内容可能已被修改");
+                            window.location.reload();
+                        } else if (data == "timeup") {
+                            alert("超过撤回时限");
+                            window.location.reload();
+                        } else {
+                            alert("没有该记录");
+                            window.location.reload();
+                        }
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                },
+                error: function(e) {
+                    alert("错误W！" + e);
+                    window.location.reload();
+                }
+            });
+        }
+    }
+
+    function fanhuifudaoanpai() {
+        api.closeWin({
+            name: 'chulijiaoliuneirong'
+        });
+        window.location.reload();
+    }
+</script>
+
+</html>

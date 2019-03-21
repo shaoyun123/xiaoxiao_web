@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<!--首页内容部分-->
+		<title>fixed1</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+	</head>
+	<body style="background: rgb(245,245,245);">
+		<div id="wrap" class="flex-wrap flex-vertical container" style="padding-top: 20px;">
+			<header class="aui-bar aui-bar-nav aui-bar-light" id="aui-header" style="background-color:white;">
+				<div class="aui-title border-b " style="color:gray;font-size:20px;display: none;" id="fixed11" name="fixed1" >
+					校校
+				</div>
+				<div  class="aui-title border-b active" style="color:gray;font-size:20px;" id="richeng1" name="richeng">
+					校校
+				</div>
+				<div class="aui-title border-b" style="color:gray;font-size:20px;display: none;" id="jiaoliu1" name="jiaoliu">
+					校校
+				</div>
+				<div class="aui-title border-b" style="color:gray;font-size:20px;display: none;" id="personcontrol1" name="personcontrol">
+					校校
+				</div>
+				<!--顶部导航右侧的红色警告和...-->
+				<!--<a class="aui-pull-right border-b aui-btn jiaobiao richeng1" onclick="showMsg()"> <span class="aui-iconfont aui-icon-more" style="font-weight:bold;color:gray;"></span> </a>-->
+				<a class="aui-pull-right border-b aui-btn" id="xiaoxi" onclick=""> <span class="aui-iconfont aui-icon-info" id="tixing"></span> </a>
+			</header>
+			<section class="aui-grid aui-margin-b-15">
+				<div class="aui-row" id="menu_mun" style="background: rgb(245,245,245);">
+					<div class="aui-col-xs-4 aui-col-sm-4">
+						<i><img  src="../image/qingjia.png" style="width:35%;height:60px;border-radius:50%;" onclick="goto(1,1)"></i>
+						<div class="aui-grid-label">
+							请假
+						</div>
+					</div>
+					<div class="aui-col-xs-4 aui-col-sm-4">
+						<i><img  src="../image/richeng.png" style="width:35%;height:60px;border-radius:50%;" onclick="goto(2,1)"></i>
+						<div class="aui-grid-label">
+							日程
+						</div>
+					</div>
+					<div class="aui-col-xs-4 aui-col-sm-4">
+						<i><img  src="../image/chaqin.png" style="width:35%;height:60px;border-radius:50%;" onclick="goto(7,1)"></i>
+						<div class="aui-grid-label">
+							查寝
+						</div>
+					</div>
+					<div class="aui-col-xs-4 aui-col-sm-4">
+						<i><img  src="../image/news.png" style="width:35%;height:60px;border-radius:50%;" onclick="goto(8,1)"></i>
+						<div class="aui-grid-label">
+							新闻
+						</div>
+					</div>
+					<div class="aui-col-xs-4 aui-col-sm-4">
+						<i><img  src="../image/kaoshi.png" style="width:35%;height:60px;border-radius:50%;" onclick="goto(9,1)"></i>
+						<div class="aui-grid-label">
+							考试
+						</div>
+					</div>
+					<div class="aui-col-xs-4 aui-col-sm-4">
+						<i><img  src="../image/deyufen.png" style="width:35%;height:60px;border-radius:50%;" onclick="goto(3,1)"></i>
+						<div class="aui-grid-label">
+							德育分
+						</div>
+					</div>
+				</div>
+			</section>
+			<footer  class="border-t  aui-bar aui-bar-tab">
+				<div id="footer" class="border-t aui-bar-tab-item">
+					<div id="appFooter" style="display: inline;" >
+						<a href="index.html" style="width:23%;">
+						<div class="aui-bar-tab-item footDiv aui-active" name="fixed1" tapmode="hover" style="height:60px;">
+							<i style="font-size:25px;" class="aui-iconfont aui-icon-home"></i>
+							<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label" >
+								首页
+							</div>
+						</div> </a>
+						<a href="diburicheng.html" style="width:23%;">
+						<div class="aui-bar-tab-item footDiv" name="richeng" tapmode="hover" style="height:60px;">
+							<i style="font-size:25px;" class="aui-iconfont aui-icon-calendar"></i>
+							<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label">
+								日程
+							</div>
+						</div> </a>
+						<a href="jiaoliu.html" style="width:23%;">
+						<div class="aui-bar-tab-item footDiv" tapmode="hover"name="jiaoliu" style="height:60px;">
+							<i style="font-size:25px;" class="aui-iconfont aui-icon-comment"></i>
+							<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label">
+								交流
+							</div>
+						</div> </a>
+						<a href="personcontrol.html" style="width:23%;">
+						<div class="aui-bar-tab-item footDiv" tapmode="hover" name="personcontrol" style="height:60px;">
+							<i style="font-size:25px;" class="aui-iconfont aui-icon-my"></i>
+							<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label">
+								我的
+							</div>
+						</div> 
+						</a>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script>
+		var mkeyTime = new Date().getTime();
+		apiready = function() {
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				//如果当前时间减去标志时间大于2秒，说明是第一次点击返回键，反之为2秒内点了2次，则退出。
+				if ((new Date().getTime() - mkeyTime) > 2000) {
+					mkeyTime = new Date().getTime();
+					api.toast({
+						msg : '再按一次退出程序',
+						duration : 2000,
+						location : 'bottom'
+					});
+				} else {
+					api.closeWidget();
+				}
+			});
+		}
+		function goto(action, data2) {
+			if (action == "1") {//请假
+				api.openWin({
+					name : 'myApplicationwin',
+					url : "qingjia.html",
+					reload : true,
+					allowEdit : true
+				});
+			} else if (action == "2") {//日程
+				api.openWin({
+					name : 'shouye_richeng',
+					url : "richeng.html",
+					reload : true,
+					allowEdit : true
+				});
+			} else if (action == "3") {// 德育分
+				api.openWin({
+					name : 'deyufen',
+					url : 'deyufen.html',
+					reload : true,
+					allowEdit : true
+				});
+			} else if (action == "7") {//查寝
+				api.openWin({
+					name : 'chaqin',
+					url : "chaqin.html",
+					reload : true,
+					allowEdit : true
+				});
+			} else if (action == "8") {// 新闻
+				api.openWin({
+					name : 'shouye_xinwen',
+					url : "xinwen.html",
+					reload : true,
+					allowEdit : true
+				});
+			} else if (action == "9") {// 考试
+				api.openWin({
+					name : 'shouye_kaoshi',
+					url : "kaoshi.html",
+					reload : true,
+					allowEdit : true
+				});
+			}
+		}
+	</script>

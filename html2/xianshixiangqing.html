@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>shouye_richeng</title>
+		<link rel="stylesheet" type="text/css" href=" ../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}			
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				假条详情
+			</div>
+		</header>
+		<div style="background: #fff;margin-top: 75px;">
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				姓名：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xucs
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				学号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2013040004
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				班级：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;实验室608
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				请假事由：&nbsp;&nbsp;头疼
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				开始时间：&nbsp;&nbsp;2018-08-23
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				结束时间：&nbsp;&nbsp;2018-08-23
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				状态：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;待处理
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				申请时间：&nbsp;&nbsp;2018-08-23
+			</div>
+			
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.execScript({
+				name : 'richeng',
+			});
+			api.closeWin();
+		}
+
+		apiready = function() {
+			
+		};
+	</script>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>lishikecheng</title>
+		<link rel="stylesheet" type="text/css" href=" ../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			ul {
+				/*display: inline;*/
+				position: relative;
+				height: 50%;
+				width: 100%;
+			}
+			ul li {
+				display: inline-block;
+				height: 40px;
+				line-height: 40px;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				历史课程
+			</div>
+		</header>
+		<div style="padding: 8px;margin-top: 75px;height: 20%;">
+			<ul>
+				<li style="color:#09c6d0;">
+					&nbsp;学年:
+				</li>
+				<li style="border: 1px solid #666;background: #ffffff;width: 30%;border-radius: 5px;">
+					&nbsp;2017~2018
+				</li>
+				<li style="color:#09c6d0;">
+					&nbsp;学期:
+				</li>
+				<li style="border: 1px solid #666;background: #ffffff;width: 30%;border-radius: 5px;">
+					&nbsp;3
+				</li>
+			</ul>
+			<ul>
+				<li style="color:#09c6d0;">
+					&nbsp;第:&nbsp;
+				</li>
+				<li style="border: 1px solid #666;background: #ffffff;width: 30%;border-radius: 5px;">
+					&nbsp;3
+				</li>
+				<li style="color:#09c6d0;">
+					&nbsp;周
+				</li>
+			</ul>
+		</div>
+		<div style="background: #fff;">
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				<div>
+					<div>
+						课程：计算机
+					</div>
+					<div>
+						地点：北校区
+					</div>
+					<div>
+						任课老师：老师
+					</div>
+					<div>
+						上课周次：1~3周    周日
+					</div>
+					<div>
+						上课节次：1~2节
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.execScript({
+				name : 'richeng',
+			});
+			api.closeWin();
+		}
+	</script>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+	</head>
+	<body>
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+			<div  class="aui-title  border-b"  id="title" name="richeng" style="font-size:20px;color:gray;">
+				设置
+			</div>
+			<!--<a class="aui-pull-right border-b aui-btn" onclick="tianjia()" id="tianjia"> <span class="aui-iconfont aui-icon-info aui-icon-plus" style="color:gray;font-size: 20px;"></span> </a>-->
+		</header>
+		<div id="add" style="margin-top: 70px;background-color: white;"></div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'shezhixinxi'
+			});
+		}
+
+		apiready = function() {
+			//			var data = api.pageParam.data;
+			//			if (data.suoxuanxiaozu == '' || data.suoxuanxiaozu == null) {  // 学生还没有加入小组
+			//				$("#tianjia").css("display", "block");
+			//			} else {
+			//				$("#tianjia").css("display", "none");
+			//			}
+			funIniGroup();
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		};
+		function funIniGroup() {
+			var laoshixinxi = api.pageParam.laoshixinxi;
+			var fuzerenxinxi = api.pageParam.fuzerenxinxi;
+			//		alert(fuzerenxinxi);
+			var html = '';
+			html += '<div style="padding:10px;">';
+			html += '<label>一题一人</label><input type="radio" name="radio" value="0">';
+			html += '&nbsp&nbsp&nbsp&nbsp<label>一题多人</label><input type="radio" name="radio" value="1">';
+			html += '</div>';
+			html += '<div style="">';
+			html += '<div style="margin:5px;height:50px;line-height:50px;" id="test">';
+			html += '<label style="width:20%;">' + fuzerenxinxi.fuzerenxingming + '：</label><input class="renshu_input" id="fuzeren" style="border:1px solid #ccc;width:40%;" value="">';
+			html += '人</div>';
+			for (var i = 0; i < laoshixinxi.length; i++) {
+				html += '<div style="margin:5px;height:50px;line-height:50px;" id="test">';
+				html += '<label style="width:20%;">' + laoshixinxi[i].laoshixingming + '：</label><input class="renshu_input" name="' + i + '" style="border:1px solid #ccc;width:40%;" value="">';
+				html += '人</div>';
+			}
+			html += '</div>';
+			html += '<button class="aui-btn aui-btn-info" style="left:45%;" onclick="tijiao();">提交</button>';
+			$("#add").html(html);
+		}
+
+		function tijiao() {
+			//		var name = $("input[class='renshu_input']");
+			//		name.each(function(){
+			//          alert($(this).val());
+			//          if($(this).val() == ''||$(this).val() == null){
+			//          alert("请检查填写是否完整！");
+			////          停止
+			//          }
+			//      });
+			var shixiid = api.pageParam.shixiid;
+			var laoshixinxi = api.pageParam.laoshixinxi;
+			var fuzerenxinxi = api.pageParam.fuzerenxinxi;
+			var fuzeren_rongliang = $("#fuzeren").val();
+			var fuzerenxingming = fuzerenxinxi.fuzerenxingming;
+			var fuzerenid = fuzerenxinxi.fuzerenid;
+			//
+			var renshu_checkleixing = $('input:radio:checked').val();
+			var renshu_check = '';
+			if (renshu_checkleixing == '0' || renshu_checkleixing == 0) {
+				renshu_check = '一题一人';
+			} else {
+				renshu_check = '一题多人';
+			}
+			if (renshu_check == '' || renshu_check == null || renshu_check == 'undefined') {
+				alert("请检查填写是否完整！");
+			} else {
+				var con = '';
+				var renkelaoshiid = '';
+				con += renshu_check;
+				renkelaoshiid += fuzerenid + ',' + fuzeren_rongliang + ';';
+				con += '\n ' + fuzerenxingming + '：' + fuzeren_rongliang + '人';
+				for (var i = 0; i < laoshixinxi.length; i++) {
+					var renshu_input = $("input[name='" + i + "']").val();
+					con += '\n ' + laoshixinxi[i].laoshixingming + '：' + renshu_input + '人';
+					renkelaoshiid += laoshixinxi[i].laoshiid + ',' + renshu_input + ';';
+				}
+				//				alert(renkelaoshiid);
+				api.confirm({
+					title : '提醒',
+					msg : con,
+					buttons : ['确定', '取消']
+				}, function(ret, err) {
+					var index = ret.buttonIndex;
+					if (index == 2) {
+					} else if (index == 1) {
+						var dataInfo = $api.getStorage('loginDataInfo');
+						var status = dataInfo.status;
+						var yonghuid = dataInfo.id;
+						var token = $api.getStorage("logintoken");
+						$.ajax({
+							type : "POST",
+							url : $api.getStorage('serverUrl') + "app_shixishezhi",
+							data : {
+								yonghuid : yonghuid,
+								status : status,
+								token : token,
+								leixing : renshu_checkleixing,
+								renkelaoshiid : renkelaoshiid,
+								shixiid : shixiid,
+							},
+							dataType : 'json',
+							cache : false,
+							success : function(data) {
+								//							alert($api.jsonToStr(data));
+								if (data.status == "success") {
+									alert("设置成功");
+								}
+//								var jsfun = 'getshijianke();';
+//								api.execScript({
+//									name : 'shixiwin',
+//									frameName : 'shixifrm',								
+//									script : jsfun
+//								});
+								goback();
+							},
+							error : function() {
+								console.log("app_shixishezhi");
+							}
+						})
+					}
+				})
+			}
+		}
+	</script>
+</html>

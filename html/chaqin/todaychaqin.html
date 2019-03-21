@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>todaychaqin</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			.butt {
+				margin-left: 15px !important;
+				margin-right: 15px !important;
+				margin-top: 50px;
+				border: 1px solid #ddd;
+			}
+			header {
+				background-color: #f2f2f2;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;z-index:10;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				查寝
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+			<ul class="aui-list aui-list-in">
+				<nav>
+					<ul id="xianshi"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'todaychaqin',
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			loadData();
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+			var banjiid = dataInfo.banJiID;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var code = studentid + ',zytech,' + banjiid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_BackTodayChaQinXinXi",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+				},
+				dataType : 'json',
+				cache : false,
+				timeout : 5000,
+				success : function(data) {
+					html = "";
+					var data = eval(data);
+					if (data) {
+						if (data.anpaiid != null && data.anpaiid != "") {
+							html += '<div class="aui-list-item"><div class="aui-list-item-inner"><font style="font-size:20px;font-weight:bold;">今日查寝：</font></div></div>';
+							html += '<div class="aui-list-item"><div class="aui-list-item-inner"><font style="font-size:18px;">开始时间：' + data.kaishishijian + '</font></div></div>';
+							html += '<div class="aui-list-item"><div class="aui-list-item-inner"><font style="font-size:18px;">结束时间：' + data.jieshushijian + '</font></div></div>';
+							html += '<div class="aui-list-item"><div class="aui-list-item-inner"><font style="font-size:18px;">拍照要求：' + data.paizhaoyaoqiu + '</font></div></div>';
+							html += '<input type="hidden" value="' + data.riqi + '" name="riqi" id="riqi">';
+							html += '<input type="hidden" value="' + data.jiaoshiid + '" name="fudaoyuanid" id="fudaoyuanid">';
+							html += '<input type="hidden" value="' + data.anpaiid + '" name="anpaiid" id="anpaiid">';
+							html += '<img hidden id="nowPhoto1" name="nowPhoto1" style="width:100%;height:300px;">';
+							html += '<div class="butt"><div class="aui-btn aui-btn-block" onclick="paizhao()" style="background-color:#1E90FF;">拍照</div></div>';
+							$('#xianshi').html(html);
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("超时");
+					api.hideProgress();
+				}
+			});
+		};
+		function paizhao() {
+			api.getPicture({
+				sourceType : 'camera',
+				encodingType : 'jpg',
+				mediaValue : 'pic',
+				destinationType : 'base64',
+				allowEdit : true,
+				quality : 20,
+				saveToPhotoAlbum : false
+			}, function(ret, err) {
+				if (ret) {
+					if (ret.base64Data !== "") {
+						var dataInfo = $api.getStorage('loginDataInfo');
+						var status = dataInfo.status;
+						var token = $api.getStorage("logintoken");
+						var xueshengid = dataInfo.id;
+						var susheid = dataInfo.suSheID;
+						var anpaiid = $('#anpaiid').val();
+						$.ajax({
+							type : "POST",
+							url : $api.getStorage('serverUrl') + "app_UpdateImgerBase64",
+							data : {
+								base64Str : ret.base64Data,
+								xueshengid : xueshengid,
+								status : status,
+								token : token,
+								anpaiid : anpaiid,
+								susheid : susheid,
+							},
+							dataType : 'json',
+							cache : false,
+							success : function(data) {
+								if (data) {
+									if (data.msg == "OK") {
+										alert("上传成功");
+									} else {
+										alert("上传失败");
+									}
+								} else {
+									alert("已登出");
+									api.hideProgress();
+									var jsfun = 'logout();';
+									api.execScript({
+										name : 'index',
+										script : jsfun
+									});
+								}
+							},
+							error : function() {
+								alert("错误001");
+							}
+						});
+					}
+				} else {
+					api.alert({
+						msg : '图片获取失败,请重新拍照!'
+					});
+				}
+			});
+		}
+	</script>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>底部导航</title>
+		<link rel="stylesheet" type="text/css" href="../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/style1.css"/>
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		
+		<style>
+			html, body {
+				height: 100%;
+				background: transparent;
+			}
+			.content {
+				background: transparent;
+				position: absolute;
+				display: -webkit-box;
+				-webkit-box-pack: end;
+				-webkit-box-align: end;
+				width: 100%;
+				top: 30px;
+			}
+			.content img {
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body onclick="closeThis()">
+	
+		<div class="content">
+			<div class="content" id="top-right">
+				<!-- <div id="arrow" class="aui-popup-arrow" style="display: -webkit-box;-webkit-box-pack: end;-webkit-box-align: end;right: 0px;" ></div> -->
+				<div id="content" class="aui-popup-content">
+					<ul class="aui-list aui-list-noborder">
+						<li class="aui-list-item" onclick="addMessager('1');">
+							<div class="aui-list-item-label-icon">
+								<i class="aui-iconfont aui-icon-comment aui-text-warning"></i>
+							</div>
+							<div class="aui-list-item-inner aui-list-item-middle">
+								添加课程
+							</div>
+						</li>
+						<li class="aui-list-item" onclick="addMessager('3');">
+							<div class="aui-list-item-label-icon">
+								<i class="aui-iconfont aui-icon-date aui-text-info"></i>
+							</div>
+							<div class="aui-list-item-inner">
+								添加提醒
+							</div>
+						</li>
+						<li class="aui-list-item" onclick="addMessager('2');">
+							<div class="aui-list-item-label-icon">
+								<i class="aui-iconfont aui-icon-flag aui-text-danger"></i>
+							</div>
+							<div class="aui-list-item-inner">
+								添加活动
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<img src=""  id="show"/>
+		</div>
+			
+	</body>
+</html>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/hammer.js"></script>
+	<script type="text/javascript" src="../script/hammerPluin.js"></script>
+<script type="text/javascript">
+	apiready = function() {
+		$('#top-right').show();
+	}
+	var temp = true;
+	function closeThis(){
+		if(temp){
+			api.closeFrame();
+		}
+		
+	}
+	
+	//$('#arrow').show();
+	//$('#content').show();
+   
+	function addMessager(type) {
+		temp = false;
+		var jsName = $api.getStorage('addMessager_rc');
+		if(!jsName){
+			$api.setStorage('addMessager_rc','richeng');
+		}
+		if (type == '1') {
+			api.openWin({
+				name: 'zizhu_jiake1',
+				url: "../html/richeng/zizhu_jiake1.html",
+				reload: true,
+				allowEdit:true
+			});
+		} else if (type == '2') {
+			api.openWin({
+				name: 'tianjiaricheng',
+				url: "../html/richeng/tianjiaricheng.html",
+				reload: true,
+				allowEdit:true
+			});
+		} else if (type == '3') {
+			api.openWin({
+				name: 'bianjibeiwang',
+				url: "../html/richeng/bianjibeiwang.html",
+				pageParam: {
+					tai: '2',
+					num : '2',
+				},
+				reload: true,
+				allowEdit:true
+			});
+		}
+		//temp = true;
+		setTimeout(function() {
+			api.closeFrame();
+		}, 1000)
+	}
+</script>

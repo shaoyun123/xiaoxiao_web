@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>wodeyijian</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				意见箱
+			</div>
+			<a class="aui-pull-right aui-btn" onclick="caogaoxiang()"> <span class="aui-iconfont aui-icon-edit" style="color:gray;"></span> </a>
+			<a class="aui-pull-right aui-btn" onclick="tianjiayijian()"> <span class="aui-iconfont aui-icon-plus" style="color:gray;"></span> </a>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">
+					我的意见
+				</li>
+				<nav style="padding-top:40px;">
+					<ul id="xianshiwodeyijian"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//关闭页面
+		function goback() {
+			$api.rmStorage('loginpages');
+			api.closeWin({
+				name : 'wodeyijian',
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var pag;
+		var cou = 0;
+		apiready = function() {
+			loadData();
+			chushi();
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				$api.rmStorage('loginpages');
+				api.closeWin({
+					name : 'wodeyijian',
+				});
+			});
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					cou = 0;
+					chushi();
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0,
+				}
+			}, function(ret, err) {
+				xiala();
+			});
+		};
+		function chushi() {
+			var studentid = $api.getStorage("loginxueshengid");
+			var token = $api.getStorage("logintoken");
+			var status = $api.getStorage("loginstatus");
+			var code = studentid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_WoDeYiJian",
+				data : {
+					CODE : code,
+					page : "",
+					status : status,
+					token : token,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					html = "";
+					var data = eval(data);
+					if (data) {
+						if (data.page != null && data.page != "") {
+							pag = data.page;
+							$api.setStorage('loginpages', data.pages);
+							for (var i = 0; i < data.yijianxiangs.length; i++) {
+								html += '<div id="zhengtiao' + data.yijianxiangs[i].yijianid + '">';
+								html += '<div class="aui-card-list" style="width:100%;"><div class="aui-card-list-header"><div style="width:300px;"><span style="font-size:20px;">' + data.yijianxiangs[i].yijianmingcheng + '</span>';
+								html += '<span style="font-size:12px;color:orange;margin-left:10px;">#' + data.yijianxiangs[i].biaoqian + '#</span>';
+								if (data.yijianxiangs[i].nimingbiaoji == "1") {
+									html += '<span style="font-size:12px;color:orange;margin-left:10px;">#匿名#</span>';
+								} else {
+									html += '<span style="font-size:12px;color:orange;margin-left:10px;">#公开#</span>';
+								}
+								if (data.yijianxiangs[i].jieshourenleixing == "1") {
+									html += '<span style="font-size:12px;color:orange;margin-left:10px;margin-left:10px;margin-left:10px;">#辅导员&emsp;收#</span>';
+								} else if (data.yijianxiangs[i].jieshourenleixing == "2") {
+									html += '<span style="font-size:12px;color:orange;margin-left:10px;margin-left:10px;">#书记&emsp;收#</span>';
+								} else {
+									html += '<span style="font-size:12px;color:orange;margin-left:10px;">#学生处管理员&emsp;收#</span>';
+								}
+								html += '</div></div>';
+								html += '<div class="aui-card-list-content-padded"><div style="margin-left:20px;"><h5 style="color:#adadad;">' + data.yijianxiangs[i].tijiaoshijian + '</h5></div><div style="margin-left:30px;width:80%;"><h4 style="font-family:SimSun;font-size:15px;">' + data.yijianxiangs[i].wenzineirong + '</h4></div>';
+								if (data.yijianxiangs[i].tupian != null && data.yijianxiangs[i].tupian.length > 0) {
+									html += '<div class="aui-row aui-row-padded" style="margin-left:30px;">';
+									for (var j = 0; j < data.yijianxiangs[i].tupian.length; j++) {
+										var srcimg = $api.getStorage('serverUrl') + 'app_getPic?id=' + data.yijianxiangs[i].tupian[j];
+										html += '<div class="aui-col-xs-4"><img  height="150px" alt="" src="' + srcimg + '"></div>';
+									}
+									html += '</div>';
+								}
+								html += '</div>';
+								html += '<div class="aui-card-list-content">';
+								html += '<div style="margin-left:30px;"><a onclick="pinglun(' + data.yijianxiangs[i].yijianid + ')"><span style="margin-left:10px;font-size:18px;" title="评论" class="aui-iconfont aui-icon-comment">&emsp;<span id="PINGLUN' + data.yijianxiangs[i].yijianid + '">' + data.yijianxiangs[i].pinglunliang + '</span></span></a><a onclick="dianzan(' + data.yijianxiangs[i].yijianid + ')">';
+								if (data.yijianxiangs[i].isdianzan == 1) {
+									html += '<span id="' + data.yijianxiangs[i].yijianid + '" style="margin-left:30px;color:red;font-size:18px;" title="点赞" class="aui-iconfont aui-icon-laud" >&emsp;' + data.yijianxiangs[i].dianzanliang + '</span></a></div>';
+								} else {
+									html += '<span id="' + data.yijianxiangs[i].yijianid + '" style="margin-left:30px;font-size:18px;" title="点赞" class="aui-iconfont aui-icon-laud">&emsp;' + data.yijianxiangs[i].dianzanliang + '</span></a></div>';
+								}
+								html += '</div>';
+								html += '<div class="aui-card-list-footer">';
+								html += '<form id="XIAFANG' + data.yijianxiangs[i].yijianid + '" style="width:100%;"  method="post"><input name="studentid" type="hidden" value="' + studentid + '"/><input name="yijianid" type="hidden" value="' + data.yijianxiangs[i].yijianid + '"/>';
+								html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+								html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+								html += '<div style="width:100%;float:left;"><input type="text" id="pinglunneirong' + data.yijianxiangs[i].yijianid + '" name="pinglunneirong" style="border:1px solid gray;width:80%;float:left;" placeholder="评论" >&emsp;';
+								html += '<input type="button" class="aui-btn aui-btn-info" style="text-align:center;margin-top:5px;"  value="发送" onclick="subpinglun(\'' + data.yijianxiangs[i].yijianid + '\',\'' + i + '\')"></div></form>';
+								html += '</div>';
+								html += '</div>';
+								html += '<div id="' + data.yijianxiangs[i].yijianid + '2" style="display:none;margin-left:20px;width:90%"><div id="' + data.yijianxiangs[i].yijianid + 'pinglun" style="background-color:#F0F0F0;">';
+								if (data.yijianxiangs[i].yijianhuifus != null) {
+									for (var j = 0; j < data.yijianxiangs[i].yijianhuifus.length; j++) {
+										if (data.yijianxiangs[i].yijianhuifus[j].jiaoshiid != null) {
+											html += '<div style="width:100%;font-size:15px;display:inline-block;">';
+											html += '<div style="display:inline-block;width:90%;"><font><span style="font-weight:bold;">' + data.yijianxiangs[i].yijianhuifus[j].jiaoshixingming + '</span>';
+											if (data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshiid != null) {
+												html += '&emsp;回复&emsp;<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshixingming + '</span>';
+											}
+											if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid != null) {
+												html += '&emsp;回复&emsp;';
+												if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid == studentid) {
+													html += '<span style="font-weight:bold">我</span>';
+												} else {
+													html += '<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifubanjimingcheng + '-' + data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengxingming + '</span>';
+												}
+											}
+											html += '&emsp;:&emsp;' + data.yijianxiangs[i].yijianhuifus[j].huifuneirong + '</font><br><span style="font-size:10px">&emsp;' + data.yijianxiangs[i].yijianhuifus[j].shijian + '</span></div>';
+											html += '<a class="aui-iconfont aui-icon-comment" style="display:inline-block;width:10%;text-align:right;font-size:20px;" onclick="huifu(\'' + i + '\',\'' + j + '\',\'' + data.yijianxiangs[i].yijianhuifus.length + '\')" ></a></div>';
+											html += '<div id="' + i + '-' + j + '" style="display:none;width:100%;"><form id="HUIFU' + i + '-' + j + '" style="width:100%;display:inline-block;" method="post">';
+											html += '<input name="studentid" type="hidden" value="' + studentid + '"/><input name="id" type="hidden" value="' + data.yijianxiangs[i].yijianid + '_' + data.yijianxiangs[i].yijianhuifus[j].jiaoshiid + '"/>';
+											html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+											html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+											html += '<div><input id="huifuneirong' + i + '' + j + '" name="huifuneirong" style="border:1px solid gray;display:inline-block;width:70%;float:left;background-color:white;" type="text" placeholder="回复&emsp;' + data.yijianxiangs[i].yijianhuifus[j].jiaoshixingming + '"/>&emsp;<input type="button" class="aui-btn aui-btn-info" style="display:inline-block;margin-top:5px;" value="发送" onclick="subhuifujiaoshi(\'' + i + '\',\'' + j + '\',\'' + data.yijianxiangs[i].yijianid + '\')"></div></form></div>';
+										}
+										if (data.yijianxiangs[i].yijianhuifus[j].xueshengid != null) {
+											if (data.yijianxiangs[i].yijianhuifus[j].xueshengid == studentid) {
+												html += '<div id="CANDELETE' + data.yijianxiangs[i].yijianhuifus[j].huifuid + '" style="width:100%;font-size:15px;display:inline-block;">';
+												html += '<div style="display:inline-block;width:90%;"><font><span style="font-weight:bold">我</span>';
+												if (data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshiid != null) {
+													html += '&emsp;回复&emsp;<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshixingming + '</span>';
+												}
+												if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid != null) {
+													html += '&emsp;回复&emsp;';
+													if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid == studentid) {
+														html += '<span style="font-weight:bold">我</span>';
+													} else {
+														html += '<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifubanjimingcheng + '-' + data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengxingming + '</span>';
+													}
+												}
+												html += '&emsp;:&emsp;' + data.yijianxiangs[i].yijianhuifus[j].huifuneirong + '</font><br><span style="font-size:10px">&emsp;' + data.yijianxiangs[i].yijianhuifus[j].shijian + '</span></div>';
+												html += '<a class="aui-iconfont aui-icon-trash" style="display:inline-block;width:10%;text-align:right;font-size:20px;" onclick="delhuifu(\'' + data.yijianxiangs[i].yijianhuifus[j].huifuid + '\',\'' + data.yijianxiangs[i].yijianid + '\')"></a></div>';
+											} else {
+												html += '<div style="width:100%;font-size:15px;display:inline-block;">';
+												html += '<div style="display:inline-block;width:90%;"><font><span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].banjimingcheng + '-' + data.yijianxiangs[i].yijianhuifus[j].xueshengxingming + '</span>';
+												if (data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshiid != null) {
+													html += '&emsp;回复&emsp;<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshixingming + '</span>';
+												}
+												if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid != null) {
+													html += '&emsp;回复&emsp;';
+													if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid == studentid) {
+														html += '<span style="font-weight:bold">我</span>';
+													} else {
+														html += '<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifubanjimingcheng + '-' + data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengxingming + '</span>';
+													}
+												}
+												html += '&emsp;:&emsp;' + data.yijianxiangs[i].yijianhuifus[j].huifuneirong + '</font><br><span style="font-size:10px">&emsp;' + data.yijianxiangs[i].yijianhuifus[j].shijian + '</span></div>';
+												html += '<a class="aui-iconfont aui-icon-comment" style="display:inline-block;width:10%;text-align:right;font-size:18px;" onclick="huifu(\'' + i + '\',\'' + j + '\',\'' + data.yijianxiangs[i].yijianhuifus.length + '\')" ></a></div>';
+											}
+											html += '<div id="' + i + '-' + j + '" style="display:none;width:100%;"><form id="HUIFU' + i + '-' + j + '" style="width:100%;display:inline-block;" method="post">';
+											html += '<input name="studentid" type="hidden" value="' + studentid + '"/><input name="id" type="hidden" value="' + data.yijianxiangs[i].yijianid + '_' + data.yijianxiangs[i].yijianhuifus[j].xueshengid + '"/>';
+											html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+											html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+											html += '<input id="huifuneirong' + i + '' + j + '" name="huifuneirong" style="border:1px solid gray;display:inline-block;width:70%;float:left;background-color:white;" type="text" placeholder="回复&emsp;' + data.yijianxiangs[i].yijianhuifus[j].xueshengxingming + '"/>&emsp;<input type="button" class="aui-btn aui-btn-info" style="display:inline-block;margin-top:5px;" value="发送" onclick="submithuifuxuesheng(\'' + i + '\',\'' + j + '\',\'' + data.yijianxiangs[i].yijianid + '\')"></form></div>';
+										}
+									}
+								}
+								html += '</div></div>';
+								html += '</div>';
+							}
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+					$('#xianshiwodeyijian').html(html);
+					api.hideProgress();
+				},
+				error : function() {
+					api.hideProgress();
+					alert("错误AWP");
+				}
+			});
+		}
+
+		function xiala() {
+			var zong = $api.getStorage("loginpages");
+			var studentid = $api.getStorage("loginxueshengid");
+			var token = $api.getStorage("logintoken");
+			var status = $api.getStorage("loginstatus");
+			if (pag < zong) {
+				loadData();
+				pag = pag + 1;
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_WoDeYiJian",
+					data : {
+						CODE : studentid,
+						page : pag,
+						status : status,
+						token : token,
+					},
+					dataType : 'json',
+					cache : false,
+					timeout : 5000,
+					success : function(data) {
+						html = "";
+						var data = eval(data);
+						if (data) {
+							if (data.page != null && data.page != "") {
+								for (var i = 0; i < data.yijianxiangs.length; i++) {
+									html += '<div id="zhengtiao' + data.yijianxiangs[i].yijianid + '">';
+									html += '<div class="aui-card-list" style="width:100%;"><div class="aui-card-list-header"><div style="width:300px;"><span style="font-size:20px;">' + data.yijianxiangs[i].yijianmingcheng + '</span>';
+									html += '<span style="font-size:12px;color:orange;margin-left:10px;">#' + data.yijianxiangs[i].biaoqian + '#</span>';
+									if (data.yijianxiangs[i].nimingbiaoji == "1") {
+										html += '<span style="font-size:12px;color:orange;margin-left:10px;">#匿名#</span>';
+									} else {
+										html += '<span style="font-size:12px;color:orange;margin-left:10px;">#公开#</span>';
+									}
+									if (data.yijianxiangs[i].jieshourenleixing == "1") {
+										html += '<span style="font-size:12px;color:orange;margin-left:10px;margin-left:10px;margin-left:10px;">#辅导员&emsp;收#</span>';
+									} else if (data.yijianxiangs[i].jieshourenleixing == "2") {
+										html += '<span style="font-size:12px;color:orange;margin-left:10px;margin-left:10px;">#书记&emsp;收#</span>';
+									} else {
+										html += '<span style="font-size:12px;color:orange;margin-left:10px;">#学生处管理员&emsp;收#</span>';
+									}
+									html += '</div></div>';
+									html += '<div class="aui-card-list-content-padded"><div style="margin-left:20px;"><h5 style="color:#adadad;">' + data.yijianxiangs[i].tijiaoshijian + '</h5></div><div style="margin-left:30px;width:80%;"><h4 style="font-family:SimSun;font-size:15px;">' + data.yijianxiangs[i].wenzineirong + '</h4></div>';
+									if (data.yijianxiangs[i].tupian != null && data.yijianxiangs[i].tupian.length > 0) {
+										html += '<div class="aui-row aui-row-padded" style="margin-left:30px;">';
+										for (var j = 0; j < data.yijianxiangs[i].tupian.length; j++) {
+											var srcimg = $api.getStorage('serverUrl') + 'app_getPic?id=' + data.yijianxiangs[i].tupian[j];
+											html += '<div class="aui-col-xs-4"><img  height="150px" alt="" src="' + srcimg + '"></div>';
+										}
+										html += '</div>';
+									}
+									html += '</div>';
+									html += '<div class="aui-card-list-content">';
+									html += '<div style="margin-left:30px;"><a onclick="pinglun(' + data.yijianxiangs[i].yijianid + ')"><span style="margin-left:10px;font-size:18px;" title="评论" class="aui-iconfont aui-icon-comment">&emsp;<span id="PINGLUN' + data.yijianxiangs[i].yijianid + '">' + data.yijianxiangs[i].pinglunliang + '</span></span></a><a onclick="dianzan(' + data.yijianxiangs[i].yijianid + ')">';
+									if (data.yijianxiangs[i].isdianzan == 1) {
+										html += '<span id="' + data.yijianxiangs[i].yijianid + '" style="margin-left:30px;color:red;font-size:18px;" title="点赞" class="aui-iconfont aui-icon-laud" >&emsp;' + data.yijianxiangs[i].dianzanliang + '</span></a></div>';
+									} else {
+										html += '<span id="' + data.yijianxiangs[i].yijianid + '" style="margin-left:30px;font-size:18px;" title="点赞" class="aui-iconfont aui-icon-laud">&emsp;' + data.yijianxiangs[i].dianzanliang + '</span></a></div>';
+									}
+									html += '</div>';
+									html += '<div class="aui-card-list-footer">';
+									html += '<form id="XIAFANG' + data.yijianxiangs[i].yijianid + '" style="width:100%;"  method="post"><input name="studentid" type="hidden" value="' + studentid + '"/><input name="yijianid" type="hidden" value="' + data.yijianxiangs[i].yijianid + '"/>';
+									html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+									html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+									html += '<div style="width:100%;float:left;"><input type="text" id="pinglunneirong' + data.yijianxiangs[i].yijianid + '" name="pinglunneirong" style="border:1px solid gray;width:80%;float:left;" placeholder="评论" >&emsp;';
+									html += '<input type="button" class="aui-btn aui-btn-info" style="text-align:center;margin-top:5px;"  value="发送" onclick="subpinglun(\'' + data.yijianxiangs[i].yijianid + '\',\'' + (5 * (pag - 1)) + i + '\')"></div></form>';
+									html += '</div>';
+									html += '</div>';
+									html += '<div id="' + data.yijianxiangs[i].yijianid + '2" style="display:none;margin-left:20px;width:90%"><div id="' + data.yijianxiangs[i].yijianid + 'pinglun" style="background-color:#F0F0F0;">';
+									if (data.yijianxiangs[i].yijianhuifus != null) {
+										for (var j = 0; j < data.yijianxiangs[i].yijianhuifus.length; j++) {
+											if (data.yijianxiangs[i].yijianhuifus[j].jiaoshiid != null) {
+												html += '<div style="width:100%;font-size:15px;display:inline-block;">';
+												html += '<div style="display:inline-block;width:90%;"><font><span style="font-weight:bold;">' + data.yijianxiangs[i].yijianhuifus[j].jiaoshixingming + '</span>';
+												if (data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshiid != null) {
+													html += '&emsp;回复&emsp;<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshixingming + '</span>';
+												}
+												if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid != null) {
+													html += '&emsp;回复&emsp;';
+													if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid == studentid) {
+														html += '<span style="font-weight:bold">我</span>';
+													} else {
+														html += '<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifubanjimingcheng + '-' + data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengxingming + '</span>';
+													}
+												}
+												html += '&emsp;:&emsp;' + data.yijianxiangs[i].yijianhuifus[j].huifuneirong + '</font><br><span style="font-size:10px">&emsp;' + data.yijianxiangs[i].yijianhuifus[j].shijian + '</span></div>';
+												html += '<a class="aui-iconfont aui-icon-comment" style="display:inline-block;width:10%;text-align:right;font-size:20px;" onclick="huifu(\'' + (5 * (pag - 1)) + i + '\',\'' + j + '\',\'' + data
+												.yijianxiangs[i].yijianhuifus.length + '\')" ></a></div>';
+												html += '<div id="' + (5 * (pag - 1)) + i + '-' + j + '" style="display:none;width:100%;"><form id="HUIFU' + (5 * (pag - 1)) + i + '-' + j + '" style="width:100%;display:inline-block;" method="post">';
+												html += '<input name="studentid" type="hidden" value="' + studentid + '"/><input name="id" type="hidden" value="' + data.yijianxiangs[i].yijianid + '_' + data.yijianxiangs[i].yijianhuifus[j].jiaoshiid + '"/>';
+												html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+												html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+												html += '<div><input id="huifuneirong' + (5 * (pag - 1)) + i + '' + j + '" name="huifuneirong" style="border:1px solid gray;display:inline-block;width:70%;float:left;background-color:white;" type="text" placeholder="回复&emsp;' + data.yijianxiangs[i].yijianhuifus[j].jiaoshixingming + '"/>&emsp;<input type="button" class="aui-btn aui-btn-info" style="display:inline-block;margin-top:5px;" value="发送" onclick="subhuifujiaoshi(\'' + (5 * (pag - 1)) + i + '\',\'' + j + '\',\'' + data.yijianxiangs[i].yijianid + '\')"></div></form></div>';
+											}
+											if (data.yijianxiangs[i].yijianhuifus[j].xueshengid != null) {
+												if (data.yijianxiangs[i].yijianhuifus[j].xueshengid == studentid) {
+													html += '<div id="CANDELETE' + data.yijianxiangs[i].yijianhuifus[j].huifuid + '" style="width:100%;font-size:15px;display:inline-block;">';
+													html += '<div style="display:inline-block;width:90%;"><font><span style="font-weight:bold">我</span>';
+													if (data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshiid != null) {
+														html += '&emsp;回复&emsp;<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshixingming + '</span>';
+													}
+													if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid != null) {
+														html += '&emsp;回复&emsp;';
+														if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid == studentid) {
+															html += '<span style="font-weight:bold">我</span>';
+														} else {
+															html += '<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifubanjimingcheng + '-' + data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengxingming + '</span>';
+														}
+													}
+													html += '&emsp;:&emsp;' + data.yijianxiangs[i].yijianhuifus[j].huifuneirong + '</font><br><span style="font-size:10px">&emsp;' + data.yijianxiangs[i].yijianhuifus[j].shijian + '</span></div>';
+													html += '<a class="aui-iconfont aui-icon-trash" style="display:inline-block;width:10%;text-align:right;font-size:20px;" onclick="delhuifu(\'' + data.yijianxiangs[i].yijianhuifus[j].huifuid + '\',\'' + data.yijianxiangs[i].yijianid + '\')"></a></div>';
+												} else {
+													html += '<div style="width:100%;font-size:15px;display:inline-block;">';
+													html += '<div style="display:inline-block;width:90%;"><font><span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].banjimingcheng + '-' + data.yijianxiangs[i].yijianhuifus[j].xueshengxingming + '</span>';
+													if (data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshiid != null) {
+														html += '&emsp;回复&emsp;<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifujiaoshixingming + '</span>';
+													}
+													if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid != null) {
+														html += '&emsp;回复&emsp;';
+														if (data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengid == studentid) {
+															html += '<span style="font-weight:bold">我</span>';
+														} else {
+															html += '<span style="font-weight:bold">' + data.yijianxiangs[i].yijianhuifus[j].beihuifubanjimingcheng + '-' + data.yijianxiangs[i].yijianhuifus[j].beihuifuxueshengxingming + '</span>';
+														}
+													}
+													html += '&emsp;:&emsp;' + data.yijianxiangs[i].yijianhuifus[j].huifuneirong + '</font><br><span style="font-size:10px">&emsp;' + data.yijianxiangs[i].yijianhuifus[j].shijian + '</span></div>';
+													html += '<a class="aui-iconfont aui-icon-comment" style="display:inline-block;width:10%;text-align:right;font-size:18px;" onclick="huifu(\'' + (5 * (pag - 1)) + i + '\',\'' + j + '\',\'' + data
+													.yijianxiangs[i].yijianhuifus.length + '\')" ></a></div>';
+												}
+												html += '<div id="' + (5 * (pag - 1)) + i + '-' + j + '" style="display:none;width:100%;"><form id="HUIFU' + (5 * (pag - 1)) + i + '-' + j + '" style="width:100%;display:inline-block;" method="post">';
+												html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+												html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+												html += '<input name="studentid" type="hidden" value="' + studentid + '"/><input name="id" type="hidden" value="' + data.yijianxiangs[i].yijianid + '_' + data.yijianxiangs[i].yijianhuifus[j].xueshengid + '"/>';
+												html += '<input id="huifuneirong' + (5 * (pag - 1)) + i + '' + j + '" name="huifuneirong" style="border:1px solid gray;display:inline-block;width:70%;float:left;background-color:white;" type="text" placeholder="回复&emsp;' + data.yijianxiangs[i].yijianhuifus[j].xueshengxingming + '"/>&emsp;<input type="button" class="aui-btn aui-btn-info" style="display:inline-block;margin-top:5px;" value="发送" onclick="submithuifuxuesheng(\'' + (5 * (pag - 1)) + i + '\',\'' + j + '\',\'' + data.yijianxiangs[i].yijianid + '\')"></form></div>';
+											}
+										}
+									}
+									html += '</div></div>';
+									html += '</div>';
+								}
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+						$('#xianshiwodeyijian').append(html);
+						api.hideProgress();
+					},
+					error : function() {
+						api.hideProgress();
+						alert("错误AWP");
+					}
+				});
+			} else {
+				if (cou == 0) {
+					html = $("#xianshiwodeyijian").html();
+					if (zong == 1) {
+						html += '<h4 style="text-align:center;position:fixed;bottom:0px;height:15px;width:100%;z-index:-10;font-size:12px;">已到最底端，没有更多数据</h4>';
+					} else {
+						html += '<h4 style="text-align:center;bottom:0px;height:10px;width:100%;">已到最底端，没有更多数据</h4>';
+					}
+					$('#xianshiwodeyijian').html(html);
+					cou = cou + 1;
+				}
+			}
+		}
+
+		function tianjiayijian() {
+			api.openWin({
+				name : 'createyijian',
+				url : 'createyijian.html',
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function caogaoxiang() {
+			api.openWin({
+				name : 'caogaoxiang',
+				url : 'caogaoxiang.html',
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function dianzan(id) {
+			var studentid = $api.getStorage("loginxueshengid");
+			var code = studentid + ',zytech,' + id;
+			var token = $api.getStorage("logintoken");
+			var status = $api.getStorage("loginstatus");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_StudentDianZan",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+				},
+				timeout : 5000,
+				dataType : 'text',
+				cache : false,
+				success : function(data) {
+					if (data) {
+						var datas = data.split(",");
+						if (datas[0] == "add") {
+							document.getElementById(id).innerHTML = "&emsp;" + datas[1];
+							document.getElementById(id).style.color = "red";
+						} else if (datas[0] == "del") {
+							document.getElementById(id).innerHTML = "&emsp;" + datas[1];
+							document.getElementById(id).style.color = "black";
+						} else if (datas[0] == "fail") {
+							alert("该信息可能已被修改");
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误P2000");
+				}
+			});
+		}
+
+		function huifu(id1, id2, tiao) {
+			var id = id1 + "-" + id2;
+			var items = new Array();
+			for (var i = 0; i < tiao; i++) {
+				items[i] = id1 + "-" + i;
+			}
+			if (document.getElementById(id).style.display == "none") {
+				document.getElementById(id).style.display = "block";
+				for (var j = 0; j < tiao; j++) {
+					if (items[j] != id) {
+						if (document.getElementById(items[j])) {
+							document.getElementById(items[j]).style.display = "none";
+						}
+					}
+				}
+			} else {
+				document.getElementById(id).style.display = "none";
+			}
+		}
+
+		function pinglun(id) {
+			if (document.getElementById(id + "2").style.display == "none") {
+				document.getElementById(id + "2").style.display = "block";
+			} else {
+				document.getElementById(id + "2").style.display = "none";
+			}
+		}
+
+		function queren_shanchu() {
+			if (confirm("确定删除吗？") == true) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function delhuifu(huifuid, yijianid) {
+			if (queren_shanchu()) {
+				var studentid = $api.getStorage("loginxueshengid");
+				var code = studentid + ',zytech,' + huifuid;
+				var token = $api.getStorage("logintoken");
+				var status = $api.getStorage("loginstatus");
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_DeleteHuiFu",
+					data : {
+						CODE : code,
+						status : status,
+						token : token,
+					},
+					timeout : 5000,
+					dataType : 'text',
+					cache : false,
+					success : function(data) {
+						if (data) {
+							if (data == "success") {
+								$("#CANDELETE" + huifuid).remove();
+								var x = $('#PINGLUN' + yijianid).html();
+								var y = x - 1;
+								$('#PINGLUN' + yijianid).html(y);
+							} else if (data == "xiaoshi") {
+								alert("该回复可能已被删除");
+								window.location.reload();
+							} else {
+								alert("已登出");
+								api.hideProgress();
+								var jsfun = 'logout();';
+								api.execScript({
+									name : 'index',
+									script : jsfun
+								});
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("错误AR")
+					}
+				});
+			}
+		}
+
+		function subpinglun(yijianid, i) {
+			if ($("#pinglunneirong" + yijianid).val() == "") {
+				alert("请输入评论内容……")
+				return false;
+			}
+			var formData = new FormData($("#XIAFANG" + yijianid)[0]);
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_SubPingLun",
+				data : formData,
+				processData : false,
+				contentType : false,
+				cache : false,
+				timeout : 5000,
+				success : function(data) {
+					if (data) {
+						if (data == "success") {
+							zhengtiao(yijianid, i);
+						} else if (data == "notsee") {
+							alert("该意见可能已消失");
+							zhengtiao(yijianid, i);
+						} else if (data == "notsuccess") {
+							alert("评论失败");
+							zhengtiao(yijianid, i);
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误SCAR");
+				}
+			});
+		}
+
+		function subhuifujiaoshi(id1, id2, yijianid) {
+			if ($("#huifuneirong" + id1 + id2).val() == "") {
+				alert("请输入回复内容……")
+				return false;
+			}
+			var formData = new FormData($("#HUIFU" + id1 + "-" + id2)[0]);
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_SubHuiFuJiaoShi",
+				data : formData,
+				processData : false,
+				contentType : false,
+				cache : false,
+				timeout : 5000,
+				success : function(data) {
+					if (data) {
+						if (data == "success") {
+							zhengtiao(yijianid, id1);
+						} else if (data == "notsee") {
+							alert("该意见可能已消失");
+							zhengtiao(yijianid, id1);
+						} else if (data == "notsuccess") {
+							alert("评论失败");
+							zhengtiao(yijianid, id1);
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误SCAR-20");
+				}
+			});
+		}
+
+		function submithuifuxuesheng(id1, id2, yijianid) {
+			if ($("#huifuneirong" + id1 + id2).val() == "") {
+				alert("请输入回复内容……")
+				return false;
+			}
+			var formData = new FormData($("#HUIFU" + id1 + "-" + id2)[0]);
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_SubHuiFuXueSheng",
+				data : formData,
+				processData : false,
+				contentType : false,
+				cache : false,
+				timeout : 5000,
+				success : function(data) {
+					if (data) {
+						if (data == "success") {
+							zhengtiao(yijianid, id1);
+						} else if (data == "notsee") {
+							alert("该意见可能已消失");
+							zhengtiao(yijianid, id1);
+						} else if (data == "notsuccess") {
+							alert("评论失败");
+							zhengtiao(yijianid, id1);
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误AUG");
+				}
+			});
+		}
+
+		function zhengtiao(yijianid, i) {
+			var studentid = $api.getStorage("loginxueshengid");
+			var code = studentid + ',zytech,' + yijianid;
+			var token = $api.getStorage("logintoken");
+			var status = $api.getStorage("loginstatus");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_ShuaXinDanTiaoYiJian",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+				},
+				dataType : 'json',
+				timeout : 3000,
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+					if (data) {
+						if (data != null && data != undefined) {
+							html += '<div id="zhengtiao' + data.yijianid + '">';
+							html += '<div class="aui-card-list" style="width:100%;"><div class="aui-card-list-header"><div style="width:300px;"><span style="font-size:20px;">' + data.yijianmingcheng + '</span>';
+							html += '<span style="font-size:12px;color:orange;margin-left:10px;">#' + data.biaoqian + '#</span>';
+							if (data.nimingbiaoji == "1") {
+								html += '<span style="font-size:12px;color:orange;margin-left:10px;">#匿名#</span>';
+							} else {
+								html += '<span style="font-size:12px;color:orange;margin-left:10px;">#公开#</span>';
+							}
+							if (data.jieshourenleixing == "1") {
+								html += '<span style="font-size:12px;color:orange;margin-left:10px;margin-left:10px;margin-left:10px;">#辅导员&emsp;收#</span>';
+							} else if (data.jieshourenleixing == "2") {
+								html += '<span style="font-size:12px;color:orange;margin-left:10px;margin-left:10px;">#书记&emsp;收#</span>';
+							} else {
+								html += '<span style="font-size:12px;color:orange;margin-left:10px;">#学生处管理员&emsp;收#</span>';
+							}
+							html += '</div></div>';
+							html += '<div class="aui-card-list-content-padded"><div style="margin-left:20px;"><h5>' + data.tijiaoshijian + '</h5></div><div style="margin-left:30px;width:80%;"><h4 style="font-family:SimSun;font-size:15px;">' + data.wenzineirong + '</h4></div>';
+							if (data.tupian != null && data.tupian.length > 0) {
+								html += '<div class="aui-row aui-row-padded" style="margin-left:30px;">';
+								for (var j = 0; j < data.tupian.length; j++) {
+									var srcimg = $api.getStorage('serverUrl') + 'app_getPic?id=' + data.tupian[i] + '&l=0';
+									html += '<div class="aui-col-xs-4"><img  height="150px" alt="" src="' + srcimg + '"></div>';
+								}
+								html += '</div>';
+							}
+							html += '</div>';
+							html += '<div class="aui-card-list-content">';
+							html += '<div style="margin-left:30px;"><a onclick="pinglun(' + data.yijianid + ')"><span style="margin-left:10px;font-size:18px;" title="评论" class="aui-iconfont aui-icon-comment">&emsp;<span id="PINGLUN' + data.yijianid + '">' + data.pinglunliang + '</span></span></a><a onclick="dianzan(' + data.yijianid + ')">';
+							if (data.isdianzan == 1) {
+								html += '<span id="' + data.yijianid + '" style="margin-left:30px;color:red;font-size:18px;" title="点赞" class="aui-iconfont aui-icon-laud" >&emsp;' + data.dianzanliang + '</span></a></div>';
+							} else {
+								html += '<span id="' + data.yijianid + '" style="margin-left:30px;font-size:18px;" title="点赞" class="aui-iconfont aui-icon-laud">&emsp;' + data.dianzanliang + '</span></a></div>';
+							}
+							html += '</div>';
+							html += '<div class="aui-card-list-footer">';
+							html += '<form id="XIAFANG' + data.yijianid + '" style="width:100%;"  method="post"><input name="studentid" type="hidden" value="' + studentid + '"/><input name="yijianid" type="hidden" value="' + data.yijianid + '"/>';
+							html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+							html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+							html += '<div style="width:100%;float:left;"><input type="text" id="pinglunneirong' + data.yijianid + '" name="pinglunneirong" style="border:1px solid gray;width:80%;float:left;" placeholder="评论" >&emsp;';
+							html += '<input type="button" class="aui-btn aui-btn-info" style="text-align:center;margin-top:5px;"  value="发送" onclick="subpinglun(\'' + data.yijianid + '\',\'' + i + '\')"></div></form>';
+							html += '</div>';
+							html += '</div>';
+							html += '<div id="' + data.yijianid + '2" style="display:block;margin-left:20px;width:90%"><div id="' + data.yijianid + 'pinglun" style="background-color:#F0F0F0;">';
+							if (data.yijianhuifus != null) {
+								for (var j = 0; j < data.yijianhuifus.length; j++) {
+									if (data.yijianhuifus[j].jiaoshiid != null) {
+										html += '<div style="width:100%;font-size:15px;display:inline-block;">';
+										html += '<div style="display:inline-block;width:90%;"><font><span style="font-weight:bold;">' + data.yijianhuifus[j].jiaoshixingming + '</span>';
+										if (data.yijianhuifus[j].beihuifujiaoshiid != null) {
+											html += '&emsp;回复&emsp;<span style="font-weight:bold">' + data.yijianhuifus[j].beihuifujiaoshixingming + '</span>';
+										}
+										if (data.yijianhuifus[j].beihuifuxueshengid != null) {
+											html += '&emsp;回复&emsp;';
+											if (data.yijianhuifus[j].beihuifuxueshengid == studentid) {
+												html += '<span style="font-weight:bold">我</span>';
+											} else {
+												html += '<span style="font-weight:bold">' + data.yijianhuifus[j].beihuifubanjimingcheng + '-' + data.yijianhuifus[j].beihuifuxueshengxingming + '</span>';
+											}
+										}
+										html += '&emsp;:&emsp;' + data.yijianhuifus[j].huifuneirong + '</font><br><span style="font-size:10px">&emsp;' + data.yijianhuifus[j].shijian + '</span></div>';
+										html += '<a class="aui-iconfont aui-icon-comment" style="display:inline-block;width:10%;text-align:right;font-size:20px;" onclick="huifu(\'' + i + '\',\'' + j + '\',\'' + data.yijianhuifus.length + '\')" ></a></div>';
+										html += '<div id="' + i + '-' + j + '" style="display:none;width:100%;"><form id="HUIFU' + i + '-' + j + '" style="width:100%;display:inline-block;" method="post">';
+										html += '<input name="studentid" type="hidden" value="' + studentid + '"/><input name="id" type="hidden" value="' + data.yijianid + '_' + data.yijianhuifus[j].jiaoshiid + '"/>';
+										html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+										html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+										html += '<div><input id="huifuneirong' + i + '' + j + '" name="huifuneirong" style="border:1px solid gray;display:inline-block;width:70%;float:left;background-color:white;" type="text" placeholder="回复&emsp;' + data.yijianhuifus[j].jiaoshixingming + '"/>&emsp;<input type="button" class="aui-btn aui-btn-info" style="display:inline-block;margin-top:5px;" value="发送" onclick="subhuifujiaoshi(\'' + i + '\',\'' + j + '\',\'' + data.yijianid + '\')"></div></form></div>';
+									}
+									if (data.yijianhuifus[j].xueshengid != null) {
+										if (data.yijianhuifus[j].xueshengid == studentid) {
+											html += '<div id="CANDELETE' + data.yijianhuifus[j].huifuid + '" style="width:100%;font-size:15px;display:inline-block;">';
+											html += '<div style="display:inline-block;width:90%;"><font><span style="font-weight:bold">我</span>';
+											if (data.yijianhuifus[j].beihuifujiaoshiid != null) {
+												html += '&emsp;回复&emsp;<span style="font-weight:bold">' + data.yijianhuifus[j].beihuifujiaoshixingming + '</span>';
+											}
+											if (data.yijianhuifus[j].beihuifuxueshengid != null) {
+												html += '&emsp;回复&emsp;';
+												if (data.yijianhuifus[j].beihuifuxueshengid == studentid) {
+													html += '<span style="font-weight:bold">我</span>';
+												} else {
+													html += '<span style="font-weight:bold">' + data.yijianhuifus[j].beihuifubanjimingcheng + '-' + data.yijianhuifus[j].beihuifuxueshengxingming + '</span>';
+												}
+											}
+											html += '&emsp;:&emsp;' + data.yijianhuifus[j].huifuneirong + '</font><br><span style="font-size:10px">&emsp;' + data.yijianhuifus[j].shijian + '</span></div>';
+											html += '<a class="aui-iconfont aui-icon-trash" style="display:inline-block;width:10%;text-align:right;font-size:20px;" onclick="delhuifu(\'' + data.yijianhuifus[j].huifuid + '\',\'' + data.yijianid + '\')"></a></div>';
+										} else {
+											html += '<div style="width:100%;font-size:15px;display:inline-block;">';
+											html += '<div style="display:inline-block;width:90%;"><font><span style="font-weight:bold">' + data.yijianhuifus[j].banjimingcheng + '-' + data.yijianhuifus[j].xueshengxingming + '</span>';
+											if (data.yijianhuifus[j].beihuifujiaoshiid != null) {
+												html += '&emsp;回复&emsp;<span style="font-weight:bold">' + data.yijianhuifus[j].beihuifujiaoshixingming + '</span>';
+											}
+											if (data.yijianhuifus[j].beihuifuxueshengid != null) {
+												html += '&emsp;回复&emsp;';
+												if (data.yijianhuifus[j].beihuifuxueshengid == studentid) {
+													html += '<span style="font-weight:bold">我</span>';
+												} else {
+													html += '<span style="font-weight:bold">' + data.yijianhuifus[j].beihuifubanjimingcheng + '-' + data.yijianhuifus[j].beihuifuxueshengxingming + '</span>';
+												}
+											}
+											html += '&emsp;:&emsp;' + data.yijianhuifus[j].huifuneirong + '</font><br><span style="font-size:10px">&emsp;' + data.yijianhuifus[j].shijian + '</span></div>';
+											html += '<a class="aui-iconfont aui-icon-comment" style="display:inline-block;width:10%;text-align:right;font-size:18px;" onclick="huifu(\'' + i + '\',\'' + j + '\',\'' + data.yijianhuifus.length + '\')" ></a></div>';
+										}
+										html += '<div id="' + i + '-' + j + '" style="display:none;width:100%;"><form id="HUIFU' + i + '-' + j + '" style="width:100%;display:inline-block;" method="post">';
+										html += '<input name="studentid" type="hidden" value="' + studentid + '"/><input name="id" type="hidden" value="' + data.yijianid + '_' + data.yijianhuifus[j].xueshengid + '"/>';
+										html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+										html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+										html += '<input id="huifuneirong' + i + '' + j + '" name="huifuneirong" style="border:1px solid gray;display:inline-block;width:70%;float:left;background-color:white;" type="text" placeholder="回复&emsp;' + data.yijianhuifus[j].xueshengxingming + '"/>&emsp;<input type="button" class="aui-btn aui-btn-info" style="display:inline-block;margin-top:5px;" value="发送" onclick="submithuifuxuesheng(\'' + i + '\',\'' + j + '\',\'' + data.yijianid + '\')"></form></div>';
+									}
+								}
+							}
+							html += '</div></div>';
+							html += '</div>';
+							$('#zhengtiao' + yijianid).html(html);
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				eror : function() {
+					alert("错误P90");
+				}
+			});
+		}
+
+		function fanhuixinzeng() {
+			api.closeWin({
+				name : 'createyijian'
+			});
+			api.closeWin({
+				name : 'xiugaicaogao'
+			});
+			window.location.reload();
+		}
+
+		function fanhui() {
+			api.closeToWin({
+				name : 'wodeyijian'
+			});
+			window.location.reload();
+		}
+	</script>
+</html>

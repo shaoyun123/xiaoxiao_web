@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>s_zengshanbumen</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../script/bootstrap-switch.min.js"></script>
+    <style>
+    	header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            我的社团
+        </div>
+        <a class="aui-pull-right border-b aui-btn" onclick="tianjia()">
+            <span class="aui-iconfont aui-icon-info aui-icon-plus" style="color:gray;font-size: 20px;"></span>
+        </a>
+    </header>
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;">增删部门</li>
+            <nav>
+                <ul id="caozuo">
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        var jsfun = 'stzsfanhui();';
+        api.execScript({
+            name: 'shetuancaozuo',
+            script: jsfun
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+      var shetuanxinxiid = api.pageParam.xinxiid;
+      var xueshengid = dataInfo.id;
+      loadData();
+      $.ajax({
+        type: "POST",
+        url: $api.getStorage('serverUrl')+"app_ST_ZengShanBuMen",
+        data: {
+            shetuanxinxiid: shetuanxinxiid,
+            xueshengid: xueshengid,
+        },
+        dataType: 'json',
+        cache: false,
+        timeout: 5000,
+        success: function(data){
+          var data=eval(data);
+          html ="";
+          if(data){
+            if(data.shetuanid!=null&&data.shetuanid!=""){
+              html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:40%;font-size:18px;"><font stlye="font-size:18px;">部门名称</font></div>';
+              html += '<div class="aui-list-item-inner" style="width:40%;"><font stlye="font-size:18px;">创建时间</font></div>';
+              html += '<div class="aui-list-item-inner" style="width:20%;"><font stlye="font-size:18px;">操作</font></div>';
+              html += '</li>';
+              for(var i=0;i<data.bumen.length;i++){
+                html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:40%;font-size:18px;"><font stlye="font-size:18px;">'+data.bumen[i].bumenmingcheng+'</font></div>';
+                html += '<div class="aui-list-item-inner" style="width:40%;"><font stlye="font-size:18px;">'+data.bumen[i].chuangjianshijian+'</font></div>';
+                html += '<div class="aui-list-item-inner" style="width:20%;font-size:18px;"><input type="button" class="aui-btn aui-btn-info"  value="删除" onclick="shanchu(\''+data.bumen[i].bumenid+'\')"></div>';
+                html += '</li>';
+              }
+              $('#caozuo').html(html);
+              api.hideProgress();
+            }
+            else {
+				alert("已登出");
+				api.hideProgress();
+				var jsfun = 'logout();';
+				api.execScript({
+				    name: 'index',
+				    script: jsfun
+				});
+            }
+          }
+        },
+        error: function(){
+          alert("超时");
+        }
+      });
+      api.addEventListener({
+          name: 'keyback'
+      }, function(ret, err) {
+          var jsfun = 'stzsfanhui();';
+          api.execScript({
+              name: 'shetuancaozuo',
+              script: jsfun
+          });
+      });
+    };
+    function cfm() {
+				if (confirm("确认删除？") == true) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+    function shanchu(id){
+    	var dataInfo = $api.getStorage('loginDataInfo');
+      if(cfm()){
+					var shetuanxinxiid = api.pageParam.xinxiid;
+          var xueshengid = dataInfo.id;
+					var code =shetuanxinxiid+",zytech,"+id;
+					$.ajax({
+						type: "POST",
+						url: $api.getStorage('serverUrl')+"app_ST_DeleteBuMen",
+				    data:{
+              CODE:code,
+              xueshengid: xueshengid,
+            },
+						dataType:'text',
+						cache:false,
+						timeout: 5000,
+						async:true,
+						success:function(data)
+						{
+							if(data=="success"){
+								alert("删除成功");
+                window.location.reload();
+							}
+							else if(data=="fail"){
+								alert("删除失败");
+                window.location.reload();
+							}
+              else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+              }
+						},
+						error: function()
+						{
+							alert("超时!");
+              window.location.reload();
+						}
+
+					});
+				}
+    }
+    function tianjia(){
+      var shetuanxinxiid = api.pageParam.xinxiid;
+      var mingcheng=api.pageParam.mingcheng;
+      api.openWin({
+          name: 's_tianjiabumen',
+          url: 's_tianjiabumen.html',
+          pageParam:{
+            xinxiid: shetuanxinxiid,
+            mingcheng: mingcheng,
+          },
+          reload: true,
+		  allowEdit:true
+      });
+
+    }
+    function fanhui5(){
+      api.closeWin({
+          name: 's_tianjiabumen'
+      });
+      window.location.reload();
+    }
+</script>
+
+</html>

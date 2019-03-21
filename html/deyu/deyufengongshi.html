@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>deyufengongshi</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+    <link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <!--<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>-->
+    <script type="text/javascript" src="../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+
+    <style>
+		header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="row content-container">
+            <div class="aui-bar aui-bar-nav aui-bar-light" id="div1" style="background-color: rgba(0, 0, 0, 0);padding-top:25px;color:#CD3700;position:fixed;top:0;" id="topbar">
+              <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+                  <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+              </a>
+              <div class="aui-title border-b" style="font-size:20px;color:gray;">
+               		   德育分
+              </div>
+            </div>
+            <div class="card" style="padding-top:70px;">
+                <div class="card-body">
+                    <div class="col-sm-6">
+                        <div class="sub-title">
+                            <font style="vertical-align:inherit;font-size:20px;">德育成绩公示</font>
+                        </div>
+                        <nav>
+                            <ul id="deyufengongshi">
+
+                            </ul>
+                        </nav>
+                        <nav>
+                            <ul id="xuesheng_deyufengongshi">
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'deyufengongshi',
+        });
+    }
+    apiready = function() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+        var dataInfo = $api.getStorage('loginDataInfo');
+		var status = dataInfo.status;
+        var studentid = dataInfo.id;
+        var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+        var banjiid = dataInfo.banJiID;
+        var token = $api.getStorage("logintoken");
+        var code = studentid + ',zytech,' + xuexiaoXuehao + ',zytech,' + banjiid;
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_DeYufengongshi",
+            data: {
+                CODE: code,
+                status: status,
+                token: token,
+            },
+            dataType: 'json',
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                var data = eval(data);
+                html = "";
+                if(data){
+                  if (data.length > 0) {
+                      xueshengdeyuxianshi(data);
+                  } else {
+                      html += '<font style="vertical-align:inherit;">当前未在公示期！</font>';
+                      api.hideProgress();
+                  }
+                }
+                else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+                $('#deyufengongshi').append(html);
+                //xueshengdeyuxianshi(data);
+            },
+            error: function() {
+                api.hideProgress();
+                alert("错误U");
+            }
+        });
+    };
+
+    function xueshengdeyuxianshi(dypfx_data) {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+		var status = dataInfo.status;
+        var studentid = dataInfo.id;
+        var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+        var banjiid = dataInfo.banJiID;
+        var token = $api.getStorage("logintoken");
+        var code = studentid + ',zytech,' + xuexiaoXuehao + ',zytech,' + banjiid;
+        //alert(dypfx_data);
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_GetXueShengdeyugongshi",
+            data: {
+                CODE: code,
+                status: status,
+                token: token,
+            },
+            dataType: 'json',
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                var data = eval(data);
+                html = "";
+                if(data){
+                  if (data.length > 0) {
+                      html += '<table id="tab1" class="table table-bordered" style="background-color:#FFFFFF;border: 1px solid #8B8B83;"><thead><tr>';
+                      html += '<th><font style="vertical-align:inherit;">学号</font></th>';
+                      html += '<th><font style="vertical-align:inherit;">姓名</font></th>';
+                      for (var i = 0; i < dypfx_data.length; i++) {
+                          if (dypfx_data[i].shangjiid == 0) {
+                              html += '<th><font style="vertical-align:inherit;width:400px;">' + dypfx_data[i].mingcheng + '(' + dypfx_data[i].xuefen + '学分)满分' + dypfx_data[i].manfen + '</font></th>';
+                          }
+                      }
+                      html += '<th><font style="vertical-align:inherit;">加权总分</font></th>';
+                      html += '<th><font style="vertical-align:inherit;">详情</font></th>';
+                  }
+                  html += '</tr></thead>';
+                  html += '<tbody>';
+                  for (var j = 0; j < data.length; j++) {
+                      html += '<tr><th scope="row"><font style="vertical-align:inherit;">' + data[j].xuehao + '</font></th>';
+                      html += '<td><font style="vertical-align:inherit;">' + data[j].xingming + '</font></td>';
+                      if (data[j].fenshu) {
+                          for (var i = 0; i < data[j].fenshu.length; i++) {
+                              html += '<td><font style="vertical-align:inherit;">' + data[j].fenshu[i] + '</font></td>';
+                          }
+                          html += '<td><font style="vertical-align:inherit;">' + data[j].deyufen + '</font></td>';
+                          html += '<td><input type="button" style="vertical-align:inherit;background-color:#D1EEEE;" onclick="deyugongshi_xiangqing(\'' + data[j].xuehao + '\',\'' + data[j].xingming + '\',\'' + data[j].deyufenid + '\',\'' + data[j].xueshengid + '\')" value="详情"></td></tr>';
+                      }
+                  }
+                  html += '</tbody></table>';
+                  $('#xuesheng_deyufengongshi').append(html);
+                  api.hideProgress();
+                }
+                else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function(e) {
+                var e = eval(e);
+                api.hideProgress();
+                alert("错误UU" + e);
+            }
+        });
+    }
+
+    function deyugongshi_xiangqing(xuehao,xingming,deyufenid,xueshengid) {
+        api.openWin({
+            name: 'deyugongshi_xiangqingwin',
+            url: 'deyugongshi_xiangqingwin.html',
+            pageParam: {
+                xuehao: xuehao,
+                xingming: xingming,
+                deyufenid: deyufenid,
+                xueshengid: xueshengid
+            },
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+</script>
+
+</html>

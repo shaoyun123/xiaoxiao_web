@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>gerenxinxi</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			.form-control {
+				display: block;
+				width: 100%;
+				height: 34px;
+				padding: 6px 12px;
+				font-size: 14px;
+				line-height: 1.42857143;
+				color: #555;
+				background-color: #fff;
+				background-image: none;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+				-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+				transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+			}
+			.form-control:focus {
+				border-color: #66afe9;
+				outline: 0;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+				box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
+			}
+
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont  aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				账户管理
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-header" style="font-size:20px;">
+					个人信息
+				</li>
+				<form id="biao" name="biao" method="post" class="form-horizontal" role="form" data-toggle="validation" novalidate="novalidate">
+					<nav>
+						<ul id="xianshi"></ul>
+					</nav>
+				</form>
+			</ul>
+		</div>
+	
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/aui-popup.js" ></script>
+	<script type="text/javascript">
+											
+				function goback() {
+			api.closeWin({
+				name : 'gerenxinxi'
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var oldMail = "";
+		 
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			loadData();
+			
+			if (status == "xuesheng") {
+			
+				var id = dataInfo.id;
+				var xuexiaoXuehao =dataInfo.xuexiao_xuehao;
+				var banjiid = dataInfo.banJiID;
+				var xingming =dataInfo.xingMing;
+				var yonghuming = dataInfo.yongHuMing;
+				
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_XueShengGeRenXinXiXianShi",
+					data : {
+						id : id,
+						xuexiaoXuehao : xuexiaoXuehao,
+						banjiid : banjiid,
+						status : status,
+						token : token,
+					},
+					dataType : 'json',
+					cache : false,
+					timeout : 5000,
+					success : function(data) {
+						html = "";
+						var data = eval(data);
+						if (data.xuexiao != null && data.xuexiao != "") {
+							var srcimg = $api.getStorage('serverUrl') + 'app_getPic?id=' + data.xuesheng.touxiang;
+							html += '<input type ="hidden" readonly name="status" id="status" value="' + status + '">';
+							html += '<input type ="hidden" readonly name="id" id="id" value="' + id + '">';
+							html += '<input type ="hidden" readonly name="mytoken" id="mytoken" value="">';
+					
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">用户名：</div><div style=";margin-top:12px;margin-right:48%;">' + yonghuming + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">学校：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + data.xuexiao.xuexiaomingcheng + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">院系：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + data.yuanxi.yuanximingcheng + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">专业：</div>';
+							
+							if(data.zhuanye== null){
+								html+='';
+							}else{
+								html += '<div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + data.zhuanye.zhuanyemingcheng + '</div></li>';
+							}
+							
+							
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">班级：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + data.banji.banjimingcheng + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">姓名：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + xingming + '</div></li>';
+							if (data.xuesheng.dianhua != null && data.xuesheng.dianhua != "") {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">联系电话：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="tel" class="form-control"	value="' + data.xuesheng.dianhua + '" name="phone" id = "phone"	pattern="(\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$" required="required" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							} else {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">联系电话：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="tel" class="form-control"	value="" name="phone" id = "phone"	pattern="(\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$" required="required" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							}
+							if (data.xuesheng.youxiang != null && data.xuesheng.youxiang != "") {
+								oldMail = data.xuesheng.youxiang;
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">邮箱：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="email" class="form-control" name = "mail" id="mail"	value="' + data.xuesheng.youxiang + '" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							} else {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">邮箱：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="email" class="form-control" name = "mail" id="mail"	value="" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							}
+							html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;"></div>';
+							html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" ><input type="button" value="保存" onclick="baocun()"></div>';
+							html += '</div></div>';
+						}
+						$('#xianshi').html(html);
+						$("input[name='mytoken']").val(token);
+						api.hideProgress();
+					},
+					error : function() {
+						alert("超时");
+						api.hideProgress();
+					}
+				});
+			} else if (status == "fudaoyuan") {
+				
+				var id = dataInfo.id;
+				var yuanxiid = dataInfo.yuanXiID;
+				var yonghuxingming = dataInfo.xingMing;
+				var yonghuming = dataInfo.yongHuMing;
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_FuDaoYuanJiaoShiGeRenXinXiXianShi",
+					data : {
+						id : id,
+						yuanxiid : yuanxiid,
+						status : status,
+						token : token,
+					},
+					dataType : 'json',
+					cache : false,
+					timeout : 5000,
+					success : function(data) {
+						html = "";
+						var data = eval(data);
+						if (data.xuexiao != null && data.xuexiao != "") {
+							var srcimg = $api.getStorage('serverUrl') + 'app_getPic?id=' + data.yonghu.touxiang;
+							html += '<input type ="hidden" readonly name="status" id="status" value="' + status + '">';
+							html += '<input type ="hidden" readonly name="id" id="id" value="' + id + '">';
+							html += '<input type ="hidden" readonly name="mytoken" id="mytoken" value="">';
+		
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">用户名：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + yonghuming + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">学校：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + data.xuexiao.xuexiaomingcheng + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">院系：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + data.yuanxi.yuanximingcheng + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">姓名：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + yonghuxingming + '</div></li>';
+							if (data.yonghu.yonghushouji != null && data.yonghu.yonghushouji != "") {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">联系电话：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="tel" class="form-control"	value="' + data.yonghu.yonghushouji + '" name="phone" id = "phone"	pattern="(\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$" required="required" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							} else {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">联系电话：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="tel" class="form-control"	value="" name="phone" id = "phone"	pattern="(\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$" required="required" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							}
+							if (data.yonghu.yonghuyouxiang != null && data.yonghu.yonghuyouxiang != "") {
+								oldMail = data.yonghu.yonghuyouxiang;
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">邮箱：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="email" class="form-control" name = "mail" id="mail"	value="' + data.yonghu.yonghuyouxiang + '" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							} else {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">邮箱：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="email" class="form-control" name = "mail" id="mail"	value="" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							}
+							html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;"></div>';
+							html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" ><input type="button" value="保存" onclick="baocun()"></div>';
+							html += '</div></div>';
+						}
+						$('#xianshi').html(html);
+						$("input[name='mytoken']").val(token);
+						api.hideProgress();
+					},
+					error : function() {
+						alert("超时");
+						api.hideProgress();
+					}
+				});
+			} else if (status == "jiaoshi") {
+			
+				var id = dataInfo.id;
+				var yuanxiid = dataInfo.yuanXiID;
+				var yonghuxingming = dataInfo.xingMing;
+				var yonghuming = dataInfo.yongHuMing;
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_FuDaoYuanJiaoShiGeRenXinXiXianShi",
+					data : {
+						id : id,
+						yuanxiid : yuanxiid,
+						status : status,
+						token : token,
+					},
+					dataType : 'json',
+					cache : false,
+					timeout : 5000,
+					success : function(data) {
+						html = "";
+						var data = eval(data);
+						if (data.xuexiao != null && data.xuexiao != "") {
+							var srcimg = $api.getStorage('serverUrl') + 'app_getPic?id=' + data.yonghu.touxiang;
+							html += '<input type ="hidden" readonly name="status" id="status" value="' + status + '">';
+							html += '<input type ="hidden" readonly name="id" id="id" value="' + id + '">';
+							html += '<input type ="hidden" readonly name="mytoken" id="mytoken" value="">';
+							
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">用户名：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + yonghuming + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">学校：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + data.xuexiao.xuexiaomingcheng + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">院系：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + data.yuanxi.yuanximingcheng + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">姓名：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + yonghuxingming + '</div></li>';
+							if (data.yonghu.yonghushouji != null && data.yonghu.yonghushouji != "") {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">联系电话：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="tel" class="form-control"	value="' + data.yonghu.yonghushouji + '" name="phone" id = "phone"	pattern="(\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$" required="required" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							} else {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">联系电话：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="tel" class="form-control"	value="" name="phone" id = "phone"	pattern="(\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$" required="required" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							}
+							if (data.yonghu.yonghuyouxiang != null && data.yonghu.yonghuyouxiang != "") {
+								oldMail = data.yonghu.yonghuyouxiang;
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">邮箱：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="email" class="form-control" name = "mail" id="mail"	value="' + data.yonghu.yonghuyouxiang + '" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							} else {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">邮箱：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="email" class="form-control" name = "mail" id="mail"	value="" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							}
+							html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;"></div>';
+							html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" ><input type="button" value="保存" onclick="baocun()"></div>';
+							html += '</div></div>';
+						}
+						$('#xianshi').html(html);
+						$("input[name='mytoken']").val(token);
+						api.hideProgress();
+					},
+					error : function() {
+						alert("超时");
+						api.hideProgress();
+					}
+				});
+			}else if (status == "laoshi") {
+			
+				var id = dataInfo.id;
+				var yuanxiid = dataInfo.yuanXiID;
+				var yonghuxingming = dataInfo.xingMing;
+				var yonghuming = dataInfo.yongHuMing;
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_FuDaoYuanJiaoShiGeRenXinXiXianShi",
+					data : {
+						id : id,
+						yuanxiid : yuanxiid,
+						status : status,
+						token : token,
+					},
+					dataType : 'json',
+					cache : false,
+					timeout : 5000,
+					success : function(data) {
+						html = "";
+						var data = eval(data);
+						if (data.xuexiao != null && data.xuexiao != "") {
+							var srcimg = $api.getStorage('serverUrl') + 'app_getPic?id=' + data.yonghu.touxiang;
+							html += '<input type ="hidden" readonly name="status" id="status" value="' + status + '">';
+							html += '<input type ="hidden" readonly name="id" id="id" value="' + id + '">';
+							html += '<input type ="hidden" readonly name="mytoken" id="mytoken" value="">';
+							
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">用户名：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + yonghuming + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">学校：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + data.xuexiao.xuexiaomingcheng + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">院系：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + data.yuanxi.yuanximingcheng + '</div></li>';
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">姓名：</div><div class="aui-list-item-inner" style="width:75%;margin-left:5px;">' + yonghuxingming + '</div></li>';
+							if (data.yonghu.yonghushouji != null && data.yonghu.yonghushouji != "") {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">联系电话：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="tel" class="form-control"	value="' + data.yonghu.yonghushouji + '" name="phone" id = "phone"	pattern="(\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$" required="required" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							} else {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">联系电话：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="tel" class="form-control"	value="" name="phone" id = "phone"	pattern="(\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$" required="required" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							}
+							if (data.yonghu.yonghuyouxiang != null && data.yonghu.yonghuyouxiang != "") {
+								oldMail = data.yonghu.yonghuyouxiang;
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">邮箱：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="email" class="form-control" name = "mail" id="mail"	value="' + data.yonghu.yonghuyouxiang + '" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							} else {
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:25%;">邮箱：</div><div class="aui-list-item-inner" style="width:75%;">';
+								html += '<input type="email" class="form-control" name = "mail" id="mail"	value="" style="border:1px solid #D3D3D3;margin:2px 5px;"></div></li>';
+							}
+							html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;"></div>';
+							html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" ><input type="button" value="保存" onclick="baocun()"></div>';
+							html += '</div></div>';
+						}
+						$('#xianshi').html(html);
+						$("input[name='mytoken']").val(token);
+						api.hideProgress();
+					},
+					error : function() {
+						alert("超时");
+						api.hideProgress();
+					}
+				});
+			}
+			
+			
+		};
+		function baocun() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			if ($("#phone").val() == "") {
+				alert("请填写联系电话")
+				$("#phone").focus();
+				return false;
+			}
+			var phone = document.getElementById('phone').value;
+			if (!(/^1[34578]\d{9}$/.test(phone))) {
+				alert("电话号码有误，请重填");
+				$("#dianhua").focus();
+				return false;
+			}
+			if($('#mail').val() != ''){
+				var myReg=/^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+				if(!myReg.test($('#mail').val())){
+　　　　				alert("邮箱格式不对!");
+					return;
+				}
+			}
+			var formData = new FormData($("#biao")[0]);
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_SaveXinTelAndMail",
+				data : formData,
+				processData : false,
+				contentType : false,
+				cache : false,
+				timeout : 5000,
+				async:false,
+				success : function(data) {
+					if (data) {
+						if (data == "success") {
+							if (oldMail != $('#mail').val() && $('#mail').val() != '') {
+								$.ajax({
+									type : "POST",
+									url : $api.getStorage('serverUrl') + "app_checkemail", //如果地址访问不到会请求出错，请填写自己的接口地址
+									data : {
+										youXiang : $('#mail').val(),
+										userName : dataInfo.yongHuMing
+									},
+									dataType : 'json',
+									cache : false,
+									async:false,
+									crossDomain : true,
+									timeout : 5000,
+									success : function(data) {
+										if (data.retInfo == "fail") {
+											alert("未找到信息!");
+											api.hideProgress();
+											return;
+										} else {
+											
+											var dataInfo = $api.getStorage('loginDataInfo');
+											dataInfo.youXiang = $('#youXiang').val();
+											$api.setStorage('loginDataInfo', dataInfo);
+											var tempStr = '尊敬的' + dataInfo.xingMing + '老师：';
+											var tempCon = '';
+											if (dataInfo.status == "xuesheng") {
+												tempStr = dataInfo.xingMing + '同学：';
+											}
+											tempCon = "        信息修改成功，邮箱修改需要进行重新验证！";
+											tempCon += "        新的验证码为：" + data.yanZhengMa;
+											tempCon += "\n        请使用绑定的邮箱：" + $('#mail').val() + "发送验证码到：" + data.fasongyouxiang;
+											tempCon += '\n        我们收到您的验证码后，会自动验证您的邮箱。我们的邮箱设置了自动回复功能，如果您收到了自动回复邮件，表明我们已经收到了您的验证码。';
+											
+											api.alert({
+												title : tempStr,
+												msg : tempCon,
+												buttons : ['确定']
+											}, function(ret, err) {
+												if (ret.buttonIndex == 1) {
+													
+												}
+											});
+										}
+									},
+									error : function(XMLHttpRequest, textStatus, errorThrown) {
+										// 状态码
+					                    alert("状态码："+XMLHttpRequest.status);
+					                    // 状态
+					                    alert("状态："+XMLHttpRequest.readyState);
+					                    // 错误信息   
+					                    alert("错误信息："+textStatus);
+										api.hideProgress();
+									}
+								});
+							}else{
+								alert("信息修改成功");
+							}
+							
+							window.location.reload();
+						} else {
+							alert("信息修改失败");
+							window.location.reload();
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("超时");
+				}
+			});
+		}
+		
+		 function fnSetAvatar() {
+            api.actionSheet({
+                cancelTitle: '取消',
+                buttons: ['拍照', '打开相册']
+            }, function(ret, err) {
+                if (ret.buttonIndex == 3) {
+                    return;
+                }
+                var sourceType = (ret.buttonIndex == 1) ? 'camera' : 'album';
+                api.getPicture({
+                    sourceType: sourceType,
+                    allowEdit: true,
+                    quality: 50,
+                    destinationType : 'base64',
+                    encodingType : 'jpg',
+                    targetWidth: 100,
+                    targetHeight: 100
+                }, function(ret, err) {
+                    if (ret && ret.data) {
+	                    var dataInfo = $api.getStorage('loginDataInfo');
+	                    var touxing = ret.data;
+	                    var base64Str = ret.base64Data;
+	                    var id = dataInfo.id;
+	                    var status = dataInfo.status;
+	                    var token = $api.getStorage("logintoken");
+	                    $.ajax({
+							type : "POST",
+							url : $api.getStorage('serverUrl') + "app_updateTouXiang", //如果地址访问不到会请求出错，请填写自己的接口地址
+							data : {
+								id : id,
+								touxiang : touxing,
+								dataInfo : dataInfo,
+								token : token,
+								status : status,
+								base64Str : base64Str,
+							},
+							dataType : 'json',
+							cache : false,
+							async:false,
+							crossDomain : true,
+							timeout : 5000,
+							success : function(data) {
+	                    		if(data.retInfo == "success"){
+	                    			alert("头像修改成功！");
+									window.location.reload();
+	                    		}else{
+	                    			alert("头像修改失败！");
+	                    		}
+		                    },
+						error : function() {
+							alert("超时!");
+						}
+					 });
+                    }
+                });
+            });
+        };
+        
+		
+		function Server(imgstr) {
+			api.openFrame({
+				name : 'imgshow',
+				url : "touXiangImagewin.html",
+				rect : {
+					x : 0,
+					y : 0,
+					w : 'auto',
+					h : 'auto'
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				pageParam : {
+					url : imgstr
+				},
+				allowEdit : true,
+				reload : true
+			});
+		}
+		
+		function imgError(obj) {
+			if (obj) {
+				obj.src = "../../image/666.png";
+				obj.onerror = null;
+			} else {
+				var img = event.srcElement;
+				img.src = "../../image/666.png";
+				img.onerror = null;
+			}
+		}
+	</script>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>shouye_yijianxiang</title>
+    <link rel="stylesheet" type="text/css" href=" ../css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+    <style>
+        body {}
+        header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            意见箱
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <nav>
+                <ul id="menu_mun">
+
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+    function goback() {
+        api.closeWin({
+            name: 'shouye_yijianxiang'
+        });
+        var jsfun = "youtixing();";
+        api.execScript({
+            name: 'index',
+            script: jsfun
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+        loadData();
+        var dataInfo = $api.getStorage('loginDataInfo');
+        var status = dataInfo.status;
+		var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+		var banjiid =dataInfo.banJiID;
+//		var status = dataInfo.status;
+		var code = banjiid + ',zytech,' + xuexiaoXuehao;
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_getmenu",
+				data : {
+					CODE : code,
+					status : status,
+				},
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                html = "";
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].fatherid == "-1" && data[i].menuname == "意见箱") {
+                        for (var j = 0; j < data.length; j++) {
+                            if (data[i].id == data[j].fatherid) {
+                                html += '<div class="aui-list-item" style="height:50px;width:100%;"><div class="aui-list-item-inner" style="width:100%;"><font style="color:#666666;font-size:25px;width:100%;" onclick="xuanze(\'' +
+                                    data[j].action + '\')">' + data[j].menuname +
+                                    '</font></div></div>';
+                            }
+                        }
+                    }
+                }
+                $('#menu_mun').html(html);
+                api.hideProgress();
+            },
+            error: function() {
+                api.hideProgress();
+                alert("错误");
+            }
+        });
+    };
+
+    function xuanze(action) {
+        if (action == "wodeyijian") {
+            api.openWin({
+                name: 'wodeyijian',
+                url: 'yijianxiang/wodeyijian.html',
+                reload: true,
+				allowEdit:true
+            });
+        } else if (action == "yijiandongtai") {
+            api.openWin({
+                name: 'yijiandongtai',
+                url: 'yijianxiang/yijiandongtai.html',
+                reload: true,
+				allowEdit:true
+            });
+        }
+    }
+</script>
+
+</html>

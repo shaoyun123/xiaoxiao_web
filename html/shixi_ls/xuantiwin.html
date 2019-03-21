@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+	</head>
+	<body>
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+			<div  class="aui-title  border-b"  id="title" name="richeng" style="font-size:20px;color:gray;">
+				题库
+			</div>
+			<a class="aui-pull-right border-b aui-btn" onclick="tianjia()" id="tianjia"> <span class="aui-iconfont aui-icon-info aui-icon-plus" style="color:gray;font-size: 20px;"></span> </a>
+		</header>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'xuantiwin'
+			});
+		}
+
+		apiready = function() {
+			funIniGroup();
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		};
+		function funIniGroup() {
+			api.openFrame({
+				name : 'xuantifrm',
+				url : "xuantifrm.html",
+				rect : {
+					x : 0,
+					y : $api.dom('header').offsetHeight,
+					w : api.winWidth,
+					h : 'auto'
+				},
+				pageParam : {
+					data : api.pageParam.data,
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				allowEdit : true,
+				reload : true,
+			});
+		}
+
+		function tianjia() {// 老师添加题目
+			var data = api.pageParam.data;
+			api.prompt({
+				title : "请输入题目",
+				buttons : ['确定', '取消']
+			}, function(ret, err) {
+				var index = ret.buttonIndex;
+				var text = ret.text;
+				if (index == 2) {
+				} else if (index == 1) {
+					if (text.length == 0) {
+						alert("题目不能为空");
+						tianjia();
+					} else {
+						var dataInfo = $api.getStorage('loginDataInfo');
+						var status = dataInfo.status;
+						var yonghuid = dataInfo.id;
+						var token = $api.getStorage("logintoken");
+						$.ajax({
+							type : "POST",
+							url : $api.getStorage('serverUrl') + "app_addkaoti",
+							data : {
+								yonghuid : yonghuid,
+								status : status,
+								token : token,
+								kaotimingcheng : text,
+							},
+							dataType : 'json',
+							cache : false,
+							success : function(data) {
+								//	alert($api.jsonToStr(data));
+								if (data.status == "samename") {
+									alert("该题目已存在")
+								} else if (data.status == "success") {
+									alert("提交成功")
+								}
+								window.location.reload();
+							},
+							error : function() {
+								console.log("app_addkaoti");
+							}
+						})
+					}
+				}
+			});
+		}
+	</script>
+</html>

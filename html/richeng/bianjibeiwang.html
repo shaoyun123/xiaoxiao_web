@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>bianjibeiwang</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				我的事件
+			</div>
+		</header>
+		<form action="" id="myform" name="myform">
+			<div class="aui-content aui-margin-b-15">
+				<ul class="aui-list aui-list-in">
+					<nav>
+						<ul id="bianjibeiwang">
+							<input type="hidden" readonly value="" name="beiwangid" id="beiwangid">
+							<input type="hidden" readonly value="" name="studentid" id="studentid">
+							<input type="hidden" readonly value="" name="token" id="token">
+							<input type="hidden" readonly value="" name="status" id="status">
+							<input type="hidden" readonly value="" name="xueshengid" id="xueshengid">
+							<div id="shenqing" >
+								<li class="aui-list-item">
+									<div class="aui-list-item-inner" style="width:100%;">
+										<p class="help-block">
+											<span id="neirongmingcheng"></span>
+										</p>
+									</div>
+								</li>
+								<li class="aui-list-item" style="">
+									<div class="aui-list-item-inner">
+										<div class="aui-list-item-label">
+											内容：
+										</div>
+										<div class="aui-list-item-input">
+											<input type="text"  style="border:1px solid #e5e5e5;border-color:#969696;" value="" id="beiwangneirong" name="beiwangneirong">
+										</div>
+									</div>
+								</li>
+								<li class="aui-list-item" style="">
+									<div class="aui-list-item-inner">
+										<div class="aui-list-item-label">
+											时间：
+										</div>
+										<div class="aui-list-item-input">
+											<input id="beiwangriqi" name="beiwangriqi" type="date" style="border:1px solid #D3D3D3;width:55%;float: left;" value=""/>
+											<input id="beiwangshijian" name="beiwangshijian" type="time" style="border:1px solid #D3D3D3;width:45%;float: left;" value=""/>
+										</div>
+									</div>
+								</li>
+								<div id="xiugaibeiwl" style="display: none;">
+									<li class="aui-list-item">
+										<div class="aui-list-item-inner">
+											<div class="aui-list-item-title"></div>
+											<div style="margin-right:40%;">
+												<div class="aui-btn aui-btn-info">
+													<input type="button" class="btn btn-info" value="保存" onclick="savebeiwl()">
+												</div>
+											</div>
+										</div>
+									</li>
+								</div>
+								<div id="xinjiabeiwl" style="display: none;">
+									<li class="aui-list-item">
+										<div class="aui-list-item-inner">
+											<div class="aui-list-item-title"></div>
+											<div style="margin-right:40%;">
+												<div class="aui-btn aui-btn-info">
+													<input type="button" class="btn btn-info" value="保存" onclick="savexinzengbeiwl()">
+												</div>
+											</div>
+										</div>
+									</li>
+								</div>
+							</div>
+						</ul>
+					</nav>
+				</ul>
+			</div>
+		</form>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'bianjibeiwang',
+			});
+		}
+
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var beiwangid = api.pageParam.id;
+			var choosetai = api.pageParam.tai;
+			// 2
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			if (choosetai == "1") {
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_s_xianshibeiwanglu",
+					data : {
+						CODE : beiwangid,
+						xueshengid : studentid,
+						status : status,
+						token : token,
+					},
+					dataType : 'json',
+					cache : false,
+					success : function(data) {
+						var data = eval(data);
+						html = "";
+						if (data) {
+							$("#neirongmingcheng").text("修改事件");
+							document.getElementById("xiugaibeiwl").style.display = "block";
+							$("#beiwangid").val(beiwangid);
+							$("#studentid").val(studentid);
+							$("#token").val(token);
+							$("#status").val(status);
+							$("#xueshengid").val(data.userid);
+							$("#beiwangneirong").val(data.neirong);
+							$("#beiwangriqi").val(data.date);
+							$("#beiwangshijian").val(data.time);
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+						$('#bianjibeiwang').append(html);
+					},
+					error : function() {
+						alert("错误！");
+					}
+				});
+			} else {
+				document.getElementById("xinjiabeiwl").style.display = "block";
+				$("#neirongmingcheng").text("新增事件");
+				$("#studentid").val(studentid);
+				$("#token").val(token);
+				$("#status").val(status);
+			}
+		};
+		function savebeiwl() {
+			if ($("#beiwangneirong").val() == "") {
+				alert("请填写内容")
+				$("#beiwangneirong").focus();
+				return false;
+			}
+			if ($("#beiwangriqi").val() == "") {
+				alert("请填写日期")
+				$("#beiwangriqi").focus();
+				return false;
+			}
+			if ($("#beiwangshijian").val() == "") {
+				alert("请填写时间")
+				$("#beiwangshijian").focus();
+				return false;
+			}
+			var num = api.pageParam.num;
+			var formData = new FormData($("#myform")[0]);
+			$.ajax({
+				url : $api.getStorage('serverUrl') + "app_s_saveXiuGaibeiwanglu",
+				type : "post",
+				data : formData,
+				processData : false,
+				contentType : false,
+				cache : false,
+				success : function(data) {
+					if (data) {
+						if (num == "1") {
+							if (data == "success") {
+								alert("保存成功！");
+								var jsfun = 'frombeiwang();';
+								var jsName = 'mybeiwanglu';
+								api.execScript({
+									name : jsName,
+									script : jsfun
+								});
+							} else if (data == "timeout") {
+								alert("请重新核对时间");
+							} else {
+								alert("保存失败！");
+								var jsfun = 'frombeiwang();';
+								var jsName = 'mybeiwanglu';
+								api.execScript({
+									name : jsName,
+									script : jsfun
+								});
+							}
+						} else {
+							if (data == "success") {
+								alert("保存成功！");
+								var fromindex = api.pageParam.fromindex;
+								if (fromindex) {
+									var jsfun = 'shuaxinricheng();';
+									var jsName = 'index';
+									api.execScript({
+										name : jsName,
+										script : jsfun
+									});
+								} else {
+									var jsfun = 'fanhuichongzai();';
+									var jsName = $api.getStorage('addMessager_rc');
+									if (jsName && jsName == 'richeng') {
+										api.execScript({
+											name : 'index',
+											frameName : jsName,
+											script : jsfun
+										});
+									} else {
+										api.execScript({
+											name : jsName,
+											frameName : jsName,
+											script : jsfun
+										});
+									}
+								}
+								api.closeWin({
+									name : 'richeng_to_beiwang_title'
+								});
+								goback();
+							} else if (data == "timeout") {
+								alert("请重新核对时间");
+							} else {
+								alert("保存失败！");
+								var fromindex = api.pageParam.fromindex;
+								if (fromindex) {
+									var jsfun = 'shuaxinricheng();';
+									var jsName = 'index';
+									api.execScript({
+										name : jsName,
+										script : jsfun
+									});
+								} else {
+									var jsfun = 'fanhuichongzai();';
+									var jsName = $api.getStorage('addMessager_rc');
+									if (jsName && jsName == 'richeng') {
+										api.execScript({
+											name : 'index',
+											frameName : jsName,
+											script : jsfun
+										});
+									} else {
+										api.execScript({
+											name : jsName,
+											frameName : jsName,
+											script : jsfun
+										});
+									}
+								}
+								api.closeWin({
+									name : 'richeng_to_beiwang_title'
+								});
+								goback();
+							}
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误！");
+				}
+			});
+		}
+
+		function savexinzengbeiwl() {
+			if ($("#beiwangneirong").val() == "") {
+				alert("请填写内容")
+				$("#beiwangneirong").focus();
+				return false;
+			}
+			if ($("#beiwangriqi").val() == "") {
+				alert("请填写日期")
+				$("#beiwangriqi").focus();
+				return false;
+			}
+			if ($("#beiwangshijian").val() == "") {
+				alert("请填写时间")
+				$("#beiwangshijian").focus();
+				return false;
+			}
+			var num = api.pageParam.num;
+			var formData = new FormData($("#myform")[0]);
+			$.ajax({
+				url : $api.getStorage('serverUrl') + "app_s_saveXinZengbeiwanglu",
+				type : "post",
+				data : formData,
+				processData : false,
+				contentType : false,
+				cache : false,
+				timeout : 5000,
+				success : function(data) {
+					if (data) {
+						if (num == "1") {
+							if (data == "success") {
+								alert("保存成功！");
+								var jsfun = 'frombeiwang();';
+								var jsName = 'mybeiwanglu';
+								api.execScript({
+									name : jsName,
+									script : jsfun
+								});
+							} else if (data == "timeout") {
+								alert("请重新核对时间");
+							} else {
+								alert("保存失败！");
+								var jsfun = 'frombeiwang();';
+								var jsName = 'mybeiwanglu';
+								api.execScript({
+									name : jsName,
+									script : jsfun
+								});
+							}
+						} else {
+							if (data == "success") {
+								alert("保存成功！");
+								var fromindex = api.pageParam.fromindex;
+								if (fromindex) {
+								} else {
+									var jsfun = 'fanhuichongzai();';
+									var jsName = $api.getStorage('addMessager_rc');
+									if (jsName && jsName == 'richeng') {
+										api.execScript({
+											name : 'index',
+											frameName : jsName,
+											script : jsfun
+										});
+									} else {
+										api.execScript({
+											name : jsName,
+											frameName : jsName,
+											script : jsfun
+										});
+									}
+								}
+								goback();
+							} else if (data == "timeout") {
+								alert("请重新核对时间");
+							} else {
+								alert("保存失败！");
+								var fromindex = api.pageParam.fromindex;
+								if (fromindex) {
+								} else {
+									var jsfun = 'fanhuichongzai();';
+									var jsName = $api.getStorage('addMessager_rc');
+									if (jsName && jsName == 'richeng') {
+										api.execScript({
+											name : 'index',
+											frameName : jsName,
+											script : jsfun
+										});
+									} else {
+										api.execScript({
+											name : jsName,
+											frameName : jsName,
+											script : jsfun
+										});
+									}
+								}
+								goback();
+							}
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误！");
+				}
+			});
+		}
+	</script>
+</html>

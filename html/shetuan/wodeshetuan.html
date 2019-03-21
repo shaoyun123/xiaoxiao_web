@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>wodeshetuan</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+    <style>
+		header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            学生社团
+        </div>
+        <a class="aui-pull-right aui-btn" onclick="tianjia()">
+            <span class="aui-iconfont aui-icon-plus" style="color:gray;"></span>
+        </a>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">我的社团</li>
+            <nav style="padding-top:40px;">
+                <ul id="xianshimyshetuan">
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'wodeshetuan',
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+        var count = yijinshetuanshu();
+        var dataInfo = $api.getStorage('loginDataInfo');
+        var xueshengid = dataInfo.id;
+        var xuexiaoxuehao = dataInfo.xuexiao_xuehao;
+        var code = xueshengid + ',zytech,' + xuexiaoxuehao;
+        api.addEventListener({
+            name: 'keyback'
+        }, function(ret, err) {
+            api.closeWin({
+                name: 'wodeshetuan',
+            });
+        });
+        if (count == 0) {
+            html = "";
+            html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:60px;"><h4 style="font-size:20px;width:100%;">当前未加入任何学生组织和社团</h4></div></div>';
+            $('#xianshimyshetuan').html(html);
+            api.hideProgress();
+        } else if (count == 1) {
+            loadData();
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl')+"app_XianShiSheTuanMuLu",
+                data: {
+                    CODE: code
+                },
+                dataType: 'json',
+                cache: false,
+                timeout: 5000,
+                success: function(data) {
+                    var data = eval(data);
+                    html = "";
+                    if (data) {
+                        if (data.xszuzhis.length > 0) {
+                            for (var i = 0; i < data.xszuzhis.length; i++) {
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:60px;"><h4 style="font-size:20px;width:100%;" onclick="zuzhi(\'' + data.xszuzhis[i].xueshengzuzhixinxiid +
+                                    '\')">' + data.xszuzhis[i].mingcheng + '</h4></div></div>';
+                            }
+                        }
+                        if (data.shetuans.length > 0) {
+                            for (var i = 0; i < data.shetuans.length; i++) {
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:60px;"><h4 style="font-size:20px;width:100%;" onclick="shetuan(\'' + data.shetuans[i].shetuanxinxiid +
+                                    '\')">' + data.shetuans[i].mingcheng + '</h4></div></div>';
+                            }
+                        }
+                    }
+                    $('#xianshimyshetuan').html(html);
+                    api.hideProgress();
+                },
+                error: function() {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            });
+        } else {
+            loadData();
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl')+"app_XianShiSheTuanMuLu",
+                data: {
+                    CODE: code
+                },
+                dataType: 'json',
+                cache: false,
+                timeout: 5000,
+                success: function(data) {
+                    var data = eval(data);
+                    html = "";
+                    if (data) {
+                        if (data.xszuzhis.length > 0) {
+                            for (var i = 0; i < data.xszuzhis.length; i++) {
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:60px;"><h4 style="font-size:20px;width:100%;" onclick="zuzhi(\'' + data.xszuzhis[i].xueshengzuzhixinxiid +
+                                    '\')">' + data.xszuzhis[i].mingcheng + '</h4></div></div>';
+                            }
+                        }
+                        if (data.shetuans.length > 0) {
+                            for (var i = 0; i < data.shetuans.length; i++) {
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:60px;"><h4 style="font-size:20px;width:100%;" onclick="shetuan(\'' + data.shetuans[i].shetuanxinxiid +
+                                    '\')">' + data.shetuans[i].mingcheng + '</h4></div></div>';
+                            }
+                        }
+                    }
+                    $('#xianshimyshetuan').html(html);
+                    api.hideProgress();
+                },
+                error: function() {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            });
+        }
+    };
+
+    function yijinshetuanshu() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var xueshengid = dataInfo.id;
+        var xuexiaoxuehao = dataInfo.xuexiao_xuehao;
+        var code = xueshengid + ',zytech,' + xuexiaoxuehao;
+        var count;
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_YiJinSheTuanShu",
+            data: {
+                CODE: code
+            },
+            dataType: 'text',
+            cache: false,
+            async: false,
+            timeout: 5000,
+            success: function(data) {
+                if (data >= 0) {
+                    count = data;
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function(e) {
+                alert("错误QPOL" + e);
+            }
+        });
+        return count;
+    }
+
+    function zuzhi(id) {
+        api.openWin({
+            name: 'shetuancaozuo',
+            url: 'shetuancaozuo.html',
+            pageParam: {
+                id: id,
+                leibie: 'zuzhi',
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function shetuan(id) {
+        api.openWin({
+            name: 'shetuancaozuo',
+            url: 'shetuancaozuo.html',
+            pageParam: {
+                id: id,
+                leibie: 'shetuan',
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function tianjia() {
+        api.openWin({
+            name: 'chuangjianshetuan',
+            url: 'chuangjianshetuan.html',
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+
+    function fanhui22() {
+        api.closeWin({
+            name: 'shetuancozuo'
+        });
+        window.location.reload();
+    }
+</script>
+
+</html>

@@ -1,0 +1,292 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/style1.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css"/>
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			#examTable td {
+				height: 30px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-bottom: 10px;display:none;">
+				<a class="aui-btn aui-pull-left" onclick="goback()"> <span class="aui-iconfont aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+				<div  class="aui-title " style="color:black;font-size:20px;" id="title" name="richeng">
+					在线考试
+				</div>
+			</header>
+			<div id="xianshi"></div>
+			<div id="xianshis"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			funIniGroup();
+			loadData();
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		}
+		var kaoshixueshengid;
+		var banjiid;
+		function funIniGroup() {
+			$('#xianshi').show();
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var id = dataInfo.id;
+			var xingming = dataInfo.xingMing;
+			var yonghuming = dataInfo.yongHuMing;
+			var xuehao = dataInfo.xueHao;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getuserinfo",  // 获取个人信息
+				data : {
+					xueshengid : id,
+					yonghuming : yonghuming,
+					status : status,
+					token : token,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					kaoshixueshengid = data.userMap.xueShengID;
+					banjiid = data.userMap.banJiID;
+					html = "";
+					html += '<form id="forms" name="forms">';
+					html += '<input type="hidden" name="token" value="' + token + '">';
+					html += '<input type="hidden" name="status" value="' + status + '">';
+					html += '<input type="hidden" name="xueshengid" value="' + id + '">';
+					html += '<input type="hidden" name="xuehao" value="' + xuehao + '">';
+					html += '<input type="hidden" name="kaoshixueshengid" value="' + data.userMap.xueShengID + '">';
+					html += '<input type="hidden" name="banjiid" value="' + data.userMap.banJiID + '">';
+					html += '</form>';
+					html += '<div class="bs-docs-header" id="content" tabindex="-1">';
+					html += '<div class="container">';
+					html += '<h2>欢迎使用体育理论考试系统</h2>';
+					html += '<span id="profileText">您好，请确认您的个人信息，确认无误后点击下面的按钮进入考试列表</span>';
+					html += '<span id="indexText" style="display:none">你好 ' + data.userMap.xingMing;
+					html += '，下面显示的是你可以参加的考试，如果正在进行考试，点击进行考试即可开始考试。如果显示查看结果，点击查看结果即可查看你之前的答卷，并在其中可以申请重新考试。考试结束后可直接在当前页面查看你的考试成绩</span>';
+					html += '<table data-toggle="table" id="profileTable" border="1" style="width:100%;height:300px;">';
+					html += '<thead>';
+					html += '<tr>';
+					html += '<th style="height:40px;">项目</th>';
+					html += '<th style="height:40px;">内容</th>';
+					html += '</tr>';
+					html += '</thead>';
+					html += '<tbody>';
+					html += '<tr>';
+					html += '<td>学校</td>';
+					html += '<td>' + data.userMap.xueXiaoMingCheng + '</td>';
+					html += '</tr>';
+					html += '<tr>';
+					html += '<td>院系</td>';
+					html += '<td>' + data.userMap.yuanXiMingCheng + '</td>';
+					html += '</tr>';
+					html += '<tr>';
+					html += '<td>班级</td>';
+					html += '<td>' + data.userMap.banJiMingCheng + '</td>';
+					html += '</tr>';
+					html += '<tr>';
+					html += '<td>姓名</td>';
+					html += '<td>' + data.userMap.xingMing + '</td>';
+					html += '</tr>';
+					html += '<tr>';
+					html += '<td>用户名</td>';
+					html += '<td>' + data.userMap.yongHuMing + '</td>';
+					html += '</tr>';
+					html += '<tr>';
+					html += '<td>学号</td>';
+					html += '<td>' + data.userMap.xueHao + '</td>';
+					html += '</tr>';
+					html += '</tbody>';
+					html += '</table>';
+					html += '<a onclick="showTable();" type="button" style="margin-left:39%;" class="btn btn-success" id="profile">个人信息无误</a>';
+					html += '</div></div>';
+					$('#xianshi').html(html);
+					api.hideProgress();
+				},
+				error : function() {
+					api.hideProgress();
+				}
+			});
+		}
+
+		var qzxj;
+		function funIniGroups() {
+			$('#xianshi').hide();
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xingming = dataInfo.xingMing;
+			var formData = new FormData($("#forms")[0]);
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getkaoshi",  // 获取所有考试的信息
+				data : formData,
+				processData : false,
+				contentType : false,
+				cache : false,
+				dataType : 'json',
+				success : function(data) {
+					qzxj = data;
+					var html = '';
+					html += '<div class="bs-docs-header" id="content" tabindex="-1">';
+					html += '<div class="container">';
+					html += '<h2>欢迎使用体育理论考试系统</h2>';
+					html += '<span id="indexText">你好 ' + xingming;
+					html += '，下面显示的是你可以参加的考试，如果正在进行考试，点击进行考试即可开始考试。如果显示查看结果，点击查看结果即可查看你之前的答卷，并在其中可以申请重新考试。考试结束后可直接在当前页面查看你的考试成绩</span>';
+					html += '<table data-toggle="table" id="examTable" style="width:100%;" border="1" >';
+					html += '<thead>';
+					html += '<tr>';
+					html += '<th>考试名称</th>';
+					html += '<th>状态</th>';
+					html += '<th>客观题得分</th>';
+					html += '<th>操作项</th>';
+					html += '</tr>';
+					html += '</thead>';
+					html += '<tbody>';
+					for (var i = 0; i < data.kaoshimap.length; i++) {
+						html += '<tr>';
+						html += '<td>' + data.kaoshimap[i].keChengMingCheng;
+						html += '</td>';
+						html += '<td>';
+						if (data.kaoshimap[i].zhuangTai == 1) {
+							if (data.kaoshimap[i].stamap.daJuanYiJiao == -1 || data.kaoshimap[i].stamap.daJuanYiJiao == 0) {
+								if (data.kaoshimap[i].fangShi == 2) {
+									html += '正在进行 ( 可多次可重考 )(尚未考试)';
+								} else {
+									html += '正在进行 ( 只可交卷一次 )(尚未考试)';
+								}
+							} else {
+								if (data.kaoshimap[i].fangShi == 2) {
+									if (data.kaoshimap[i].waymap == 2) {
+										html += '正在进行 ( 本考试可重考 )(已经完成)';
+									} else {
+										html += '正在进行 ( 只可交卷一次 )(已经完成)';
+									}
+								} else {
+									html += '正在进行 ( 只可交卷一次 )(已经完成)';
+								}
+							}
+						} else {
+							if (data.kaoshimap[i].stamap.daJuanYiJiao == 1) {
+								html += '查看结果';
+							} else {
+								html += '不可考试';
+							}
+						}
+						html += '</td>';
+						html += '<td>';
+						if (data.kaoshimap[i].stamap.daJuanYiJiao == -1 || data.kaoshimap[i].stamap.daJuanYiJiao == 0) {
+							html += '未考试';
+						} else {
+							if (data.kaoshimap[i].defen == '' || data.kaoshimap[i].defen == null) {
+								html += '未考试';
+							} else {
+								html += data.kaoshimap[i].defen;
+							}
+						}
+						html += '</td>';
+						html += '<td>';
+						if (data.kaoshimap[i].zhuangTai == 1) {// 不能考试
+							if (data.kaoshimap[i].stamap.daJuanYiJiao == -1 || data.kaoshimap[i].stamap.daJuanYiJiao == 0) {
+								html += '<button onclick="GetExam(' + data.kaoshimap[i].kaoShiID + ')" type="button" class="btn btn-success">';
+								html += '进行考试';
+								html += '</button>';
+							} else {
+								html += '<button onclick="GetExamResult(' + data.kaoshimap[i].kaoShiID + ',' + i + ')" type="button" class="btn btn-primary">';
+								html += '查看结果';
+								html += '</button>';
+							}
+						} else {
+							if (data.kaoshimap[i].stamap.daJuanYiJiao == 1) {
+								html += '<button onclick="GetExamResult(' + data.kaoshimap[i].kaoShiID + ',' + i + ')" type="button" class="btn btn-primary">';
+								html += '查看结果';
+								html += '</button>';
+							} else {
+								html += '<span>本次缺考</span>';
+							}
+						}
+						html += '</td>';
+						html += '</tr>';
+					}
+					html += '</tbody>';
+					html += '</table>';
+					html += '</div></div>';
+					$('#xianshis').html(html);
+					api.hideProgress();
+				},
+				error : function() {
+					alert("error");
+				}
+			});
+		}
+
+		function showTable() {
+			funIniGroups();
+			$("#profileTable").css("display", "none");
+			$("#profile").css("display", "none");
+			$("#profileText").css("display", "none");
+		}
+
+		function GetExamResult(kaoShiID, i) {
+			api.openWin({
+				slidBackEnabled : false,
+				name : 'exam_result',
+				url : "exam_result.html",
+				pageParam : {
+					kaoshiid : kaoShiID,
+					kaoshixueshengid : kaoshixueshengid,
+					examstatus : qzxj.kaoshimap[i].stamap.daJuanYiJiao,
+					examway : qzxj.kaoshimap[i].waymap,
+					examzhuangtai : qzxj.kaoshimap[i].zhuangTai,
+					examfangshi : qzxj.kaoshimap[i].fangShi,
+					banjiid : banjiid,
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function GetExam(kaoShiID) {
+			api.openWin({
+				slidBackEnabled : false,
+				name : 'exam_title',
+				url : "exam_title.html",
+				pageParam : {
+					kaoshiid : kaoShiID,
+					kaoshixueshengid : kaoshixueshengid,
+					banjiid : banjiid,
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+	</script>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/bootstrap-switch.min.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<script type="text/javascript" src="../../script/jquery-form.js"></script>
+		<style>
+			.imgDiv {
+				display: inline-block;
+				position: relative;
+			}
+			.imgDiv .delete {
+				position: absolute;
+				top: 0px;
+				right: 0px;
+				width: 20px;
+				height: 20px;
+			}
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				申请请假
+			</div>
+		</header>
+		<form action="" id="frm" name="frm" enctype="multipart/form-data" style="padding-top:70px;">
+			<div class="aui-content aui-margin-b-15">
+				<ul class="aui-list aui-list-in">
+					<nav>
+						<ul id="xiugaixinxi"></ul>
+					</nav>
+				</ul>
+			</div>
+		</form>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//   关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'xiugaiqingjia',
+			});
+		};
+		var count = 0;
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var zhuangtai = api.pageParam.choose;
+			var xinxiid = api.pageParam.xinxi;
+			var studentxuehao = dataInfo.xueHao;
+			var studentname = dataInfo.xingMing;
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			if (zhuangtai == "1") {
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_getxiangxi",
+					data : {
+						CODE : xinxiid,
+						status : status,
+						token : token,
+						id : studentid,
+					},
+					dataType : 'json',
+					cache : false,
+					success : function(data) {
+						var data = eval(data);
+						html = "";
+						html += '<input type ="hidden" readonly name="token" id="token" value="' + token + '">';
+						html += '<input type ="hidden" readonly name="mykey" id="mykey" value="' + studentid + ',zytech,' + status + '">';
+						html += '<input type ="hidden" readonly name="bingjiazhengming" id="bingjiazhengming" value="' + data.bingjiazhengming + '">';
+						html += '<li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">填写假条</li>';
+						html += '<li class="aui-list-item" style="padding-top:46px;"><div class="aui-list-item-inner" style="font-size:18px;width:100%;"><label style="width:30%;font-size:18px;">请假ID：</label><input type="text" readonly value="' + xinxiid + '" name="qingjiaid" id="qingjiaid"></div></li>';
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner">';
+						html += '<div class="aui-list-item-input"><label style="font-size:18px;">学号：</label>&emsp;<input type="text" readonly value="' + studentxuehao + '" name="xuehaoid" id="xuehaoid" style="font-size:18px;"></div>';
+						html += '<div class="aui-list-item-input"><div class="aui-list-item-input"><label style="font-size:18px;">姓名：</label>&emsp;';
+						html += '<input type="text" readonly value="' + studentname + '" name="xuehaoname" id="xuehaoid" style="font-size:18px;"></div></div></div></li>';
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-title" style="text-align:center;font-size:18px;">请假类别：</div>';
+						if (data.qingjialeibie == "1") {
+							html += '<ul class="fieldset"><label for="qingjialeibie1" style="font-size:18px;">事假</label><input name="qingjialeibie" id="qingjialeibie1" type="radio" value="1" checked>';
+							html += '<label for="qingjialeibie2" style="font-size:18px;">&ensp;病假</label><input name="qingjialeibie" id="qingjialeibie2" type="radio" value="2"></ul></div></li>';
+						} else {
+							html += '<ul class="fieldset"><label for="qingjialeibie1" style="font-size:18px;">事假</label><input name="qingjialeibie" id="qingjialeibie1" type="radio" value="1">';
+							html += '<label for="qingjialeibie2" style="font-size:18px;">&ensp;病假</label><input name="qingjialeibie" id="qingjialeibie2" type="radio" value="2" checked></ul></div></li>';
+						}
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:30%">';
+						html += '<label style="font-size:18px;">请假事由：</label></div><div class="aui-list-item-inner" style="width:70%;"><textarea name="qingjiashiyou" id="qingjiashiyou" style="border:1px solid gray;font-size:18px;" class="form-control" rows="5" cols="100">' + data.qingjiashiyou + '</textarea></div></li>';
+						if (data.tupian != null) {
+							html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:30%;font-size:18px;">上传证明：</div><div class="aui-list-item-inner" style="width:70%;"><div class="aui-row aui-row-padded" id="bingjia"><div class="aui-col-xs-4"><img id="photo" height="40" width="40" src="../../image/addUpload.png" onclick="shangchuan()"></div>';
+							for (var i = 0; i < data.tupian.length; i++) {
+								count += 1;
+								var srcimg = $api.getStorage('serverUrl') + 'app_getPic?id=' + data.tupian[i] + '&l=0';
+								html += '<div class="aui-col-xs-4" id="divp' + count + '"><div class="imgDiv" id="div' + count + '"><img id="' + data.tupian[i] + '" name="oldphoto" height="120" width="80"  alt="" src="' + srcimg + '" onclick="Server(\'' + count + '\',\'' + srcimg + '\')"><a href="#" onclick="deleteimg(\'' + count + '\')"><img src="../../image/timg.jpg" class="delete" /></a></div></div>';
+							}
+							html += '</div></div></div>';
+						} else {
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:30%;">';
+							html += '<label style="font-size:18px;">上传证明：</label></div><div class="aui-list-item-inner" style="width:70%;"><div class="aui-row aui-row-padded" id="bingjia"><div class="aui-col-xs-4"><img id="photo" height="40" width="40" src="../../image/addUpload.png" onclick="shangchuan()"></div></div></div></li>';
+						}
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;"><p class="help-block"><font>病假需上传证明，事假不需要(若有图片，则无须点击选择文件)。</font></p></div></li>';
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:18%;">';
+						html += '<label style="font-size:18px;">时间：</label></div><div class="aui-list-item-inner" style="width:82%;font-size:18px;">自:<input type = "date" id ="kaishishijian" name ="kaishishijian" style="border:1px solid #D3D3D3;" value="' + data.qingjiakaishishijian + '"> 至:<input type = "date" id ="jieshushijian" name ="jieshushijian" style="border:1px solid #D3D3D3;" value="' + data.qingjiajieshushijian + '"></div></li>';
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-title"></div><div class="aui-list-item-right"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="提交" onclick="check()"></div></div></div></li>';
+						html += '<div id="zhengming"></div>';
+						$('#xiugaixinxi').append(html);
+					},
+					eror : function() {
+						alert("修改失败！");
+					}
+				});
+			} else {
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_getxiangxi",
+					data : {
+						CODE : xinxiid,
+						status : status,
+						token : token,
+						id : studentid,
+					},
+					dataType : 'json',
+					cache : false,
+					success : function(data) {
+						var data = eval(data);
+						html = "";
+						html += '<input type ="hidden" readonly name="token" id="token" value="' + token + '">';
+						html += '<input type ="hidden" readonly name="mykey" id="mykey" value="' + studentid + ',zytech,' + status + '">';
+						html += '<input type ="hidden" readonly name="bingjiazhengming" id="bingjiazhengming" value="' + data.bingjiazhengming + '">';
+						html += '<li class="aui-list-header" style="font-size:20px;">填写假条</li>';
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="font-size:18px;width:100%;"><label style="font-size:18px;width:30%;">请假ID：</label>&emsp;<input type="text" style="font-size:18px;" readonly value="' + xinxiid + '"  name="qingjiaid" id="qingjiaid"></div></li>';
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner">';
+						html += '<div class="aui-list-item-input"><label style="font-size:18px;">学号：</label>&emsp;<input type="text" readonly value="' + studentxuehao + '" name="xuehaoid" id="xuehaoid" style="font-size:18px;"></div>';
+						html += '<div class="aui-list-item-input"><div class="aui-list-item-input"><label style="font-size:18px;">姓名：</label>&emsp;';
+						html += '<input type="text" readonly value="' + studentname + '" name="xuehaoname" id="xuehaoid" style="font-size:18px;"></div></div></div></li>';
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-title" style="text-align:center;">请假类别：</div>';
+						if (data.qingjialeibie == "1") {
+							html += '<ul class="fieldset"><label for="qingjialeibie1" style="font-size:18px;">事假</label><input name="qingjialeibie" id="qingjialeibie1" type="radio" value="1" checked>';
+							html += '<label for="qingjialeibie2" style="font-size:18px;">&ensp;病假</label><input name="qingjialeibie" id="qingjialeibie2" type="radio" value="2"></ul></div></li>';
+						} else {
+							html += '<ul class="fieldset"><label for="qingjialeibie1" style="font-size:18px;">事假</label><input name="qingjialeibie" id="qingjialeibie1"  type="radio" value="1">';
+							html += '<label for="qingjialeibie2" style="font-size:18px;">&ensp;病假</label><input name="qingjialeibie" id="qingjialeibie2"  type="radio" value="2" checked></ul></div></li>';
+						}
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:30%">';
+						html += '<label style="font-size:18px;">请假事由：</label></div><div class="aui-list-item-inner" style="width:70%;"><textarea name="qingjiashiyou" id="qingjiashiyou" style="border:1px solid gray;font-size:18px;" class="form-control" rows="5" cols="100">' + data.qingjiashiyou + '</textarea></div></li>';
+						if (data.tupian != null) {
+							html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:30%;font-size:18px;">上传证明：</div><div class="aui-list-item-inner" style="width:70%;"><div class="aui-row aui-row-padded" id="bingjia"><div class="aui-col-xs-4"><img id="photo" height="40" width="40" src="../../image/addUpload.png" onclick="shangchuan()"></div>';
+							for (var i = 0; i < data.tupian.length; i++) {
+								count += 1;
+								var srcimg = $api.getStorage('serverUrl') + 'app_getPic?id=' + data.tupian[i] + '&l=0';
+								html += '<div class="aui-col-xs-4" id="divp' + count + '"><div class="imgDiv" id="div' + count + '"><img id="' + data.tupian[i] + '" name="oldphoto" height="120" width="80"  alt="" src="' + srcimg + '" onclick="Server(\'' + count + '\',\'' + srcimg + '\')"><a href="#" onclick="deleteimg(\'' + count + '\')"><img src="../../image/timg.jpg" class="delete" /></a></div></div>';
+							}
+							html += '</div></div></div>';
+						} else {
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:30%;">';
+							html += '<label style="font-size:18px;">上传证明：</label></div><div class="aui-list-item-inner" style="width:70%;"><div class="aui-row aui-row-padded" id="bingjia"><div class="aui-col-xs-4"><img id="photo" height="40" width="40" src="../../image/addUpload.png" onclick="shangchuan()"></div></div></div></li>';
+						}
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;"><p class="help-block"><font>病假需上传证明，事假不需要(若有图片，则无须点击选择文件)。</font></p></div></li>';
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:18%;">';
+						html += '<label style="font-size:18px;">时间：</label></div><div class="aui-list-item-inner" style="width:82%;font-size:18px;">自:<input type = "date" id ="kaishishijian" name ="kaishishijian" style="border:1px solid #D3D3D3;" value="' + data.qingjiakaishishijian + '"> 至:<input type = "date" id ="jieshushijian" style="border:1px solid #D3D3D3;" name ="jieshushijian" value="' + data.qingjiajieshushijian + '"></div></li>';
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-title"></div><div class="aui-list-item-right"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="提交" onclick="checkcheck()"></div></div></div></li>';
+						//alert(html);
+						html += '<div id="zhengming"></div>';
+						$('#xiugaixinxi').append(html);
+					},
+					eror : function() {
+						alert("修改失败！");
+					}
+				});
+			}
+		};
+		function tab(date1, date2) {
+			var oDate1 = new Date(date1);
+			var oDate2 = new Date(date2);
+			if (oDate1.getTime() > oDate2.getTime()) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+
+		function check() {
+			var xinxiid = api.pageParam.xinxi;
+			var radio = $("input[name='qingjialeibie']:checked").val();
+			if (!$("input[name='qingjialeibie']:checked").length) {
+				alert("请选择请假类别：");
+				return false;
+			}
+			if ($("#qingjiashiyou").val() == "") {
+				alert("请填写请假事由")
+				$("#qingjiashiyou").focus();
+				return false;
+			}
+			if ($("#kaishishijian").val() == "") {
+				alert("请填写请假开始时间")
+				$("#kaishishijian").focus();
+				return false;
+			}
+			if ($("#jieshushijian").val() == "") {
+				alert("请填写请假结束时间")
+				$("#jieshushijian").focus();
+				return false;
+			}
+			if (!tab($("#kaishishijian").val(), $("#jieshushijian").val())) {
+				alert("请重新确认开始结束时间");
+				return false;
+			}
+			var objs = document.getElementsByName("files");
+			var length = objs.length;
+			for (var i = 0; i < length; i++) {
+				var temp = objs[i].files[0].name;
+				var postfix = temp.substring(temp.lastIndexOf(".") + 1);
+				if (postfix != "") {
+					if (!(postfix == "jpg" || postfix == "pdf" || postfix == "png" || postfix == "PNG" || postfix == "JPG")) {
+						alert('文件类型不正确，请选择.jpg或.pdf或.png文件！');
+						return false;
+					}
+				}
+			}
+			var formData = new FormData($("#frm")[0]);
+			$.ajax({
+				url : $api.getStorage('serverUrl') + "app_xiugaiqingjia",
+				type : "post",
+				data : formData,
+				processData : false,
+				contentType : false,
+				cache : false,
+				success : function(data) {
+					if (data) {
+						if (data == "success") {
+							alert("提交成功！");
+							var jsfun = 'reload_html();';
+							api.execScript({
+								name : 'myApplicationfrm',
+								script : jsfun
+							});
+						} else if (data == "nothingness") {
+							alert("该记录可能已被修改！");
+							var jsfun = 'reload_html();';
+							api.execScript({
+								name : 'myApplicationfrm',
+								script : jsfun
+							});
+						} else if (data == "timeout") {
+							alert("请重新核对开始结束时间");
+						} else {
+							alert("提交失败！");
+							var jsfun = 'reload_html();';
+							api.execScript({
+								name : 'myApplicationfrm',
+								script : jsfun
+							});
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("error");
+					window.location.reload();
+				}
+			});
+		};
+		function Server(id, imgstr) {
+			api.openFrame({
+				name : 'imgshow',
+				url : "../imageShow.html",
+				rect : {
+					x : 0,
+					y : 0,
+					w : 'auto',
+					h : 'auto'
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				pageParam : {
+					url : imgstr
+				},
+				allowEdit : true,
+			});
+		}
+
+		function checkcheck() {
+			var xinxiid = api.pageParam.xinxi;
+			var radio = $("input[name='qingjialeibie']:checked").val();
+			if (!$("input[name='qingjialeibie']:checked").length) {
+				alert("请选择请假类别：");
+				return false;
+			}
+			if ($("#qingjiashiyou").val() == "") {
+				alert("请填写请假事由")
+				$("#qingjiashiyou").focus();
+				return false;
+			}
+			if ($("#kaishishijian").val() == "") {
+				alert("请填写请假开始时间")
+				$("#kaishishijian").focus();
+				return false;
+			}
+			if ($("#jieshushijian").val() == "") {
+				alert("请填写请假结束时间")
+				$("#jieshushijian").focus();
+				return false;
+			}
+			if (!tab($("#kaishishijian").val(), $("#jieshushijian").val())) {
+				alert("请重新确认开始结束时间");
+				return false;
+			}
+			var objs = document.getElementsByName("files");
+			var length = objs.length;
+			for (var i = 0; i < length; i++) {
+				var temp = objs[i].files[0].name;
+				var postfix = temp.substring(temp.lastIndexOf(".") + 1);
+				if (postfix != "") {
+					if (!(postfix == "jpg" || postfix == "pdf" || postfix == "png" || postfix == "PNG" || postfix == "JPG")) {
+						alert('文件类型不正确，请选择.jpg或.pdf或.png文件！');
+						return false;
+					}
+				}
+			}
+			//获得选择的上传文件的后缀名的正则表达式
+			var formData = new FormData($("#frm")[0]);
+			$.ajax({
+				url : $api.getStorage('serverUrl') + "app_zaicitijiao",
+				type : "post",
+				data : formData,
+				processData : false,
+				contentType : false,
+				cache : false,
+				success : function(data) {
+					if (data) {
+						if (data == "success") {
+							alert("提交成功！");
+							var jsfun = 'reload_html();';
+							api.execScript({
+								name : 'myApplicationfrm',
+								script : jsfun
+							});
+						} else if (data == "nothingness") {
+							alert("该记录可能已被修改！");
+							var jsfun = 'reload_html();';
+							api.execScript({
+								name : 'myApplicationfrm',
+								script : jsfun
+							});
+						} else if (data == "timeout") {
+							alert("请重新核对开始结束时间");
+						} else {
+							alert("提交失败！");
+							var jsfun = 'reload_html();';
+							api.execScript({
+								name : 'myApplicationfrm',
+								script : jsfun
+							});
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("error");
+				}
+			});
+		}
+
+		function deleteimg(id) {
+			$('#divp' + id).remove();
+			var newoldphoto = '';
+			$("img[name='oldphoto']").each(function() {
+				newoldphoto += $(this).attr("id") + ",";
+			})
+			$('#bingjiazhengming').val(newoldphoto);
+		}
+
+		function shangchuan() {
+			count += 1;
+			html = "";
+			html += '<div id="divpi' + count + '"><input type = "file"  id = "zhaopian" name="files" value="" multiple="multiple" style="display:none;"  accept="image/*"></div>';
+			$('#zhengming').append(html);
+			html2 = '<div class="aui-col-xs-4" id="divp' + count + '"></div>';
+			$('#bingjia').append(html2);
+			$("#zhaopian").bind("change", function(e) {
+				var dom = document.createElement('divp' + count);
+				document.getElementById("divp" + count).appendChild(dom);
+				html = "";
+				html += '<div class="imgDiv" id="div' + count + '"><img id="di' + count + '" height="120" width="80" src="" onclick="Server(\'' + count + '\',\'' + URL.createObjectURL($(this)[0].files[0]) + '\')">';
+				html += '<a href="#" onclick="deleteimg(\'' + count + '\')"><img src="../../image/timg.jpg" class="delete" /></a>';
+				html += '</div>';
+				$('#divp' + count).html(html);
+				$('#di' + count).attr("src", URL.createObjectURL($(this)[0].files[0]));
+				$(this).removeAttr("id");
+				$(this).attr('id', "zhaopian" + count);
+			});
+			$('#zhaopian').click();
+		}
+	</script>
+</html>

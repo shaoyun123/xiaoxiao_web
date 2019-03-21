@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../css/bubbles.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../script/zepto.min.js"></script>
+    <script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+    <style>
+        body {}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header id="topbar" class="aui-bar aui-bar-nav" style="background-color: white;padding-top:25px;position:fixed;top:0;width:100%;z-index:999;">
+        <a class="aui-pull-left aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-left" style="color:gray;"></span>
+        </a>
+        <ul id="tittt" style="font-size:20px;">
+        </ul>
+        <a class="aui-pull-right aui-btn" onclick="refresh()">
+            <span class="aui-iconfont aui-icon-refresh" style="color:red;font-weight:bold;font-size:12px;">获取消息</span>
+        </a>
+    </header>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    function goback() {
+        var UIChatBox = api.require('UIChatBox');
+        UIChatBox.close();
+        api.closeWin({
+            name: 'guodu',
+        });
+
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+        var name = api.pageParam.name;
+        var banjiid = api.pageParam.banjiid;
+        html = "";
+        html += '<div id="ming" class="aui-title" style="width:auto;">' + name + '</div>';
+        $('#tittt').html(html);
+        var header = $api.byId('topbar');
+        $api.fixStatusBar(header);
+        var headerH = $api.offset(header).h;
+        //frame的高度为当前window高度减去header和footer的高度
+        var frameH = api.winHeight - headerH;
+        api.openFrame({
+            name: 'banjiliaotian',
+            url: 'banjiliaotian.html',
+            rect: {
+                x: 0,
+                y: headerH,
+                w: api.winWidth,
+                h: frameH
+            },
+            pageParam: {
+              banjiid: banjiid,
+            },
+            bounces: true,
+            bgColor: 'rgba(0,0,0,0)',
+			allowEdit:true,
+            vScrollBarEnabled: true,
+            hScrollBarEnabled: true
+        });
+    };
+
+    function refresh() {
+        var jsfun = 'refresh();';
+        api.execScript({
+            name: 'guodu',
+            frameName: 'banjijiaoliu',
+            script: jsfun
+        });
+    }
+
+</script>
+
+</html>

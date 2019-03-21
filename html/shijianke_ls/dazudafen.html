@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<div id="wrap" class="flex-wrap flex-vertical container">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;margin: 0;padding: 0;"  id="topbar">
+				<a class="aui-pull-left  border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+				<div  class="aui-title border-b "  id="title" name="richeng" style="font-size:20px;color:gray;">
+					大组
+				</div>
+			</header>
+			<div id="con" class="flex-con"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {			
+			api.closeWin({
+				name : 'dazudafen',
+			});
+		}
+
+		// 大组信息
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+			var data = api.pageParam.data;
+			var dazu = api.pageParam.dazu;
+			var html = '';
+			for (var i = 0; i < dazu.length; i++) {// 显示所有大组
+				html += '<div style="height:70px;line-height:70px;font-size:20px;background:#fff;border-bottom:1px solid #ccc;">' + dazu[i].zuMingCheng;
+				html += '<span style="color:blue;font-size:16px;float:right;"  onclick="xiaozu(' + dazu[i].ID + ');">教师评分<span>';
+				html += '</div>';
+			}
+			$("#con").html(html);
+		};
+        
+		function xiaozu(dazuid) {
+		var data = api.pageParam.data;
+		var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var fendazu = api.pageParam.fendazu;
+			var pingfenshezhi = data.pingfenshezhi;
+			var kaopingid= data.ID;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getpingfenxinxi",
+				data : {
+					yonghuid : studentid,
+					dazuid : dazuid,
+					status : status,
+					token : token,
+					kaopingid : kaopingid,
+					kechengid : data.keChengID,
+					pingfenshezhi : pingfenshezhi,
+					fendazu : fendazu,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+				    api.openWin({
+				    name : 'dafen',
+				    url : "dafen.html",
+				    reload : true,
+				    allowEdit : true,
+				    	pageParam : {
+				    		data : data,
+				    		pingfenshezhi : pingfenshezhi,
+				    		kaopingid : kaopingid,
+				    		dazuid : dazuid,
+				    		fendazu : fendazu,
+				    	}
+				    });
+				},
+				error : function() {
+					console.log("app_getpingfenxinxi");
+				}
+			})		
+		}
+	</script>
+</html>

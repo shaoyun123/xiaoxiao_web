@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>richeng_to_chaqin</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			.butt {
+				margin-left: 15px !important;
+				margin-right: 15px !important;
+				margin-top: 30px;
+				border: 1px solid #ddd;
+			}
+			header {
+				background-color: #f2f2f2;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;z-index:10;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				查寝安排
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+			<ul class="aui-list aui-form-list">
+				<nav>
+					<ul id="chaqinxianshi"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'richeng_to_chaqin',
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var id = api.pageParam.id;
+			var susheid = dataInfo.suSheID;
+			var studentid = dataInfo.id;
+			var banjiid = dataInfo.banJiID;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var mydate = new Date();
+			var time = mydate.getFullYear();
+			if (mydate.getMonth() < 10) {
+				time += '-0' + (mydate.getMonth() + 1);
+			} else {
+				time += '-' + (mydate.getMonth() + 1);
+			}
+			if (mydate.getDate() < 10) {
+				time += '-0' + mydate.getDate();
+			} else {
+				time += '-' + mydate.getDate();
+			}
+			if (mydate.getHours() < 10) {
+				time += ' 0' + mydate.getHours();
+			} else {
+				time += ' ' + mydate.getHours();
+			}
+			if (mydate.getMinutes() < 10) {
+				time += ':0' + mydate.getMinutes();
+			} else {
+				time += ':' + mydate.getMinutes();
+			}
+			if (mydate.getSeconds() < 10) {
+				time += ':0' + mydate.getSeconds();
+			} else {
+				time += ':' + mydate.getSeconds()
+			}
+			var day = ("0" + mydate.getDate()).slice(-2);
+			//格式化月，如果小于9，前面补0
+			var month = ("0" + (mydate.getMonth() + 1)).slice(-2);
+			//拼装完整日期格式
+			var datetime = mydate.getFullYear() + "-" + (month) + "-" + (day);
+			var code = studentid + ',zytech,' + id + ',zytech,' + susheid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_XianShiDanCiChaQin",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+					banjiid : banjiid,
+				},
+				dataType : 'json',
+				cache : false,
+				timeout : 5000,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+					if (data) {
+						if (datetime < data.chaqin.riqi || datetime > data.chaqin.riqi) {
+							if (data.chaqin != null && data.chaqin != "") {
+								html += '<li class="aui-list-item"><div style="width:80%;font-size:18px;">';
+								html += '<h4 style="font-size:18px;">日期：' + data.chaqin.riqi + '</h4>';
+								html += '<h4 style="font-size:18px;">开始时间：' + data.chaqin.kaishishijian + '</h4>';
+								html += '<h4 style="font-size:18px;">结束时间：' + data.chaqin.jieshushijian + '</h4>';
+								html += '<h4 style="font-size:18px;">拍照要求：' + data.chaqin.paizhaoyaoqiu + '</h4>';
+								if (data.jieguo == 0) {
+									html += '<h4 style="font-size:18px;">状态：<a style="color:orange;">未拍照</a></h4>';
+								} else {
+									html += '<h4 style="font-size:18px;">状态：<a style="color:orange;">已拍照</a></h4>';
+									if (data.zhuangtais[0] != -1) {
+										html += '<h4 style="font-size:18px;">查寝结果：';
+										for (var i = 0; i < data.xingmings.length; i++) {
+											if (data.zhuangtais[i] == 0) {
+												html += ' ' + data.xingmings[i] + ':不在  ';
+											} else if (data.zhuangtais[i] == 1) {
+												html += ' ' + data.xingmings[i] + ':在  ';
+											} else {
+												html += ' ' + data.xingmings[i] + ':未查看  ';
+											}
+										}
+										html += '</h4>';
+									} else {
+										html += '<h4 style="font-size:18px;">查寝结果：辅导员还未查看</h4>';
+									}
+								}
+								html += '</div><div style="width:20%;font-size:18px;"></div>';
+								html += '</li>';
+							}
+						} else {
+							var kaishi = data.chaqin.riqi + " " + data.chaqin.kaishishijian;
+							var jieshu = data.chaqin.riqi + " " + data.chaqin.jieshushijian;
+							if (time >= kaishi && time <= jieshu) {
+								html += '<li class="aui-list-item"><div style="width:80%;font-size:18px;">';
+								html += '<h4 style="font-size:18px;">日期：' + data.chaqin.riqi + '</h4>';
+								html += '<h4 style="font-size:18px;">开始时间：' + data.chaqin.kaishishijian + '</h4>';
+								html += '<h4 style="font-size:18px;">结束时间：' + data.chaqin.jieshushijian + '</h4>';
+								html += '<h4 style="font-size:18px;">拍照要求：' + data.chaqin.paizhaoyaoqiu + '</h4>';
+								if (data.jieguo == 0) {
+									html += '<h4 style="font-size:18px;">状态：<a style="color:orange;">未拍照</a></h4>';
+								} else {
+									html += '<h4 style="font-size:18px;">状态：<a style="color:orange;">已拍照</a></h4>';
+									if (data.zhuangtais[0] != -1) {
+										html += '<h4 style="font-size:18px;">查寝结果：';
+										for (var i = 0; i < data.xingmings.length; i++) {
+											if (data.zhuangtais[i] == 0) {
+												html += ' ' + data.xingmings[i] + ':不在  ';
+											} else if (data.zhuangtais[i] == 1) {
+												html += ' ' + data.xingmings[i] + ':在  ';
+											} else {
+												html += ' ' + data.xingmings[i] + ':未查看  ';
+											}
+										}
+										html += '</h4>';
+									} else {
+										html += '<h4 style="font-size:18px;">查寝结果：辅导员还未查看</h4>';
+									}
+								}
+								html += '</div><div style="width:20%;font-size:18px;"></div>';
+								html += '</li>';
+								html += '<div style="width:100%;"><div class="butt"><div class="aui-btn aui-btn-block" onclick="paizhao(' + data.chaqin.anpaiid + ')" style="background-color:#1E90FF;">拍照</div></div></div>';
+							} else {
+								html += '<li class="aui-list-item"><div style="width:80%;font-size:18px;">';
+								html += '<h4 style="font-size:18px;">日期：' + data.chaqin.riqi + '</h4>';
+								html += '<h4 style="font-size:18px;">开始时间：' + data.chaqin.kaishishijian + '</h4>';
+								html += '<h4 style="font-size:18px;">结束时间：' + data.chaqin.jieshushijian + '</h4>';
+								html += '<h4 style="font-size:18px;">拍照要求：' + data.chaqin.paizhaoyaoqiu + '</h4>';
+								if (data.jieguo == 0) {
+									html += '<h4 style="font-size:18px;">状态：<a style="color:orange;">未拍照</a></h4>';
+								} else {
+									html += '<h4 style="font-size:18px;">状态：<a style="color:orange;">已拍照</a></h4>';
+									if (data.zhuangtais[0] != -1) {
+										html += '<h4 style="font-size:18px;">查寝结果：';
+										for (var i = 0; i < data.xingmings.length; i++) {
+											if (data.zhuangtais[i] == 0) {
+												html += ' ' + data.xingmings[i] + ':不在  ';
+											} else if (data.zhuangtais[i] == 1) {
+												html += ' ' + data.xingmings[i] + ':在  ';
+											} else {
+												html += ' ' + data.xingmings[i] + ':未查看  ';
+											}
+										}
+										html += '</h4>';
+									} else {
+										html += '<h4 style="font-size:18px;">查寝结果：辅导员还未查看</h4>';
+									}
+								}
+								html += '</div><div style="width:20%;font-size:18px;"></div>';
+								html += '</li>';
+								html += '<div style="width:100%;"><div class="butt"><div class="aui-btn aui-btn-block" disabled="disabled">拍照</div></div></div>';
+							}
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+					$('#chaqinxianshi').html(html);
+				},
+				error : function() {
+					alert("超时");
+				}
+			});
+		};
+		function paizhao(anpaiid) {
+			api.getPicture({
+				sourceType : 'camera',
+				encodingType : 'jpg',
+				mediaValue : 'pic',
+				destinationType : 'base64',
+				allowEdit : true,
+				quality : 20,
+				//targetWidth : 100,
+				//targetHeight : 100,
+				saveToPhotoAlbum : false
+			}, function(ret, err) {
+				if (ret) {
+					if (ret.base64Data !== "") {
+						var dataInfo = $api.getStorage('loginDataInfo');
+						var id = api.pageParam.id;
+						var status = dataInfo.status;
+						var token = $api.getStorage("logintoken");
+						var xueshengid = dataInfo.id;
+						var banjiid = dataInfo.banJiID;
+						var susheid = dataInfo.suSheID;
+						$.ajax({
+							type : "POST",
+							url : $api.getStorage('serverUrl') + "app_UpdateImgerBase64",
+							data : {
+								base64Str : ret.base64Data,
+								xueshengid : xueshengid,
+								status : status,
+								token : token,
+								anpaiid : anpaiid,
+								susheid : susheid,
+								banjiid : banjiid,
+								id : id,
+							},
+							dataType : 'json',
+							cache : false,
+							success : function(data) {
+								if (data) {
+									if (data.msg == "OK") {
+										alert("上传成功");
+										window.location.reload();
+									} else if (data.msg == "fail") {
+										alert("上传失败");
+										window.location.reload();
+									} else {
+										alert("当前时间段不能上传");
+										window.location.reload();
+									}
+								} else {
+									alert("已登出");
+									api.hideProgress();
+									var jsfun = 'logout();';
+									api.execScript({
+										name : 'index',
+										script : jsfun
+									});
+								}
+							},
+							error : function() {
+								alert("错误001");
+							}
+						});
+					}
+				} else {
+					api.alert({
+						msg : '图片获取失败,请重新拍照!'
+					});
+				}
+			});
+		}
+	</script>
+</html>

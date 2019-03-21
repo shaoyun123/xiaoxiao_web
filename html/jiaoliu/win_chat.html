@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>新闻</title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/style1.css"/>
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+			#tx {
+				border-radius: 50%;
+				width: 30px;
+				height: 30px;
+				display: inline;
+				position: absolute;
+				top: 0px;
+				left: 40px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;">
+				<a class="aui-pull-left aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+				<div  class="aui-title border-b active" style="color:gray;font-size:20px;" id="title" name="richeng">
+					<img src="../../res/tx1.jpg" id="tx"/> 李宇春
+				</div>
+				<a class="aui-pull-left aui-btn" onclick="sliding()"> <span class="aui-iconfont aui-icon-menu" style="color:gray;font-size:20px;"></span> </a>
+			</header>
+			<div onc id="main" class="flex-con"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function sliding() {
+			api.openSlidPane({
+				type : 'left'
+			});
+		}
+
+		function goback() {
+		var dataInfo = $api.getStorage('loginDataInfo');
+		var status = dataInfo.status;
+		if(status == "fudaoyuan"){
+		var jsfun = 'unreads(qundatas);';
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+		} else if(status == "laoshi" || status == "xuesheng"){
+		var jsfun = 'unread();';
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+		}
+			
+			jsfun = 'shuaxin();';
+			api.execScript({
+				name : 'index',
+				frameName : 'jiaoliu',
+				script : jsfun
+			});
+			api.closeWin();
+		}
+
+		apiready = function() {
+			api.lockSlidPane();
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			//			funIniGroup();
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+			var html = '';
+			html += '<img src="' + api.pageParam.tx + '" id="tx" />' + api.pageParam.zh;
+			$api.html($api.dom('.aui-title'), html);
+			//			$api.fixStatusBar($api.byId('head'));
+			//			var head_h = $api.offset($api.byId('head')).h;
+			//			api.openFrame({
+			//				name : 'frame_chat',
+			//				url : "frame_chat.html",
+			//				bgColor : 'f5f5f5',
+			//				rect : {
+			//					x : 0,
+			//					y : head_h,
+			//					w : 'auto',
+			//					h : api.winHeight - head_h - 52
+			//				},
+			//				hScrollBarEnabled : false,
+			//				vScrollBarEnabled : false,
+			//				pageParam : {
+			//					head_h : head_h,
+			//					id : id,
+			//					zh : zh,
+			//					tx : tx
+			//				}
+			//			});
+			funIniGroup();
+		}
+		function funIniGroup() {
+			var id = api.pageParam.id;
+			var tx = api.pageParam.tx;
+			var zh = api.pageParam.zh;
+			var type = api.pageParam.type;
+			api.openFrame({
+				name : 'frame_chat',
+				url : "frame_chat.html",
+				rect : {
+					x : 0,
+					y : $api.dom('header').offsetHeight,
+					w : api.winWidth,
+					h : $api.dom('#main').offsetHeight - 52
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				allowEdit : true,
+				pageParam : {
+					id : id,
+					zh : zh,
+					tx : tx,
+					type : type
+				}
+			});
+		}
+	</script>
+</html>

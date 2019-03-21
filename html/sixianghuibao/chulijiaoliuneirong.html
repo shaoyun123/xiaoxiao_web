@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>chulijiaoliuneirong</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+    <style>
+        .a-text {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            color: #212121;
+            background-color: #ffffff;
+            position: relative;
+            min-height: 2.2rem;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+        }
+
+        .a-inner {
+            position: relative;
+            min-height: 2.2rem;
+            width: 100%;
+            background-color: #ffffff;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-flex: 1;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+        BeiWLMapper.xml
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            上传汇报
+        </div>
+    </header>
+    <form action="" id="myfrm" name="myfrm">
+        <div class="aui-content aui-margin-b-15">
+            <ul class="aui-list aui-form-list">
+                <li class="aui-list-header" style="font-size:20px;">修改汇报</li>
+                <nav>
+                    <ul id="xiugaijiaoliunr">
+                    </ul>
+                </nav>
+            </ul>
+        </div>
+    </form>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'chulijiaoliuneirong',
+        });
+    }
+    apiready = function() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var studentid = dataInfo.id;
+        var token = $api.getStorage("logintoken");
+        var status = dataInfo.status;
+        var choose = api.pageParam.choose;
+        var jiaoliuid = api.pageParam.jiaoliuid;
+        var anpaiid = api.pageParam.anpaiid;
+        var code = jiaoliuid + ',zytech,' + anpaiid;
+        if (choose == "chakan") {
+            $.ajax({
+                type: "POST",
+                dataType: 'json',
+                url: $api.getStorage('serverUrl')+"app_XiuGaijiaoliuneirong",
+                data: {
+                    CODE: code,
+                    status: status,
+                    token: token,
+                    xueshengid: studentid,
+                },
+                cache: false,
+                success: function(data) {
+                    var data = eval(data);
+                    html = "";
+                    if (data) {
+                        html += '<input type="hidden" readonly value="' + data.jiaoliuid + '" name="jiaoliuid" id="jiaoliuid">';
+                        html += '<input type="hidden" readonly value="' + data.anpaiid + '" name="anpaiid" id="anpaiid">';
+                        html += '<li class="aui-list-item">';
+                        html += '<div class="a-inner" style="font-size:15px;">名称：' + data.mingcheng + '<br>要求：' + data.yaoqiu + '<br>截止日期：' + data.jiezhishijian + '</div>';
+                        if (data.xueshengshangchuan != null) {
+                            html += '<li class="a-text"><textarea name="xueshengshangchuan" id="xueshengshangchuan" readonly class="form-control" rows="5" cols="100" style="height:200px;border:2px solid #D3D3D3;width:100%;">' + data.xueshengshangchuan +
+                                '</textarea></li>';
+                        } else {
+                            html +=
+                                '<li class="a-text"><textarea name="xueshengshangchuan" id="xueshengshangchuan" readonly class="form-control" rows="5" cols="100" style="height:200px;border:2px solid #D3D3D3;width:100%;"></textarea></li>';
+                        }
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                    $('#xiugaijiaoliunr').append(html);
+                },
+                error: function() {
+                    alet("错误RR！");
+                    window.location.reload();
+                }
+            });
+        } else {
+            $.ajax({
+                type: "POST",
+                dataType: 'json',
+                url: $api.getStorage('serverUrl')+"app_XiuGaijiaoliuneirong",
+                data: {
+                    CODE: code,
+                    status: status,
+                    token: token,
+                    xueshengid: studentid,
+                },
+                cache: false,
+                success: function(data) {
+                    var data = eval(data);
+                    html = "";
+                    if (data) {
+                        html += '<input type="hidden" readonly value="' + data.jiaoliuid + '" name="jiaoliuid" id="jiaoliuid">';
+                        html += '<input type="hidden" readonly value="' + data.anpaiid + '" name="anpaiid" id="anpaiid">';
+                        html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+                        html += '<input type="hidden" readonly value="' + studentid + '" name="studentid" id="studentid">';
+                        html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+                        html += '<li class="aui-list-item">';
+                        html += '<div class="a-inner" style="font-size:15px;">名称：' + data.mingcheng + '<br>要求：' + data.yaoqiu + '<br>截止日期：' + data.jiezhishijian + '</div>';
+                        html += '<li class="a-text"><textarea name="xueshengshangchuan" id="xueshengshangchuan" class="form-control" rows="5" cols="100" style="height:200px;border:2px solid #D3D3D3;width:100%;">';
+                        if (data.xueshengshangchuan != null) {
+                            html += data.xueshengshangchuan;
+                        }
+                        html += '</textarea></li>';
+                        html +=
+                            '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-title"></div><div class="aui-list-item-right"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="保存" onclick="savehuibbao()"></div></div></div></li>';
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                    $('#xiugaijiaoliunr').append(html);
+                },
+                error: function() {
+                    alet("错误R！");
+                    window.location.reload();
+                }
+            });
+        }
+    };
+    //对于未上传的交流内容进行修改并保存到数据库上
+    function savehuibbao() {
+        var formData = new FormData($("#myfrm")[0]);
+        $.ajax({
+            url: $api.getStorage('serverUrl')+"app_SaveXiuGaijiaoliuneirong",
+            type: "post",
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function(data) {
+                if (data) {
+                    if (data == "success") {
+                        alert("保存成功");
+                        var jsfun = 'fanhuifudaoanpai();';
+                        api.execScript({
+                            name: 'fudaoanpai',
+                            script: jsfun
+                        });
+                    } else if (data == "fail") {
+                        alert("该内容可能已被提交");
+                        var jsfun = 'fanhuifudaoanpai();';
+                        api.execScript({
+                            name: 'fudaoanpai',
+                            script: jsfun
+                        });
+                    } else {
+                        alert("没有该记录");
+                        var jsfun = 'fanhuifudaoanpai();';
+                        api.execScript({
+                            name: 'fudaoanpai',
+                            script: jsfun
+                        });
+                    }
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function() {
+                alert("错误Y！");
+                window.location.reload();
+            }
+        });
+    }
+</script>
+
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>fdy_shouye_qingjia</title>
+    <link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+    <style>
+        body {}
+        header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+    <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+        <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+    </a>
+<!--     -->    
+    <div class="aui-title border-b" style="font-size:20px;color:gray;">
+        	请假
+    </div>
+</header>
+<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+    <ul class="aui-list aui-form-list">
+        <nav>
+            <ul id="menu_mun">
+
+            </ul>
+        </nav>
+    </ul>
+</div>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+    function goback() {
+        api.closeWin({
+            name: 'fdy_shouye_qingjia'
+        });
+        var jsfun = "youtixing();";
+        api.execScript({
+            name: 'index',
+            script: jsfun
+        });
+    }
+    apiready = function() {
+      var one = "qingjiadaichuli_fdy";
+      var two = "qingjiayichuli_fdy";
+      var three = "qingjiajilu_fdy";
+      html="";
+      html += '<div class="aui-list-item" style="height:50px;width:100%;"><div class="aui-list-item-inner" style="width:100%;"><font style="color:#666666;font-size:25px;width:100%;" onclick="xuanze(\'' +one + '\')">待处理</font></div></div>';
+      html += '<div class="aui-list-item" style="height:50px;width:100%;"><div class="aui-list-item-inner" style="width:100%;"><font style="color:#666666;font-size:25px;width:100%;" onclick="xuanze(\'' +two + '\')">已处理</font></div></div>';
+      html += '<div class="aui-list-item" style="height:50px;width:100%;"><div class="aui-list-item-inner" style="width:100%;"><font style="color:#666666;font-size:25px;width:100%;" onclick="xuanze(\'' +three + '\')">请假记录</font></div></div>';
+      $('#menu_mun').html(html);
+    };
+
+    function xuanze(action) {
+        if (action == "qingjiadaichuli_fdy") {
+            api.openWin({
+                name: 'qingjiadaichuli_fdy',
+                url: 'qingjia_fdy/qingjiadaichuli_fdy.html',
+                reload: true,
+				allowEdit:true
+            });
+        } else if (action == "qingjiayichuli_fdy") {
+            api.openWin({
+                name: 'qingjiayichuli_fdy',
+                url: 'qingjia_fdy/qingjiayichuli_fdy.html',
+                reload: true,
+				allowEdit:true
+            });
+        } else if (action == "qingjiajilu_fdy") {
+            api.openWin({
+                name: 'qingjiajilu_fdy',
+                url: 'qingjia_fdy/qingjiajilu_fdy.html',
+                reload: true,
+				allowEdit:true
+            });
+        }
+    }
+</script>
+
+</html>

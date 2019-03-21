@@ -1,0 +1,232 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/style1.css"/>
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-bottom: 10px">
+				<a class="aui-btn aui-pull-left" onclick="goback()"> <span class="aui-iconfont aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+				<div  class="aui-title " style="color:black;font-size:20px;" id="title" name="richeng">
+					在线考试
+				</div>
+			</header>
+			<div id="main" onclick="" class="flex-con"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			var jsfun = 'shuaxin();';
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+			api.closeWin();
+		}
+
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			funIniGroup();
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		}
+		function funIniGroup() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xuexiaoxuehao = dataInfo.xuexiao_xuehao;
+			var xuehao = dataInfo.xueHao;
+			var fasongyouxiang = dataInfo.fasongyouxiang;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getServerUrl", //如果地址访问不到会请求出错，请填写自己的接口地址
+				data : {
+					xuexiaoxuehao : xuexiaoxuehao,
+					xuehao : xuehao
+				},
+				dataType : 'json',
+				cache : false,
+				crossDomain : true,
+				timeout : 1000,
+				success : function(data) {
+					var dataInfo = $api.getStorage('loginDataInfo');
+					if (data.isTest == '1') {
+						if (data.xuesheng.yonghuming != dataInfo.yongHuMing) {
+							api.confirm({
+								title : '登录信息不正确，请重新登录！如有疑问请点击下方“帮助”按钮',
+								buttons : ['帮助', '取消']
+							}, function(ret, err) {
+								var index = ret.buttonIndex;
+								if (index == 2) {
+								} else if (index == 1) {
+									api.openWin({
+										name : 'bangzhu',
+										url : "../bangzhu-win.html",
+										reload : true,
+										allowEdit : true,
+									});
+								}
+							})
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						} else {
+							var xueXiaoXueHao = dataInfo.xuexiao_xuehao;
+							var tempCon = "";
+							var tempStr = data.xuesheng.xingming + '同学：';
+							if (data.xuesheng.youxiang == "") {
+								tempCon = '        您的账号还未进行绑定邮箱。';
+								tempCon += '必须绑定邮箱后才可以参加考试';
+								api.confirm({
+									title : tempStr,
+									msg : tempCon,
+									buttons : ['绑定邮箱', '']
+								}, function(ret, err) {
+									if (ret.buttonIndex == 1) {
+										api.openWin({
+											name : 'gerenxinxi',
+											url : "../person/gerenxinxi.html",
+											reload : true,
+											allowEdit : true
+										});
+										return;
+									}
+								});
+							} else if (data.xuesheng.checkcodefor != "") {
+								tempCon = '       您已经绑定了邮箱，但还没有通过验证，暂时不能参加考试。';
+								tempCon += '\n        您的验证码是：' + data.xuesheng.checkcodefor;
+								tempCon += '\n请用您登记的邮箱：' + data.xuesheng.youxiang;
+								tempCon += '\n发送该验证码给：' + dataInfo.fasongyouxiang + '邮箱！';
+								tempCon += '\n			如果您没有发送验证码到' + dataInfo.fasongyouxiang + '邮箱，或者没有通过验证，请重新发送验证码到上面的邮箱，重新进行验证。';
+								tempCon += '\n        我们收到您的验证码后，会自动验证您的邮箱。我们的邮箱设置了自动回复功能，如果您收到了自动回复邮件，表明我们已经收到了您的验证码。';
+								api.confirm({
+									title : tempStr,
+									msg : tempCon,
+									buttons : ['帮助', '修改邮箱', '我知道了']
+								}, function(ret, err) {
+									if (ret.buttonIndex == 2) {
+										api.openWin({
+											name : 'youxian2-win',
+											url : "../youxian2-win.html",
+											reload : true,
+											allowEdit : true
+										});
+										return;
+									} else if (ret.buttonIndex == 1) {
+										api.openWin({
+											name : 'bangzhu',
+											url : "../bangzhu-win.html",
+											reload : true,
+											allowEdit : true,
+										});
+										return;
+									} else {
+										api.openWin({
+											name : 'fixed11',
+											url : "../index.html",
+											reload : true,
+											allowEdit : true
+										});
+										return;
+									}
+								});
+							} else {
+								var pk = dataInfo.pk;
+								if (pk == undefined || pk == null || pk == '') {
+									alert("已登出");
+									api.hideProgress();
+									var jsfun = 'logout();';
+									api.execScript({
+										name : 'index',
+										script : jsfun
+									});
+								} else {
+									//									api.openFrame({
+									//										name : 'zaixiankaoshi',
+									//										url : "http://122.207.68.137:18090/accounts/login/?next=/?xuexiaoxuehao=" + pk,
+									//										rect : {
+									//											x : 0,
+									//											y : $api.dom('header').offsetHeight,
+									//											w : api.winWidth,
+									//											h : $api.dom('#main').offsetHeight
+									//										},
+									//										bounces : false,
+									//										bgColor : 'rgba(0,0,0,0.6)',
+									//										allowEdit : true,
+									//									});
+									api.openFrame({
+										name : 'kaoshi_frm',
+										url : "kaoshi_frm.html",
+										rect : {
+											x : 0,
+											y : $api.dom('header').offsetHeight,
+											w : api.winWidth,
+											h : $api.dom('#main').offsetHeight
+										},
+										reload : true,
+										bounces : false,
+										bgColor : 'rgba(0,0,0,0.6)',
+										allowEdit : true,
+									});
+								}
+							}
+						}
+					} else {
+						api.confirm({
+							title : '现在还未在考试时间,如有疑问请点击下方“帮助”按钮',
+							buttons : ['帮助', '取消']
+						}, function(ret, err) {
+							var index = ret.buttonIndex;
+							if (index == 2) {
+							} else if (index == 1) {
+								api.openWin({
+									name : 'bangzhu',
+									url : "../bangzhu-win.html",
+									reload : true,
+									allowEdit : true,
+								});
+							}
+						})
+					}
+				},
+				error : function() {
+					api.confirm({
+						title : '没有查到个人信息，请稍后重试,如有疑问请点击下方“帮助”按钮',
+						buttons : ['帮助', '取消']
+					}, function(ret, err) {
+						var index = ret.buttonIndex;
+						if (index == 2) {
+						} else if (index == 1) {
+							api.openWin({
+								name : 'bangzhu',
+								url : "../bangzhu-win.html",
+								reload : true,
+								allowEdit : true,
+							});
+						}
+					})
+				}
+			});
+		}
+	</script>
+</html>

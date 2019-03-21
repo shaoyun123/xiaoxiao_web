@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/c ss" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+	</head>
+	<body>
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				全班考评成绩
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="padding-top:70px;">
+			<section class="aui-grid aui-margin-b-15">
+				<div class="aui-row" id="menu_mun"></div>
+			</section>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'allkaoping'
+			});
+		}
+
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var data = api.pageParam.data;
+			var newdata = data.xiaozulist;
+			var studentname = dataInfo.xingMing;
+			var html = '';
+			for (var i = 0; i < newdata.length; i++) {
+				html += '<div style="overflow:hidden;height:60px;padding-left:20px;border-bottom:1px solid #ccc" onclick="xiangqing(' + i + ');">' + newdata[i].xueXiZuMing;
+				html += '<div style="height:10px;"></div>';
+				html += '<table style="width:100%;color:gray;font-size:14px;">';
+				html += '<tr><td width="40">总分：' + newdata[i].zongdefen + '</td><td width="60">扣分平均分：' + newdata[i].zongkoufen + '</td><td width="60">归一得分：' + newdata[i].finalscore + '</td></tr>';
+				html += '</table>';
+				html += '</div>';
+			}
+			$('#menu_mun').html(html);
+		};
+		
+		function xiangqing(i) {
+			var data = api.pageParam.data;
+			var newdata = data.xiaozulist;
+			api.openWin({
+				name : 'kaopingxiangqing',
+				url : "kaopingxiangqing.html",
+				pageParam : {
+					data : newdata,
+					i : i,
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+	</script>
+</html>

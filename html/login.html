@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>login</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../script/main.js"></script>
+    <style>
+        .aui-content ul li {
+            margin: 15px !important;
+            border: 1px solid #ddd;
+        }
+
+        .aui-list:before,
+        .aui-list:after {
+            height: 0px;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript">
+        var mkeyTime = new Date().getTime();
+
+        function loadData() {
+            api.showProgress({
+                title: '努力加载中...',
+                text: '先喝杯茶...',
+                modal: false
+            });
+        }
+		//$api.setStorage('serverUrl','http://192.168.0.131:8080/xuexiao/');    
+		$api.setStorage('serverUrl','http://101.200.229.7/xiaoyuan/');            
+        apiready = function() {
+            //$api.setStorage('serverUrl','http://101.200.229.7/xiaoyuan/');   
+            if(api){
+	            var ajpush = api.require('ajpush');
+	            if(ajpush){
+					ajpush.setListener(
+					    function(ret) {
+					         
+					    }
+					);
+	           	}
+            }
+            //$api.setStorage('serverUrl','http://192.168.0.129:8080/xuexiao/');
+            var header = document.querySelector('#header');
+            $api.fixStatusBar(header);
+            var deviceId = api.deviceId;
+            jQuery("#deviceId").val(deviceId);
+            api.addEventListener({
+                name: 'keyback'
+            }, function(ret, err) {
+                //如果当前时间减去标志时间大于2秒，说明是第一次点击返回键，反之为2秒内点了2次，则退出。
+                if ((new Date().getTime() - mkeyTime) > 2000) {
+                    mkeyTime = new Date().getTime();
+                    api.toast({
+                        msg: '再按一次退出程序',
+                        duration: 2000,
+                        location: 'bottom'
+                    });
+                } else {
+                    $api.clearStorage();
+                    api.closeWidget();
+                }
+            });
+
+            api.addEventListener({
+                name: 'noticeclicked'
+            }, function(ret) {
+                if (ret && 1 == ret.type) {
+                    api.openWin({
+                        name: 'wodericheng',
+                        url: 'richeng/wodericheng.html',
+                        reload: true,
+						allowEdit:true
+                    });
+                }
+            });
+
+            api.addEventListener({
+                name: 'resume'
+            }, function(ret, err) {
+                tongzhi();
+            });
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+            if (status != null && status != null) {
+                if (status == "xuesheng") {
+                    tongzhi();
+                    api.openWin({
+                        name: 'richeng',
+                        url: 'richeng.html',
+                        reload: true,
+						allowEdit:true
+                    });
+                }
+                if (status == "fudaoyuan") {
+                    api.openWin({
+                        name: 'richeng',
+                        url: 'richeng.html',
+                        reload: true,
+						allowEdit:true
+                    });
+                }
+                if (status == "jiaoshi") {
+                    api.openWin({
+                        name: 'richeng',
+                        url: 'richeng.html',
+                        reload: true,
+						allowEdit:true
+                    });
+                }
+            }
+           
+            
+            
+        };
+        //保存用户名和密码
+        function saveUserInfo() {
+        	var dataInfo = $api.getStorage('loginDataInfo');
+            $api.setStorage('loginName', dataInfo.yongHuMing);
+            $api.setStorage('loginPassword', dataInfo.miMaMD5);
+//          $api.setStorage('loginName', jQuery('#signin-username').val());
+//          $api.setStorage('loginPassword', jQuery('#signin-password').val());
+        }
+
+        function saveUserother() {
+        	var dataInfo = $api.getStorage('loginDataInfo');
+            var username = dataInfo.yongHuMing;
+            var password = dataInfo.miMaMD5;
+            var status = dataInfo.status;
+            var token = $api.getStorage("logintoken");
+            var code = username + ',zytech,' + password + ',zytech,' + status;
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl') + "app_toxuesheng", //如果地址访问不到会请求出错，请填写自己的接口地址
+                data: {
+                    CODE: code,
+                    token: token,
+                },
+                cache: false,
+                success: function(data) {
+                    if (data) {
+                    dataInfo.id = data.xueshengid;
+                    dataInfo.banJiID = data.banjiid;
+                    dataInfo.xueHao = data.xuehao;
+                    dataInfo.xingMing = data.xingming;
+                    dataInfo.xuexiao_xuehao = data.xuexiaoXuehao;
+                    dataInfo.suSheID = data.susheid;
+                    
+//                      $api.setStorage('loginxueshengid', data.xueshengid);
+//                      $api.setStorage('loginbanjiid', data.banjiid);
+//                      $api.setStorage('loginxuehao', data.xuehao);
+//                      $api.setStorage('loginxingming', data.xingming);
+//                      $api.setStorage('loginxuexiaoXuehao', data.xuexiaoXuehao);
+//                      $api.setStorage('loginsusheid',data.susheid);
+                        if (data.isbanzhang != null && data.isbanzhang != "") {
+                        dataInfo.isBanZhang = data.isbanzhang;
+//                          $api.setStorage('loginisbanzhang', data.isbanzhang);
+                        } else {
+//                          $api.setStorage('loginisbanzhang', false);
+                            dataInfo.isBanZhang = false;
+                        }
+                        $api.setStorage('loginDataInfo', dataInfo);
+                        tuisong();
+						window.location.href = "richeng.html";
+                    } else {
+                        alert("已登出");
+                        $api.clearStorage();
+                        window.location.href = "login.html";
+                    }
+                    tongzhi();
+                },
+                error: function() {
+                    alert("错误！！！");
+                }
+
+            });
+
+        }
+		function tuisong(){
+			var dataInfo = $api.getStorage('loginDataInfo');
+		    var xueshengid =dataInfo.id;
+		    var banjiid = dataInfo.banJiID;
+		    if(api){
+				var ajpush = api.require('ajpush');
+				if(!ajpush) return;
+				ajpush.isPushStopped(function(ret) {
+				    if(ret && ret.isStopped){
+						ajpush.resumePush(function(ret) {
+						    if(ret && ret.status){
+						       
+					    	}
+						});
+				    }else{
+				    	ajpush.init(function (ret) {
+				            if (ret && ret.status) {
+						        var param = {
+					                alias: xueshengid,
+					                tags: [banjiid]
+					            };
+					            ajpush.bindAliasAndTags(param, function (ret) {
+					                var statusCode = ret.statusCode;
+					            });
+				            }
+		        		});
+				    }
+				});
+		    }
+			
+		}
+        function saveUserother_fdy_js() {
+        	var dataInfo = $api.getStorage('loginDataInfo');
+            var username = dataInfo.yongHuMing;
+            var password = dataInfo.miMaMD5;
+            var status = dataInfo.status;
+            var token = $api.getStorage("logintoken");
+            var code = username + ',zytech,' + password + ',zytech,' + status;
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl') + "app_tofudaoyuan_Or_jiaoshi", //如果地址访问不到会请求出错，请填写自己的接口地址
+                data: {
+                    CODE: code,
+                    token: token,
+                },
+                cache: false,
+                dataType: 'json',
+                success: function(data) {
+                    if (data) {
+                        var data = eval(data);
+                        var dataInfo = $api.getStorage('loginDataInfo');
+                        dataInfo.id = data.yonghuid;
+                        dataInfo.yuanXiID = data.yuanxiid;
+                        dataInfo.xingMing = data.yonghuxingming;
+//                      $api.setStorage('loginyonghuid', data.yonghuid);
+//                      $api.setStorage('loginyuanxiid', data.yuanxiid);
+//                      $api.setStorage('loginyonghuxingming', data.yonghuxingming);
+
+							$api.setStorage('loginDataInfo', dataInfo);
+                   		tuisong();
+                   		window.location.href = "richeng.html";
+						
+                    } else {
+                        alert("已登出");
+                        $api.clearStorage();
+                        window.location.href = "login.html";
+                    }
+                },
+                error: function() {
+                    alert("错误！！");
+                }
+
+            });
+        }
+
+
+        function loading() {
+            loadData();
+            var dataInfo = $api.getStorage('loginDataInfo');
+            var username = document.getElementById("signin-username").value;
+            var password = document.getElementById("signin-password").value;
+            //var status = $("input[name='radio']:checked").val();
+            var status = $('#radio').val();
+            dataInfo.status = status;
+            $api.setStorage('loginDataInfo', dataInfo);
+            if (username == "") {
+                alert("用户名不能为空");
+                return false;
+            }
+            if (password == "") {
+                alert("密码不能为空");
+                return false;
+            }
+            /*
+            if (!$(':radio[name=radio]:checked').length) {
+                alert("用户类型不能为空");
+                return false;
+            }*/
+            var result = "";
+            var code = username + ',zytech,' + password + ',zytech,' + status;
+            saveUserInfo();
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl') + "app_tologin", //如果地址访问不到会请求出错，请填写自己的接口地址
+                data: {
+                    CODE: code
+                },
+                dataType: 'text',
+                cache: false,
+                crossDomain: true,
+                timeout: 5000,
+                success: function(data) {
+                    if (data == "fail") {
+                        alert("用户名或密码错误！");
+                        api.hideProgress();
+                    } else {
+                        //createtoken();
+                        $api.setStorage('logintoken', data);
+                        if (status == "xuesheng") {
+                            saveUserother();
+                        }
+                        if (status == "fudaoyuan") {
+                            saveUserother_fdy_js();
+                        }
+                        if (status == "jiaoshi") {
+                            saveUserother_fdy_js();
+                        }
+                        api.hideProgress();
+                    }
+
+                },
+                error: function() {
+                    alert("超时！！");
+                    api.hideProgress();
+                }
+
+            });
+        }
+
+        function tongzhi() {
+        	var dataInfo = $api.getStorage('loginDataInfo');
+            var xueshengid = dataInfo.id;
+            var xingming = dataInfo.xingMing;
+            var banjiid = dataInfo.banJiID;
+            var token = $api.getStorage("logintoken");
+            var status = dataInfo.status;
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl') + "app_TanChuTongZhi",
+                data: {
+                    xueshengid: xueshengid,
+                    banjiid: banjiid,
+                    token: token,
+                    status: status,
+                },
+                dataType: 'json',
+                cache: false,
+                timeout: 5000,
+                success: function(data) {
+                    //alert(JSON.stringify(data));
+                    var data = eval(data);
+                    if (data) {
+                        if (data.huodongs != null || data.huodongs.length > 0) {
+                            for (var i = 0; i < data.huodongs.length; i++) {
+                                var mydate = new Date();
+                                var time = mydate.getFullYear();
+                                if (mydate.getMonth() < 10) {
+                                    time += '-0' + (mydate.getMonth() + 1);
+                                } else {
+                                    time += '-' + (mydate.getMonth() + 1);
+                                }
+                                if (mydate.getDate() < 10) {
+                                    time += '-0' + mydate.getDate();
+                                } else {
+                                    time += '-' + mydate.getDate();
+                                }
+                                if (mydate.getHours() < 10) {
+                                    time += ' 0' + mydate.getHours();
+                                } else {
+                                    time += ' ' + mydate.getHours();
+                                }
+                                if (mydate.getMinutes() < 10) {
+                                    time += ':0' + mydate.getMinutes();
+                                } else {
+                                    time += ':' + mydate.getMinutes();
+                                }
+                                var kaishi_time = data.huodongs[i].riqi + ' ' + data.huodongs[i].kaishishijian;
+                                var result = GetDateDiff(time, kaishi_time, "minute");
+                                //alert(time+"两者时间差为：" + result + "分钟了。"+kaishi_time);
+                                if (result <= 30 && result > 0) {
+                                    var neirong = '再过' + result + '分钟' + data.huodongs[i].huodongmingcheng + '就要开始了';
+                                    api.notification({
+                                        vibrate: [300, 500], //震动时间节奏
+                                        sound: 'default', //系统默认提示音
+                                        light: true, //是否亮灯，需设备支持
+                                        notify: { //状态栏通知
+                                            title: '活动通知', //通知标题
+                                            content: neirong, //通知内容
+                                            extra: {
+                                                goto: 'winAa'
+                                            }, //额外的键值对，通知被点击后将通过noticeclicked交给网页
+
+                                        }
+                                    }, function(ret, err) {
+                                        if (ret) {
+                                            //api.alert(JSON.stringify(ret));
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                        if (data.keChengs != null || data.keChengs.length > 0) {
+                            for (var i = 0; i < data.keChengs.length; i++) {
+                                var mydate = new Date();
+                                var time = '';
+                                if (mydate.getHours() < 10) {
+                                    time += ' 0' + mydate.getHours();
+                                } else {
+                                    time += ' ' + mydate.getHours();
+                                }
+                                if (mydate.getMinutes() < 10) {
+                                    time += ':0' + mydate.getMinutes();
+                                } else {
+                                    time += ':' + mydate.getMinutes();
+                                }
+                                var kaishi_time = data.keChengs[i].kaishishijian;
+                                var result = GetDateDiff(time, kaishi_time, "minute");
+                                //alert(time+"两者时间差为：" + result + "分钟了。"+kaishi_time);
+                                if (result <= 30 && result > 0) {
+                                    var neirong = '再过' + result + '分钟' + data.huodongs[i].huodongmingcheng + '就要开始了';
+                                    api.notification({
+                                        vibrate: [300, 500], //震动时间节奏
+                                        sound: 'default', //系统默认提示音
+                                        light: true, //是否亮灯，需设备支持
+                                        notify: { //状态栏通知
+                                            title: '活动通知', //通知标题
+                                            content: neirong, //通知内容
+                                            extra: {
+                                                goto: 'winAa'
+                                            }, //额外的键值对，通知被点击后将通过noticeclicked交给网页
+
+                                        }
+                                    }, function(ret, err) {
+                                        if (ret) {
+                                            //api.alert(JSON.stringify(ret));
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                },
+                error: function() {
+
+                }
+            });
+        }
+
+        function GetDateDiff(startTime, endTime, diffType) {
+            //将xxxx-xx-xx的时间格式，转换为 xxxx/xx/xx的格式
+            startTime = startTime.replace(/\-/g, "/");
+            endTime = endTime.replace(/\-/g, "/");
+
+            //将计算间隔类性字符转换为小写
+            diffType = diffType.toLowerCase();
+            var sTime = new Date(startTime); //开始时间
+            var eTime = new Date(endTime); //结束时间
+            //作为除数的数字
+            var divNum = 1;
+            switch (diffType) {
+                case "second":
+                    divNum = 1000;
+                    break;
+                case "minute":
+                    divNum = 1000 * 60;
+                    break;
+                case "hour":
+                    divNum = 1000 * 3600;
+                    break;
+                case "day":
+                    divNum = 1000 * 3600 * 24;
+                    break;
+                default:
+                    break;
+            }
+            return parseInt((eTime.getTime() - sTime.getTime()) / parseInt(divNum));
+        }
+    </script>
+</head>
+
+<body style="background-color: white;">
+    <header id="topbar" style="background-color: white;padding-top:25px;">
+        <div class="content" style="dispaly:block;margin:0 auto;width:100%;text-align:center;margin-top:25px;">
+            <img src="../image/denglu.png" style="transform:scale(1.5)">
+        </div>
+    </header>
+    <form action="" id="formid" name="myform">
+        <div class="aui-content aui-margin-b-15">
+            <ul class="aui-list aui-form-list">
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label-icon">
+                            <i class="aui-iconfont aui-icon-mobile"></i>
+                        </div>
+                        <div class="aui-list-item-input">
+                            <input type="text" placeholder="请输入用户名" value="" name="yonghuVo.sdengluming" id="signin-username">
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label-icon">
+                            <i class="aui-iconfont aui-icon-lock"></i>
+                        </div>
+                        <div class="aui-list-item-input">
+                            <input type="password" placeholder="请输入密码" value="" name="yonghuVo.sdenglumima" id="signin-password">
+                        </div>
+                    </div>
+                </li>
+                <input type="hidden" name="radio" id="radio" value="xuesheng">
+                <!--<ul class="fieldset">
+                    <label for="status1">&nbsp;&nbsp;&nbsp;&nbsp;学生</label>
+                    <input name="radio" id="status1" type="radio" value="xuesheng">
+                    <label for="status3">辅导员</label>
+                    <input name="radio" id="status3" type="radio" value="fudaoyuan">
+                    <label for="status2">教师</label>
+                    <input name="radio" id="status2" type="radio" value="jiaoshi">
+                </ul>-->
+                <li class="">
+                    <input type="hidden" name="userClient" value="1" />
+                    <input type="hidden" id="deviceId" name="deviceId" value="" />
+                    <div class="aui-btn aui-btn-block" onclick="loading()" style="background-color:#09c6d2;">
+                        登录
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </form>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="./css/api.css" />
+    <title>侧边导航</title>
+    <style>
+        html {
+            height: 100%;
+            background-color: #fff;
+        }
+
+        body {
+            background-color: #fff;
+            padding: 0;
+            margin: 0;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            height: 100%;
+            -webkit-box-orient: vertical;
+            -webkit-flex-flow: column;
+            flex-flow: column;
+        }
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <script>
+        apiready = function() {
+            api.openSlidLayout({
+                type: 'all',
+                rightEdge: 300,
+                leftEdge: 89,
+                fixedPane: {
+                    name: 'fixed',
+                    url: 'html/fixed.html'
+                },
+                slidPane: {
+                    name: 'slide',
+                    url: 'html/slide.html',
+                    bounces: true,
+                }
+            }, function(ret) {
+
+            });
+        }
+    </script>
+</body>
+
+</html>

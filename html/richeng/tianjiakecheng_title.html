@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>新闻</title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/style1.css"/>
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;">
+				<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont  aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+				<div  class="aui-title border-b" style="color:gray;font-size:20px;" id="title" name="richeng">
+					我的课程
+				</div>
+				<a class="aui-pull-right border-b aui-btn" onclick="zizhutianjia()"> <span class="aui-iconfont  aui-icon-info aui-icon-plus" style="color:gray;font-size: 20px;"></span> </a>
+			</header>
+			<div id="main" class="flex-con"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			var jsfun = 'shuaxin();';
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+			api.closeWin();
+		}
+
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			funIniGroup();
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		}
+		function funIniGroup() {
+			var qufen = api.pageParam.qufen;
+			api.openFrame({
+				name : 'tianjiakecheng',
+				url : "tianjiaokecheng_main.html",
+				rect : {
+					x : 0,
+					y : $api.dom('header').offsetHeight,
+					w : api.winWidth,
+					h : $api.dom('#main').offsetHeight
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				allowEdit : true,
+				pageParam : {
+					qufen : qufen
+				}
+			});
+		}
+
+		function zizhutianjia() {
+			api.openWin({
+				name : 'zizhu_jiake1',
+				url : 'zizhu_jiake1.html',
+				pageParam : {
+					fromtjkc : 'yes',
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+	</script>
+</html>

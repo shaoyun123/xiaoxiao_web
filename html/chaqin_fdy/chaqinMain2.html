@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>查寝</title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			.goods-title {
+				color: #757575 !important;
+			}
+			.goods-price {
+				color: #666666 !important;
+				font-weight: 700;
+			}
+			a {
+				color: #0062CC;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;">
+			<div class="aui-tab" id="tab" style="background:  rgb(240,240,240);">
+				<div class="aui-tab-item aui-active items" id="jiri" onclick="showData(this,'1')">
+					查寝安排
+				</div>
+			</div>
+			<section class="aui-content">
+				<nav id="menu_mun" style="background: #fff;"></nav>
+			</section>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		var pageNum;
+		var pageSize;
+		var hashNextPage;
+		function initPage() {
+			pageNum = 0;
+			pageSize = 20;
+			hashNextPage = true;
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var searchStatus = '1';
+		function showData(obj, val) {
+			if (searchStatus != val) {
+				searchStatus = val;
+				$('.items').each(function() {
+					$(this).removeClass('aui-active');
+				});
+				$(obj).addClass('aui-active');
+				initPage();
+				searchData();
+			}
+		}
+
+		showData($('#jinri'), '1');
+		apiready = function() {
+			loadData();
+			initPage();
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					initPage();
+					searchData();
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			searchData();
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 1000,
+				}
+			}, function(ret, err) {
+				if (hashNextPage) {
+					searchData();
+				}
+			});
+		};
+		function searchData() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var code = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_chaqin",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+					pageNum : pageNum,
+					pageSize : pageSize
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					if (data) {
+						if (data.length > 0) {
+							html = '';
+							for (var i = 0; i < data.length; i++) {
+								html += '<li class="aui-list-item" onclick="xianshi(' + data[i].anpaiid + ')" style="border-bottom:1px solid #ccc;">';
+								html += '<div class="aui-media-list-item-inner" style="margin-left:10px;"><div class="aui-list-item-inner">';
+								html += '<div class="aui-list-item-title aui-font-size-18" style="top:6px;position:relative;">要求：' + data[i].paizhaoyaoqiu + '</div>';
+								html += '</div></div>';
+								html += '<div class="aui-info" >';
+								html += '<div class="aui-info-item aui-font-size-12">';
+								html += '<span class="aui-margin-l-5">' + data[i].riqi + '&nbsp&nbsp' + data[i].kaishishijian + '~' + data[i].jieshushijian;
+								html += '</span></div>';
+								html += '</div>';
+								html += '</li>';
+							}
+							if (pageNum > 0) {
+								$('#menu_mun').append(html);
+							} else {
+								$('#menu_mun').html(html);
+							}
+							if (data.length < pageSize) {
+								hashNextPage = false;
+							} else {
+								pageNum++;
+							}
+						} else {
+							hashNextPage = false;
+							if (pageNum == 0) {
+								$('#menu_mun').html('<div class="aui-list-item"><div class="aui-list-item-inner">当前时期没有数据</div></div>');
+							}
+						}
+						api.hideProgress();
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("超时");
+					api.hideProgress();
+				}
+			});
+		}
+
+		function xianshi(qingjiaid) {
+			api.openWin({
+				name : 'xianshixiangqing_fdy',
+				url : "xianshixiangqing_fdy.html",
+				pageParam : {
+					id : qingjiaid
+				},
+				reload : true,
+				allowEdit : true
+			});
+		};
+	</script>
+</html>

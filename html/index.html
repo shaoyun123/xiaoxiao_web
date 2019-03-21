@@ -1,0 +1,619 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>底部导航</title>
+		<link rel="stylesheet" type="text/css" href="../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/style1.css"/>
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<header class="aui-bar aui-bar-nav aui-bar-light" id="aui-header" style="background-color:white;">
+				<div class="aui-title border-b " style="color:gray;font-size:20px;display: none;" id="fixed11" name="fixed1" >
+					校校
+				</div>
+				<div  class="aui-title border-b active" style="color:gray;font-size:20px;" id="richeng1" name="richeng">
+					校校
+				</div>
+				<div class="aui-title border-b" style="color:gray;font-size:20px;display: none;" id="jiaoliu1" name="jiaoliu">
+					校校
+				</div>
+				<div class="aui-title border-b" style="color:gray;font-size:20px;display: none;" id="personcontrol1" name="personcontrol">
+					校校
+				</div>
+				<!--顶部导航右侧的红色警告和...-->
+				<a class="aui-pull-right border-b aui-btn jiaobiao richeng1" onclick="showMsg()"> <span class="aui-iconfont aui-icon-more" style="font-weight:bold;color:gray;"></span> </a>
+				<a class="aui-pull-right border-b aui-btn" id="xiaoxi" onclick="tixinglang()"> <span class="aui-iconfont aui-icon-info" id="tixing"></span> </a>
+				<a class="aui-pull-right aui-btn" onclick="bangzhu()">
+					<span class="aui-iconfont aui-icon-question" id="question"></span>
+				</a>
+			</header>
+			<div id="main" class="flex-con"></div>
+			<footer  class="border-t  aui-bar aui-bar-tab">
+				<div id="footer" class="border-t aui-bar-tab-item">
+					<div id="appFooter" >
+						<div class="aui-bar-tab-item footDiv" name="fixed1" tapmode="hover" onclick="randomSwitchBtn( this );" style="height:60px;">
+							<i style="font-size:25px;" class="aui-iconfont aui-icon-home"></i>
+							<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label" >
+								首页
+							</div>
+						</div>
+						<div class="aui-bar-tab-item footDiv aui-active" name="richeng" tapmode="hover" onclick="randomSwitchBtn( this );" style="height:60px;">
+							<i style="font-size:25px;" class="aui-iconfont aui-icon-calendar"></i>
+							<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label">
+								日程
+							</div>
+						</div>
+						<div class="aui-bar-tab-item footDiv" tapmode="hover"name="jiaoliu" onclick="randomSwitchBtn( this );" style="height:60px;">
+							<div id="divs" style="display:none;background:red;position:absolute;left:50%;top:0;width:20px;height:20px;border-radius:10px;border:1px solid red;color:#fff;text-align:center;"></div>
+							<i style="font-size:25px;" class="aui-iconfont aui-icon-comment"></i>
+							<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label">
+								交流
+							</div>
+						</div>
+						<div class="aui-bar-tab-item footDiv" tapmode="hover" name="personcontrol" onclick="randomSwitchBtn( this );" style="height:60px;">
+							<i style="font-size:25px;" class="aui-iconfont aui-icon-my"></i>
+							<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label">
+								我的
+							</div>
+						</div>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</body>
+</html>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/sha1.min.js"></script>
+<script type="text/javascript" src="../script/rongyun.js"></script>
+<script type="text/javascript" src="../script/jiguang.js"></script>
+<script type="text/javascript" src="../script/Zytech.Map.js"></script>
+<script type="text/javascript">
+	var mkeyTime = new Date().getTime();
+	var pingBiMap = new HashMap();
+	var index = 1;
+	var ws = null;
+	if ('WebSocket' in window) {
+		ws = new WebSocket($api.getStorage('wsUrl')+"app_webSocketServer.do?serverIpNum="+$api.getStorage('serverIpNum'));
+	} else if ('MozWebSocket' in window) {
+		ws = new WebSocket($api.getStorage('wsUrl')+"app_webSocketServer.do?serverIpNum="+$api.getStorage('serverIpNum'));
+	} 
+	//alert($api.getStorage('wsUrl')+"app_webSocketServer?serverIpNum="+$api.getStorage('serverIpNum'));
+	if(ws != null){
+		ws.onopen = function (evnt) {
+		}
+		ws.onclose = function (event) {
+		  
+		};
+	}
+	apiready = function() {
+		api.lockSlidPane();
+		var dataInfo = $api.getStorage('loginDataInfo');
+		var status = dataInfo.status;
+//		var status = $api.getStorage('loginstatus');
+		ajpush = api.require('ajpush');
+		api.addEventListener({
+			name : 'keyback'
+		}, function(ret, err) {
+			//如果当前时间减去标志时间大于2秒，说明是第一次点击返回键，反之为2秒内点了2次，则退出。
+			if ((new Date().getTime() - mkeyTime) > 2000) {
+				mkeyTime = new Date().getTime();
+				api.toast({
+					msg : '再按一次退出程序',
+					duration : 2000,
+					location : 'bottom'
+				});
+			} else {
+				api.closeWidget();
+			}
+		});
+		initJiGuang();
+		initRongYun('init');
+		
+		$api.fixStatusBar($api.dom('header'));
+		api.setStatusBarStyle({
+			style : 'dark',
+			color : '#6ab494'
+		});
+		funIniGroup();
+		//		unread();
+	}
+	function shuaxin() {
+		youtixing();
+	}
+	function youtixing1() {
+		window.location.reload();
+	}
+	function bangzhu() {
+		api.openWin({
+				name : 'bangzhu',
+				url : "bangzhu-win.html",
+				reload : true,
+				allowEdit : true,
+			});
+	}
+	function unread() {
+		var counts = '';
+		var rong = api.require('rongCloud2');
+		// 之前调用 init 和 connect 的代码省略
+		rong.getTotalUnreadCount(function(ret, err) {
+			if (ret.status == 'success') {
+				counts = ret.result;
+				//	alert(counts);
+				if (counts * 1 == 0 || counts * 1 == -1) {
+					$('#divs').css('display', 'none');
+				} else if (counts * 1 > 99) {
+					counts = '...';
+					$('#divs').css('display', 'block');
+					$('#divs').html(counts);
+				} else {
+					$('#divs').css('display', 'block');
+					$('#divs').html(counts);
+				}
+			}
+		});
+	}
+
+	function unreads(qundatas){
+	var rong = api.require('rongCloud2');
+//	alert(11111);
+    var num = 0;
+	for(var i = 0;i < qundatas.length;i ++){
+	var obj = qundatas[i];
+	var counts = '';
+				
+			rong.getUnreadCount({
+				conversationType : 'GROUP',
+				targetId : obj.id
+			}, function(ret, err) {
+				if (ret.status == 'success') {
+					counts = ret.result;
+					num = num + counts;
+					if (num == 0 || num == -1) {
+						$('#divs').css('display', 'none');
+					} else if (num > 99) {
+						counts == '...';
+						$('#divs').css('display', 'block');					
+						$('#divs').html(num);
+					} else {
+						$('#divs').css('display', 'block');
+						$('#divs').html(num);
+					}
+					}
+				
+			});
+			}
+	}
+	
+
+
+	
+
+	function showJiGuangMessager(obj) {
+		var dataId = obj.dataId;
+		if (obj.dataType == 4) {
+			api.openWin({
+				name : 'showManager',
+				url : "showManager.html",
+				pageParam : {
+					dataJson : obj,
+					num : '1',
+				},
+				reload : true,
+				allowEdit : true
+			});
+		} else if (obj.dataType == 1) {
+			api.openWin({
+				name : 'richeng_to_kecheng',
+				url : "common/richeng_to_kecheng.html",
+				pageParam : {
+					id : dataId
+				},
+				reload : true,
+				allowEdit : true
+			});
+		} else if (obj.dataType == 2) {
+			api.openWin({
+				name : 'richeng_to_huodong',
+				url : "common/richeng_to_huodong.html",
+				pageParam : {
+					id : dataId,
+					zhuangtai : 1,
+					fromindex : 'yes',
+				},
+				reload : true,
+				allowEdit : true
+			});
+		} else if (obj.dataType == 3) {
+			api.openWin({
+				name : 'richeng_to_beiwang',
+				url : "common/richeng_to_beiwang.html",
+				pageParam : {
+					id : dataId,
+					fromindex : 'yes',
+				},
+				reload : true,
+				allowEdit : true
+			});
+		} else if (obj.dataType == 5) {
+			api.openWin({
+				name : 'richeng_to_chaqintitle',
+				url : "common/richeng_to_chaqintitle.html",
+				pageParam : {
+					id : dataId
+				},
+				reload : true,
+				allowEdit : true
+			});
+		} else if (obj.dataType == 6) {
+			api.openWin({
+				name : 'deyukaoping',
+				url : "deyu/deyukaoping.html",
+				pageParam : {
+					id : dataId
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+	}
+
+	function funIniGroup() {
+		api.lockSlidPane();
+		var header = $api.byId('aui-header');
+		var headerPos = $api.offset(header);
+		var body_h = $api.offset($api.dom('body')).h;
+		var footer_h = $api.offset($api.dom('footer')).h;
+		var eHeaderDivs = $api.domAll('header div'), frames = [];
+		var tempObj = null;
+		for (var i = 0, len = eHeaderDivs.length; i < len; i++) {
+			tempObj = eHeaderDivs[i];
+			//			alert($(tempObj).attr("id"));
+			frames.push({
+				scrollEnabled : false,
+				name : $(tempObj).attr("name"),
+				url : $(tempObj).attr("id") + ".html",
+				//url: './html/frame'+i+'.html',
+				bgColor : 'rgba(0,0,0,.2)',
+				bounces : false,
+				reload : true,
+				allowEdit : true,
+			})
+		}
+		api.openFrameGroup({
+			name : 'group',
+			scrollEnabled : false,
+			rect : {
+				//				x : 0,
+				//				y : $api.dom('header').offsetHeight,
+				//				w : api.winWidth,
+				//				h : $api.dom('#main').offsetHeight
+				x : 0,
+				y : headerPos.h,
+				w : 'auto',
+				h : api.winHeight - headerPos.h - footer_h
+			},
+			index : 1,
+			frames : frames
+		}, function(ret, err) {
+		});
+	}
+
+	function shuaxinricheng() {
+		if (index == 1) {
+			var jsfun = 'fanhuichongzai();';
+			var jsName = $api.getStorage('addMessager_rc');
+			if (jsName && jsName == 'richeng') {
+				api.execScript({
+					name : 'index',
+					frameName : jsName,
+					script : jsfun
+				});
+			} else {
+				api.execScript({
+					name : jsName,
+					frameName : jsName,
+					script : jsfun
+				});
+			}
+		}
+	}
+
+	// 随意切换按钮
+	function randomSwitchBtn(tag) {
+		shuaxin();
+		if (tag == $api.dom('#footer div.aui-active'))
+			return;
+		var eFootLis = $api.domAll('.footDiv'), eHeaderDivs = $api.domAll('header div');
+		for (var i = 0; i < eFootLis.length; i++) {
+			if ($(tag).attr('name') == $(eFootLis[i]).attr('name')) {
+				index = i;
+			} else {
+				$api.removeCls(eFootLis[i], 'aui-active');
+				$api.removeCls(eHeaderDivs[i], 'active');
+				$(eHeaderDivs[i]).hide();
+			}
+		}
+		$api.addCls(eFootLis[index], 'aui-active');
+		$api.addCls(eHeaderDivs[index], 'active');
+		$('.jiaobiao').each(function() {
+			$(this).hide();
+		});
+		var id = $(eHeaderDivs[index]).attr('id');
+		$('.' + id).each(function() {
+			$(this).show();
+			//			$(this).reload();
+		});
+		$(eHeaderDivs[index]).show();
+		var reloadFlag = true;
+		api.setFrameGroupIndex({
+			name : 'group',
+			index : index,
+			reload : true,
+			allowEdit : true,
+		});
+	}
+
+	function youtixing() {
+		var dataInfo = $api.getStorage('loginDataInfo');
+		var status = dataInfo.status;
+		var token = $api.getStorage("logintoken");
+		if (status == "xuesheng") {
+			var id = dataInfo.id;
+			var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+		} else if (status == "fudaoyuan") {
+			var id = dataInfo.id;
+		} else if (status == "jiaoshi") {
+			var id = dataInfo.id;
+		}
+		$.ajax({
+			type : "POST",
+			url : $api.getStorage('serverUrl') + "app_IsHaveTiXing",
+			data : {
+				id : id,
+				xuexiaoXuehao : xuexiaoXuehao,
+				status : status,
+				token : token,
+			},
+			dataType : 'text',
+			cache : false,
+			success : function(data) {
+				if (data == "yes") {
+					document.getElementById("tixing").style.color = "#ec344d";
+					//$('#xiaoxi').show();
+				} else if (data == "noo") {
+					document.getElementById("tixing").style.color = "gray";
+					//$('#xiaoxi').hide();
+				} else {
+				}
+			},
+			error : function() {
+				alert("错误001");
+			}
+		});
+	}
+
+	function tixinglang() {
+		api.openWin({
+			name : 'tixing',
+			url : 'common/tixing.html',
+			reload : true,
+			allowEdit : true
+		});
+	}
+
+	function logout() {
+		$api.clearStorage();
+		if (ajpush) {
+			ajpush.stopPush(function(ret) {
+				if (ret && ret.status) {
+					//success
+				}
+			});
+		}
+		var jsfun = 'refreshWin();';
+		api.execScript({
+			name : 'root',
+			script : jsfun
+		});
+		var rong = api.require('rongCloud2');
+		// 之前调用 init 和 connect 的代码省略
+		if (rong) {
+			rong.logout(function(ret, err) {
+				//			if (ret.status == 'error')
+				//				api.toast({
+				//					msg : err.code
+				//				});
+			});
+		}
+		// 断开，且不再接收 Push
+	}
+
+	function showMsg() {
+		api.openFrame({
+			name : 'showMsg',
+			url : "./mu.html",
+			rect : {
+				x : 0,
+				y : 0,
+				w : 'auto',
+				h : 'auto'
+			},
+			bounces : false,
+			bgColor : 'rgba(0,0,0,0.6)',
+			pageParam : {
+			},
+			allowEdit : true,
+		});
+	}
+
+	function tongzhi() {
+		var dataInfo = $api.getStorage('loginDataInfo');
+		var xueshengid = dataInfo.id;
+		var xingming = dataInfo.xingMing;
+		var banjiid = dataInfo.banJiID;
+		var token = $api.getStorage("logintoken");
+		var status = dataInfo.status;
+		$.ajax({
+			type : "POST",
+			url : $api.getStorage('serverUrl') + "app_TanChuTongZhi",
+			data : {
+				xueshengid : xueshengid,
+				banjiid : banjiid,
+				token : token,
+				status : status,
+			},
+			dataType : 'json',
+			cache : false,
+			timeout : 5000,
+			success : function(data) {
+				//alert(JSON.stringify(data));
+				var data = eval(data);
+				if (data) {
+					if (data.huodongs != null || data.huodongs.length > 0) {
+						for (var i = 0; i < data.huodongs.length; i++) {
+							var mydate = new Date();
+							var time = mydate.getFullYear();
+							if (mydate.getMonth() < 10) {
+								time += '-0' + (mydate.getMonth() + 1);
+							} else {
+								time += '-' + (mydate.getMonth() + 1);
+							}
+							if (mydate.getDate() < 10) {
+								time += '-0' + mydate.getDate();
+							} else {
+								time += '-' + mydate.getDate();
+							}
+							if (mydate.getHours() < 10) {
+								time += ' 0' + mydate.getHours();
+							} else {
+								time += ' ' + mydate.getHours();
+							}
+							if (mydate.getMinutes() < 10) {
+								time += ':0' + mydate.getMinutes();
+							} else {
+								time += ':' + mydate.getMinutes();
+							}
+							var kaishi_time = data.huodongs[i].riqi + ' ' + data.huodongs[i].kaishishijian;
+							var result = GetDateDiff(time, kaishi_time, "minute");
+							//alert(time+"两者时间差为：" + result + "分钟了。"+kaishi_time);
+							if (result <= 30 && result > 0) {
+								var neirong = '再过' + result + '分钟' + data.huodongs[i].huodongmingcheng + '就要开始了';
+								api.notification({
+									vibrate : [300, 500], //震动时间节奏
+									sound : 'default', //系统默认提示音
+									light : true, //是否亮灯，需设备支持
+									notify : {//状态栏通知
+										title : '活动通知', //通知标题
+										content : neirong, //通知内容
+										extra : {
+											goto : 'winAa'
+										}, //额外的键值对，通知被点击后将通过noticeclicked交给网页
+									}
+								}, function(ret, err) {
+									if (ret) {
+										//api.alert(JSON.stringify(ret));
+									}
+								});
+							}
+						}
+					}
+					if (data.keChengs != null || data.keChengs.length > 0) {
+						for (var i = 0; i < data.keChengs.length; i++) {
+							var mydate = new Date();
+							var time = '';
+							if (mydate.getHours() < 10) {
+								time += ' 0' + mydate.getHours();
+							} else {
+								time += ' ' + mydate.getHours();
+							}
+							if (mydate.getMinutes() < 10) {
+								time += ':0' + mydate.getMinutes();
+							} else {
+								time += ':' + mydate.getMinutes();
+							}
+							var kaishi_time = data.keChengs[i].kaishishijian;
+							var result = GetDateDiff(time, kaishi_time, "minute");
+							//alert(time+"两者时间差为：" + result + "分钟了。"+kaishi_time);
+							if (result <= 30 && result > 0) {
+								var neirong = '再过' + result + '分钟' + data.huodongs[i].huodongmingcheng + '就要开始了';
+								api.notification({
+									vibrate : [300, 500], //震动时间节奏
+									sound : 'default', //系统默认提示音
+									light : true, //是否亮灯，需设备支持
+									notify : {//状态栏通知
+										title : '活动通知', //通知标题
+										content : neirong, //通知内容
+										extra : {
+											goto : 'winAa'
+										}, //额外的键值对，通知被点击后将通过noticeclicked交给网页
+									}
+								}, function(ret, err) {
+									if (ret) {
+										//api.alert(JSON.stringify(ret));
+									}
+								});
+							}
+						}
+					}
+				}
+			},
+			error : function() {
+			}
+		});
+	}
+
+	function GetDateDiff(startTime, endTime, diffType) {
+		//将xxxx-xx-xx的时间格式，转换为 xxxx/xx/xx的格式
+		startTime = startTime.replace(/\-/g, "/");
+		endTime = endTime.replace(/\-/g, "/");
+		//将计算间隔类性字符转换为小写
+		diffType = diffType.toLowerCase();
+		var sTime = new Date(startTime);
+		//开始时间
+		var eTime = new Date(endTime);
+		//结束时间
+		//作为除数的数字
+		var divNum = 1;
+		switch (diffType) {
+			case "second":
+				divNum = 1000;
+				break;
+			case "minute":
+				divNum = 1000 * 60;
+				break;
+			case "hour":
+				divNum = 1000 * 3600;
+				break;
+			case "day":
+				divNum = 1000 * 3600 * 24;
+				break;
+			default:
+				break;
+		}
+		return parseInt((eTime.getTime() - sTime.getTime()) / parseInt(divNum));
+	}
+</script>

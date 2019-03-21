@@ -1,0 +1,203 @@
+<div style="overflow: hidden;" id='calendar'></div>
+<script type="text/javascript">
+	$(document).ready(function() {
+	$.ajaxSetup({
+	cache:false
+	});
+	initFullCalendar();
+	});
+	function initFullCalendar() {
+	//alert(1);
+//	getData();
+	var initialLocaleCode = 'zh-cn';
+	$('#calendar').fullCalendar({
+	header: {
+	left: 'prev,next today',
+	center: 'title',
+	right: ''
+	},
+	height: h ,
+	handleWindowResize: true,
+	timezone: 'local',
+	defaultView: 'agendaDay',
+	defaultDate: thisDate,
+	locale: initialLocaleCode,
+	buttonIcons: false, // show the prev/next text
+	weekNumbers: true,
+	navLinks: false, // can click day/week names to navigate views
+	editable: false,
+	allDaySlot: false,
+	eventLimit: true, // allow "more" link when too many events
+	buttonText: {
+	prev: '<', // ?
+	next: '>', // ?
+	prevYear: '<', // ?
+	nextYear: '>', // ?
+	today: '今天',
+	month: '月',
+	week: '周',
+	day: '日'
+	},
+	
+	dayClick: function(date, allDay, jsEvent, view) {},
+//	eventClick: function(event, jsEvent, view) {
+//	toDo(event, jsEvent, view);
+//	},
+	events: function(start, end, timezone, callback) {
+	getData(start, end, timezone, callback);
+	},
+	eventRender: function(calEvent, element, view) {
+	eventRender(calEvent, element, view);
+	}
+	});
+	}
+	function eventRender(calEvent, element, view) {
+	var html = $(element).html();
+	var temp = '@-@';
+	var cText = html.split(temp);
+	var tempStr = '</br>';
+	var setHtml = '';
+	if (cText > 1) {
+	for (var i = 0; i < cText.length; i++) {
+	if (setHtml == '') {
+	setHtml = cText[i] + tempStr;
+	} else {
+	setHtml += cText[i] + tempStr;
+	}
+	}
+	} else {
+	setHtml = cText;
+	}
+	$(element).html(setHtml);
+	}
+	function getData(start, end, timezone, callback) {
+	
+	var dataInfo = $api.getStorage('loginDataInfo');
+	var nDate = new Date(start); //直接将毫秒数当参数传进去。
+	var day = ("0" + nDate.getDate()).slice(-2);
+	//格式化月，如果小于9，前面补0
+	var month = ("0" + (nDate.getMonth() + 1)).slice(-2);
+	//拼装完整日期格式
+	var datetime = nDate.getFullYear() + "-" + (month) + "-" + (day);
+	$api.setStorage('rilitime', datetime);
+	thisDate = nDate;
+	var status = 'xuesheng';
+	var token = $api.getStorage("logintoken");
+	var code = '5000' + ',zytech,' + datetime+',zytech,'+'1';
+	//event.id中逗号后面1代表课程，2代表活动，3代表事件
+	var mydate = new Date();
+	var time = mydate.getFullYear();
+	if (mydate.getMonth() < 10) {
+	time += '-0' + (mydate.getMonth() + 1);
+	} else {
+	time += '-' + (mydate.getMonth() + 1);
+	}
+	if (mydate.getDate() < 10) {
+	time += '-0' + mydate.getDate();
+	} else {
+	time += '-' + mydate.getDate();
+	}
+	if (mydate.getHours() < 10) {
+	time += ' 0' + mydate.getHours();
+	} else {
+	time += ' ' + mydate.getHours();
+	}
+	if (mydate.getMinutes() < 10) {
+	time += ':0' + mydate.getMinutes();
+	} else {
+	time += ':' + mydate.getMinutes();
+	}
+	if (status == "xuesheng") {
+//	alert(time);   
+
+	var event = [];              
+
+	event.push({
+	id: 1 + ",3",
+	title: "@-@事件：事件" ,
+	start: time,
+	color: '#87CEFA;',
+	end : time,
+	});
+
+	event.push({
+
+		id: 4,
+		title: "宿舍查寝@-@拍照要求：拍照上传照片" ,
+		start: '2018-08-21 13:30:00',
+		color: 'gray;',
+		end: '2018-08-21 15:30:00',
+	});
+
+	event.push({
+		id: 4,
+		title: "宿舍查寝@-@拍照要求：拍照上传照片" ,
+		start: time,
+		color: 'gray;',
+		end: time,
+	});
+
+	callback(eval(event));
+	api.hideProgress();
+
+	}
+	}
+	function toDo(event, jsEvent, view) {
+	var jsName = $api.getStorage('addMessager_rc');
+	if(!jsName){
+	$api.setStorage('addMessager_rc','richeng');
+	}
+
+	if (items[1] == "1") {
+	api.openWin({
+	name: 'richeng_to_kecheng_title',
+	url: "common/richeng_to_kecheng_title.html",
+	pageParam: {
+	id: items[0],
+	zhouci:items[2],
+	datetime:items[3],
+	kaishijieci:items[4],
+	jieshujieci:items[5],
+	},
+	reload: true,
+	allowEdit:true
+	});
+	} else if (items[1] == "2") {
+	if (event.title.indexOf("待确认") != -1) {
+	var zhuangtai = 0;
+	} else {
+	var zhuangtai = 1;
+	}
+	api.openWin({
+	name: 'richeng_to_huodong_title',
+	url: "common/richeng_to_huodong_title.html",
+	pageParam: {
+	id: items[0],
+	zhuangtai: zhuangtai,
+	},
+	reload: true,
+	allowEdit:true
+	});
+	} else if(items[1] == "3"){
+	api.openWin({
+	name: 'richeng_to_beiwang_title',
+	url: "common/richeng_to_beiwang_title.html",
+	pageParam: {
+	id: items[0],
+	},
+	reload: true,
+	allowEdit:true
+	});
+	} else if(items[1] == "4"){
+	var rilitime=$api.getStorage('rilitime');
+	api.openWin({
+	name: 'richeng_to_chaqintitle',
+	url: "common/richeng_to_chaqintitle.html",
+	pageParam: {
+	id: items[0],
+	},
+	reload: true,
+	allowEdit:true
+	});
+	}
+	}</script>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>shouye_richeng</title>
+		<link rel="stylesheet" type="text/css" href=" ../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				账户管理
+			</div>
+		</header>
+		<div style="margin-top: 75px;font-size: 20px;">&nbsp;&nbsp;个人信息</div>	
+		<div style="background: #fff;">
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				用户名：&nbsp;&nbsp;&nbsp;2013040004
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				学校：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;北京化工大学
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				院系：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;信息科学以技术学院
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				专业：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;计算机
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				班级：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;实验室608
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				姓名：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xucs
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				联系电话：
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				邮箱：
+			</div>
+			
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.execScript({
+				name : 'richeng',
+			});
+			api.closeWin();
+		}
+
+		apiready = function() {
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getmenu",
+				data : {
+					status : status,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					html = "";
+					var datas = eval(data[0].user);
+					for (var i = 0; i < datas.length; i++) {
+						if (datas[i].fatherid == "-1" && datas[i].menuname == "日程表") {
+						}
+					}
+					$('#menu_mun').html(html);
+					api.hideProgress();
+				},
+				error : function() {
+					api.hideProgress();
+					alert("错误");
+				}
+			});
+		};
+	</script>
+</html>

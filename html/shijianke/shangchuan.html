@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<div id="wrap" class="flex-wrap flex-vertical container">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;margin: 0;padding: 0;"  id="topbar">
+				<a class="aui-pull-left  border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+				<div  class="aui-title border-b "  id="title" name="richeng" style="font-size:20px;color:gray;">
+					上传文件
+				</div>
+			</header>
+			<div id="con" class="flex-con"></div>
+			<div id="cons" class="flex-con"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin();
+		}
+
+		// 大组信息
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+			var html = '';
+			// 学生id和课程id
+			html += '<div style="background:#fff;border:1px solid #ccc;border-radius:10px;margin:10px auto;padding:5px;width:96%;">';
+			html += '<h2>如果需要上传或者下载文件，请在PC端输入网址“';
+			html += '<b>http://5ic.net.cn/xiaoxiao</b>';
+			html += '”打开网页显示二维码，手机端点击下方“';
+			html += '<b>扫码登陆</b>';
+			html += '”按钮，扫描网页二维码登录，登陆成功即可在PC端进行文件上传和下载操作</h2>';
+			html += '</div>';
+			html += '<button class="aui-btn aui-btn-success scan" style="width:80%;height:60px;left:9%;font-size:22px;" onclick="scan();">扫码登录</button>';
+			$("#con").html(html);
+		}
+		
+		
+		var uuid;
+		function scan() {
+			var FNScanner = api.require('FNScanner');
+			FNScanner.open({
+				autorotation : true
+			}, function(ret, err) {
+				if (ret) {
+//						alert(JSON.stringify(ret));
+					if (ret.eventType == 'success' && ret.content != '') {   // 类型先设置为1，备用
+						uuid = ret.content;
+						var kechengid = api.pageParam.data;
+						var dataInfo = $api.getStorage('loginDataInfo');
+						var xueshengid = dataInfo.id;
+						var leixing = 1;
+						$.ajax({
+							type : "POST",
+							url : $api.getStorage('serverUrl') + "app_scanlogin",
+							data : {
+								xueshengid : xueshengid,
+								kechengid : kechengid,
+								uuid : uuid,
+								leixing : leixing
+							},
+							dataType : 'json',
+							cache : false,
+							crossDomain : true,
+							success : function(data) {
+//								alert($api.jsonToStr(data));
+								if(data.status == 'success'){
+									alert("登录成功");
+								}else if(data.status == 'shixiao'){
+									alert("二维码失效，请刷新后重试");
+								}
+							},
+							error : function() {
+								alert("err");
+							}
+						});
+					}
+				} else {
+					alert("超时");
+				}
+			});
+		}
+	</script>
+</html>

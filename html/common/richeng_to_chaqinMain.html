@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			a {
+				color: #0062CC;
+			}
+		</style>
+	</head>
+	<body  style="background-color: #e7e7ef;">
+		<div class="aui-content aui-margin-b-15"style="background-color: #e7e7ef;">
+			<section class="aui-content">
+				<nav id="chaqinxianshi"></nav>
+			</section>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			loadData();
+			var id = api.pageParam.id;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var susheid = dataInfo.suSheID;
+			var studentid = dataInfo.id;
+			var banjiid = dataInfo.banJiID;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var mydate = new Date();
+			var time = mydate.getFullYear();
+			if (mydate.getMonth() < 10) {
+				time += '-0' + (mydate.getMonth() + 1);
+			} else {
+				time += '-' + (mydate.getMonth() + 1);
+			}
+			if (mydate.getDate() < 10) {
+				time += '-0' + mydate.getDate();
+			} else {
+				time += '-' + mydate.getDate();
+			}
+			if (mydate.getHours() < 10) {
+				time += ' 0' + mydate.getHours();
+			} else {
+				time += ' ' + mydate.getHours();
+			}
+			if (mydate.getMinutes() < 10) {
+				time += ':0' + mydate.getMinutes();
+			} else {
+				time += ':' + mydate.getMinutes();
+			}
+			if (mydate.getSeconds() < 10) {
+				time += ':0' + mydate.getSeconds();
+			} else {
+				time += ':' + mydate.getSeconds()
+			}
+			var day = ("0" + mydate.getDate()).slice(-2);
+			//格式化月，如果小于9，前面补0
+			var month = ("0" + (mydate.getMonth() + 1)).slice(-2);
+			//拼装完整日期格式
+			var datetime = mydate.getFullYear() + "-" + (month) + "-" + (day);
+			var code = studentid + ',zytech,' + id + ',zytech,' + susheid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_XianShiDanCiChaQin",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+					banjiid : banjiid,
+				},
+				dataType : 'json',
+				cache : false,
+				timeout : 5000,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+					var g = 0;
+					if (data) {
+						var srcimg = $api.getStorage('serverUrl') + 'app_getPic?id=' + data.zhaopian + '&l=1&aid=' + id;
+						if (datetime < data.chaqin.riqi || datetime > data.chaqin.riqi) {
+							if (data.chaqin != null && data.chaqin != "") {
+								if (data.jieguo == 0) {
+									html += '<div class="aui-card-list aui-border-t aui-border-b">';
+									html += '<div class="aui-card-list-header aui-card-list-user"><div class="aui-card-list-user-name">';
+									html += '<div class="aui-font-size-16">拍照要求:&nbsp&nbsp&nbsp' + data.chaqin.paizhaoyaoqiu + '<br>';
+									html += '开始时间:&nbsp&nbsp&nbsp' + data.chaqin.kaishishijian + '<br>';
+									html += '结束时间:&nbsp&nbsp&nbsp' + data.chaqin.jieshushijian + '<br>';
+									html += '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">&nbsp&nbsp&nbsp&nbsp状态:未拍照&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' + data.chaqin.riqi;
+									html += '<div style="float:right;margin-right:30px;"></div></div></div></div>';
+								} else {
+									html += '<div class="aui-card-list aui-border-t aui-border-b">';
+									html += '<div class="aui-card-list-header aui-card-list-user"><div class="aui-card-list-user-name">';
+									html += '<div class="aui-font-size-16">日期：' + data.chaqin.riqi + '</div></div></div>';
+									html += '<div class="aui-card-list-content aui-border-t" style="margin-left: 2rem;"><ul class="aui-list aui-list-noborder">';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">开始时间</div>';
+									html += '<div class="aui-list-item-right goods-price">' + data.chaqin.kaishishijian + '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">结束时间</div>';
+									html += '<div class="aui-list-item-right goods-price">' + data.chaqin.jieshushijian + '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">拍照要求</div>';
+									html += '<div class="aui-list-item-right goods-price">' + data.chaqin.paizhaoyaoqiu + '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">状态</div>';
+									html += '<div class="aui-list-item-right goods-price" style="color:orange;">已拍照</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">上传人</div>';
+									html += '<div class="aui-list-item-right goods-price" style="color:orange;">' + data.shangchuanren + '</div></div></div>';
+									html += '<div class="aui-list-item"><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">上传照片</div>';
+									html += '<div class="aui-list-item-right goods-price"><img height="120" width="80" alt="" id="' + srcimg + '"  src="' + srcimg + '" onerror="imgError(this);" onclick="Server(this)"> </div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">查寝结果</div>';
+									//
+									if (data.zhuangtais[0] != -1) {
+										html += '<div class="aui-list-item-right goods-price" style="color:orange;">';
+										for (var i = 0; i < data.xingmings.length; i++) {
+											if (data.zhuangtais[i] == 0) {
+												html += ' ' + data.xingmings[i] + ':不在 <br> ';
+												html += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;是否请假：' + data.chaqinqingjia[i].qingjia + '';
+											} else if (data.zhuangtais[i] == 1) {
+												html += ' ' + data.xingmings[i] + ':在 ';
+											} else {
+												html += ' ' + data.xingmings[i] + ':未查看  ';
+											}
+											html += '<br>';
+										}
+										html += '</div></div></div>';
+									} else {
+										html += '<div class="aui-list-item-right goods-price" style="color:orange;">辅导员还未查看</div></div></div>';
+									}
+								}
+								html += '</div><div style="width:20%;font-size:18px;"></div>';
+								html += '</ul></div>';
+								html += '</div>';
+							}
+						} else {
+							var kaishi = data.chaqin.riqi + " " + data.chaqin.kaishishijian;
+							var jieshu = data.chaqin.riqi + " " + data.chaqin.jieshushijian;
+							if (time >= kaishi && time <= jieshu) {
+								if (data.jieguo == 0) {
+									html += '<div class="aui-card-list aui-border-t aui-border-b">';
+									html += '<div class="aui-card-list-header aui-card-list-user"><div class="aui-card-list-user-name">';
+									html += '<div class="aui-font-size-16">拍照要求:&nbsp&nbsp&nbsp' + data.chaqin.paizhaoyaoqiu + '<br>';
+									html += '开始时间:&nbsp&nbsp&nbsp' + data.chaqin.kaishishijian + '<br>';
+									html += '结束时间:&nbsp&nbsp&nbsp' + data.chaqin.jieshushijian + '<br>';
+									html += '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">&nbsp&nbsp&nbsp&nbsp状态:未拍照&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' + data.chaqin.riqi;
+									html += '<div style="float:right;margin-right:30px;"><a onclick="paizhao(' + data.chaqin.anpaiid + ')">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp拍照</a></div></div></div></div>';
+								} else {
+									html += '<div class="aui-card-list aui-border-t aui-border-b">';
+									html += '<div class="aui-card-list-header aui-card-list-user"><div class="aui-card-list-user-name">';
+									html += '<div class="aui-font-size-16">日期：' + data.chaqin.riqi + '</div></div></div>';
+									html += '<div class="aui-card-list-content aui-border-t" style="margin-left: 2rem;"><ul class="aui-list aui-list-noborder">';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">开始时间</div>';
+									html += '<div class="aui-list-item-right goods-price">' + data.chaqin.kaishishijian + '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">结束时间</div>';
+									html += '<div class="aui-list-item-right goods-price">' + data.chaqin.jieshushijian + '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">拍照要求</div>';
+									html += '<div class="aui-list-item-right goods-price">' + data.chaqin.paizhaoyaoqiu + '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">状态</div>';
+									html += '<div class="aui-list-item-right goods-price" style="color:orange;">已拍照</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">上传人</div>';
+									html += '<div class="aui-list-item-right goods-price" style="color:orange;">' + data.shangchuanren + '</div></div></div>';
+									html += '<div class="aui-list-item"><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">上传照片</div>';
+									html += '<div class="aui-list-item-right goods-price"><img height="120" width="80" alt="" id="' + srcimg + '"  src="' + srcimg + '" onerror="imgError(this);" onclick="Server(this)"> </div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">查寝结果</div>';
+									if (data.zhuangtais[0] != -1) {
+										html += '<div class="aui-list-item-right goods-price" style="color:orange;">';
+										for (var i = 0; i < data.xingmings.length; i++) {
+											if (data.zhuangtais[i] == 0) {
+												html += ' ' + data.xingmings[i] + ':不在 <br> ';
+												html += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;是否请假：' + data.chaqinqingjia[i].qingjia + '';
+											} else if (data.zhuangtais[i] == 1) {
+												html += ' ' + data.xingmings[i] + ':在 ';
+											} else {
+												html += ' ' + data.xingmings[i] + ':未查看  ';
+											}
+											html += '<br>';
+										}
+										html += '</div></div></div>';
+									} else {
+										html += '<div class="aui-list-item-right goods-price" style="color:orange;">辅导员还未查看</div></div></div>';
+									}
+								}
+								html += '</div><div style="width:20%;font-size:18px;"></div>';
+								html += '</ul></div>';
+								html += '</div>';
+							} else {
+								if (data.jieguo == 0) {
+									html += '<div class="aui-card-list aui-border-t aui-border-b">';
+									html += '<div class="aui-card-list-header aui-card-list-user"><div class="aui-card-list-user-name">';
+									html += '<div class="aui-font-size-16">拍照要求:&nbsp&nbsp&nbsp' + data.chaqin.paizhaoyaoqiu + '<br>';
+									html += '开始时间:&nbsp&nbsp&nbsp' + data.chaqin.kaishishijian + '<br>';
+									html += '结束时间:&nbsp&nbsp&nbsp' + data.chaqin.jieshushijian + '<br>';
+									html += '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">&nbsp&nbsp&nbsp&nbsp状态:未拍照&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' + data.chaqin.riqi;
+									html += '<div style="float:right;margin-right:30px;"></div></div></div></div>';
+								} else {
+									html += '<div class="aui-card-list aui-border-t aui-border-b">';
+									html += '<div class="aui-card-list-header aui-card-list-user"><div class="aui-card-list-user-name">';
+									html += '<div class="aui-font-size-16">日期：' + data.chaqin.riqi + '</div></div></div>';
+									html += '<div class="aui-card-list-content aui-border-t" style="margin-left: 2rem;"><ul class="aui-list aui-list-noborder">';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">开始时间</div>';
+									html += '<div class="aui-list-item-right goods-price">' + data.chaqin.kaishishijian + '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">结束时间</div>';
+									html += '<div class="aui-list-item-right goods-price">' + data.chaqin.jieshushijian + '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">拍照要求</div>';
+									html += '<div class="aui-list-item-right goods-price">' + data.chaqin.paizhaoyaoqiu + '</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">状态</div>';
+									html += '<div class="aui-list-item-right goods-price" style="color:orange;">已拍照</div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">上传人</div>';
+									html += '<div class="aui-list-item-right goods-price" style="color:orange;">' + data.shangchuanren + '</div></div></div>';
+									html += '<div class="aui-list-item"><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">上传照片</div>';
+									html += '<div class="aui-list-item-right goods-price"><img height="120" width="80" alt="" id="' + srcimg + '"  src="' + srcimg + '" onerror="imgError(this);" onclick="Server(this)"> </div></div></div>';
+									html += '<div class="aui-list-item "><div class="aui-list-item-inner">';
+									html += '<div class="aui-list-item-title aui-font-size-14 goods-title">查寝结果</div>';
+									if (data.zhuangtais[0] != -1) {
+										html += '<div class="aui-list-item-right goods-price" style="color:orange;">';
+										for (var i = 0; i < data.xingmings.length; i++) {
+											if (data.zhuangtais[i] == 0) {
+												html += ' ' + data.xingmings[i] + ':不在 <br> ';
+												html += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;是否请假：' + data.chaqinqingjia[i].qingjia + '';
+											} else if (data.zhuangtais[i] == 1) {
+												html += ' ' + data.xingmings[i] + ':在 ';
+											} else {
+												html += ' ' + data.xingmings[i] + ':未查看  ';
+											}
+											html += '<br>';
+										}
+										html += '</div></div></div>';
+									} else {
+										html += '<div class="aui-list-item-right goods-price" style="color:orange;">辅导员还未查看</div></div></div>';
+									}
+								}
+								html += '</div><div style="width:20%;font-size:18px;"></div>';
+								html += '</ul></div>';
+								html += '</div>';
+							}
+						}
+						api.hideProgress();
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+					api.hideProgress();
+					$('#chaqinxianshi').html(html);
+				},
+				error : function() {
+					alert("超时");
+				}
+			});
+		};
+		function imgError(obj) {
+			if (obj) {
+				obj.src = "../../image/123.png";
+				obj.onerror = null;
+			} else {
+				var img = event.srcElement;
+				img.src = "../../image/123.png";
+				img.onerror = null;
+			}
+		}
+
+		function Server(obj) {
+			var imgstr = $(obj).attr("id");
+			api.openFrame({
+				name : 'imgshow',
+				url : "../imageShow.html",
+				rect : {
+					x : 0,
+					y : 0,
+					w : 'auto',
+					h : 'auto'
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				pageParam : {
+					url : imgstr
+				},
+				allowEdit : true,
+			});
+		}
+
+		function paizhao(anpaiid) {
+			api.getPicture({
+				sourceType : 'camera',
+				encodingType : 'jpg',
+				mediaValue : 'pic',
+				destinationType : 'base64',
+				allowEdit : true,
+				quality : 20,
+				saveToPhotoAlbum : false
+			}, function(ret, err) {
+				if (ret) {
+					if (ret.base64Data !== "") {
+						var id = api.pageParam.id;
+						var dataInfo = $api.getStorage('loginDataInfo');
+						var status = dataInfo.status;
+						var token = $api.getStorage("logintoken");
+						var xueshengid = dataInfo.id;
+						var banjiid = dataInfo.banJiID;
+						var susheid = dataInfo.suSheID;
+						$.ajax({
+							type : "POST",
+							url : $api.getStorage('serverUrl') + "app_UpdateImgerBase64",
+							data : {
+								base64Str : ret.base64Data,
+								xueshengid : xueshengid,
+								status : status,
+								token : token,
+								anpaiid : anpaiid,
+								susheid : susheid,
+								banjiid : banjiid,
+								id : id,
+							},
+							dataType : 'json',
+							cache : false,
+							success : function(data) {
+								if (data) {
+									if (data.msg == "OK") {
+										alert("上传成功");
+										window.location.reload();
+									} else if (data.msg == "fail") {
+										alert("上传失败");
+										window.location.reload();
+									} else {
+										alert("当前时间段不能上传");
+										window.location.reload();
+									}
+								} else {
+									alert("已登出");
+									api.hideProgress();
+									var jsfun = 'logout();';
+									api.execScript({
+										name : 'index',
+										script : jsfun
+									});
+								}
+							},
+							error : function() {
+								alert("错误001");
+							}
+						});
+					}
+				} else {
+					api.alert({
+						msg : '图片获取失败,请重新拍照!'
+					});
+				}
+			});
+		}
+	</script>
+</html>

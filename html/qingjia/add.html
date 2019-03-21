@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<style>
+			body {
+			}
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color: gray;font-size: 20px;"></span> </a>
+			<div class="aui-title border-b" style="color:gray;font-size: 20px;" >
+				填写假条
+			</div>
+		</header>
+		<form action="" id="frm" name="frm" enctype="multipart/form-data" style="padding-top:70px;">
+			<div class="aui-content aui-margin-b-15">
+				<ul class="aui-list aui-list-in">
+					<nav>
+						<ul id="shenqingUl">
+							<div id="shenqing">
+								<li class="aui-list-item" style="">
+									<div class="aui-list-item-inner">
+										<div class="aui-list-item-label">
+											姓名：
+										</div>
+										<div class="aui-list-item-input">
+											<input type="text" readonly value="shdfgh" name="studentname" id="xuehaoid">
+										</div>
+									</div>
+								</li>
+								<li class="aui-list-item" >
+									<div class="aui-list-item-inner" style="font-size:18px;width:100%;">
+										<label style="width:30%;font-size:18px;">学号：</label>
+										<input type="text" readonly value="11111" name="xuehaoid" id="xuehaoid">
+									</div>
+								</li>
+								<li class="aui-list-item" >
+									<div class="aui-list-item-inner" style="font-size:18px;width:100%;">
+										<label style="width:30%;font-size:18px;">班级：</label>
+										<input type="text" readonly value="222222" name="qingjiaid" id="qingjiaid">
+									</div>
+								</li>
+								<li class="aui-list-item">
+									<div class="aui-list-item-inner">
+										<div class="aui-list-item-label">
+											请假类型：
+										</div>
+										<div class="aui-list-item-input">
+											<label>
+												<input class="aui-radio type" type="radio"  name="qingjialeibie" id="qingjialeibie1" type="radio" value="1">
+												事假</label>&nbsp;&nbsp;&nbsp;&nbsp; <label>
+												<input class="aui-radio type" name="qingjialeibie" id="qingjialeibie2" type="radio" value="2" >
+												病假</label>
+											<br />
+										</div>
+									</div>
+								</li>
+								<li class="aui-list-item">
+									<div class="aui-list-item-inner">
+										<div class="aui-list-item-label">
+											请假原因：
+										</div>
+										<div class="aui-list-item-input">
+											<input type="text" name="qingjiashiyou" id="qingjiashiyou" placeholder="请填写请假原因">
+										</div>
+									</div>
+								</li>
+								<li class="aui-list-item">
+									<div class="aui-list-item-inner" style="width:35%;">
+										<label style="font-size:18px;">上传证明：</label>
+									</div>
+									<div class="aui-list-item-inner" style="width:70%;">
+										<div class="aui-row aui-row-padded" id="bingjia">
+											<div class="aui-col-xs-4"><img id="photo" height="40" width="40" src="../../image/addUpload.png" onclick="shangchuan()">
+											</div>
+										</div>
+									</div>
+								</li>
+								<li class="aui-list-item">
+									<div class="aui-list-item-inner" style="width:100%;">
+										<p class="help-block">
+											<font>病假需上传证明，事假不需要。</font>
+										</p>
+									</div>
+								</li>
+								<li class="aui-list-item" >
+									<div class="aui-list-item-inner" style="font-size:18px;width:100%;">
+										<label style="width:40%;font-size:18px;">起始日期：</label>
+										<input type="date"  id ="kaishishijian" name ="kaishishijian" value="222">
+									</div>
+								</li>
+								<li class="aui-list-item" >
+									<div class="aui-list-item-inner" style="font-size:18px;width:100%;">
+										<label style="width:40%;font-size:18px;">结束日期：</label>
+										<input type="date"  id ="kaishishijian" name ="kaishishijian" value="222">
+									</div>
+								</li>
+								<!--放图片-->
+								<li class="aui-list-item">
+									<div class="aui-row"  id="tupians">
+										<div class="aui-col-xs-4">
+											<div class="aui-grid-label" style="margin-left: 15px;width:33%;">
+												图111111
+											</div>
+										</div>
+										<div class="aui-col-xs-4">
+											<div class="aui-grid-label"   style="margin-left: 15px;width:33%;">
+												图222222
+											</div>
+										</div>
+										<div class="aui-col-xs-4"  >
+											<div class="aui-grid-label"  style="margin-left: 15px;width:33%;">
+												图322222
+											</div>
+										</div>
+									</div>
+								</li>
+								<li class="aui-list-item">
+									<div class="aui-list-item-inner">
+										<div class="aui-list-item-title"></div>
+										<div style="margin-right:40%;">
+											<div class="aui-btn aui-btn-info">
+												<input type="button" class="btn btn-info" value="提交" onclick="createqingjia()">
+											</div>
+										</div>
+									</div>
+								</li>
+							</div>
+					</nav>
+				</ul>
+			</div>
+		</form>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'add',
+			});
+		};
+		apiready = function() {
+		};
+	</script>
+</html>

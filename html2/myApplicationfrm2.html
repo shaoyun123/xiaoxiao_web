@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			.container {
+				height: 50px;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				overflow: hidden;
+				width: 100%;
+			}
+			.nav {
+				height: 100%;
+				width: 100%;
+				overflow-x: scroll;
+				overflow-y: hidden;
+				background: rgb(240,240,240);
+			}
+			#con {
+				width: 580px;
+				height: 100%;
+				display: flex;
+				align-items: center;
+			}
+			#con > div {
+				text-align: center;
+				font-size: 18px;
+				width: 80px;
+				list-style: none;
+			}
+			.container ::-webkit-scrollbar {
+				display: none;
+			}
+			.aui-list .aui-list-item-media {
+				width: 4rem;
+			}
+			.items {
+				color: red;
+			}
+			a {
+				color: #0062CC;
+				
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<nav class="nav">
+				<ul id="con">
+					<!--1为待处理，2为已通过，3为已驳回，4为待销假,5为已销假，6为已上报书记，7为已上报管理员-->
+					<div class="aui-tab-item aui-active items" onclick="showData(this,0)" id="jiri" style="font-size:16px;color:#696969;background:  rgb(240,240,240);">
+						全部
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,1)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						待处理
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,2)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						已通过
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,3)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						被驳回
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,4)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						待销假
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,5)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						已销假
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,6)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						已上报
+					</div>
+				</ul>
+			</nav>
+		</div>
+		<div class="aui-content" id="menu_mun" style="width: 100%;">
+			<div style="background: #fff;" id="xianshi">
+				<div class="a" style="border-bottom: 1px solid #ccc;padding: 8px;" onclick="xianshi()">
+					<div>
+						请假类型：病假
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>状态：待处理   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						
+					</div>
+				</div>
+				<div class="a" style="border-bottom: 1px solid #ccc;padding: 8px;" onclick="xianshi()">
+					<div>
+						请假类型：病假
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>状态：待处理   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						
+					</div>
+				</div>
+				<div class="a" style="border-bottom: 1px solid #ccc;padding: 8px;" onclick="xianshi()">
+					<div>
+						请假类型：病假
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>状态：待处理   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						
+					</div>
+				</div>
+				<div class="a" style="border-bottom: 1px solid #ccc;padding: 8px;" onclick="xianshi()">
+					<div>
+						请假类型：病假
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>状态：待处理  &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						
+					</div>
+				</div>
+				<div class="a" style="border-bottom: 1px solid #ccc;padding: 8px;" onclick="xianshi()">
+					<div>
+						请假类型：病假
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>状态：待处理  &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						
+					</div>
+				</div>
+				<div class="a" style="border-bottom: 1px solid #ccc;padding: 8px;" onclick="xianshi()">
+					<div>
+						请假类型：病假
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>状态：待处理   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		var searchStatus = '0';
+		function showData(obj, val) {
+			if (searchStatus != val) {
+				searchStatus = val;
+				if (val == 0 ||val == 1) {
+					$(".a").show();					
+				}else{
+				    $(".a").hide();	
+				}
+				$('.items').each(function() {
+					$(this).removeClass('aui-active');
+				});
+				$(obj).addClass('aui-active');
+			}
+		}
+
+		showData($('#jiri'), '0');
+		var pag;
+		var cou = 0;
+		apiready = function() {
+			$(".a").show();	
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					cou = 0;
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			
+		};
+		
+		function xianshi(qingjiaid) {
+			//		alert(qingjiaid);
+			api.openWin({
+				name : 'xianshixiangqing',
+				url : 'xianshixiangqing.html',
+				pageParam : {
+					xinxi : qingjiaid
+				},
+				reload : true,
+				allowEdit : true
+			});
+		};
+	</script>
+</html>

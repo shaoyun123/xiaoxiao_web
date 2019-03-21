@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>shetuancaozuo</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+    <style>
+		header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            我的社团
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <nav>
+                <ul id="xiangxicaozuo">
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'shetuancaozuo',
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+
+    function isContains(str, substr) {
+        if (str.indexOf(substr) >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    apiready = function() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        loadData();
+        var leibie = api.pageParam.leibie;
+        var id = api.pageParam.id;
+        var xueshengid = dataInfo.id;
+        var code = xueshengid + ',zytech,' + id;
+        if (leibie == "shetuan") {
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl')+"app_SheTuanCaoZuo",
+                data: {
+                    CODE: code
+                },
+                dataType: 'json',
+                cache: false,
+                timeout: 5000,
+                success: function(data) {
+                    html = "";
+                    var data = eval(data);
+                    if (data) {
+                        if (data.shetuanxinxiid != null) {
+                            html += '<li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">' + data.mingcheng + '</li>';
+                            html += '<div class="aui-list-item" style="padding-top:40px;"><div class="aui-list-item-inner"><h4 style="font-size:18px;">职务：' + data.zhiwu + '</h4></div></div>';
+                            if (isContains(data.zhiwu, "社长")) {
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="shenqingjingfei(\'' + data.mingcheng +
+                                    '\',\'' + data.shetuanxinxiid + '\')">申请活动经费</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="chakanjfshenqing(\'' + data.mingcheng +
+                                    '\',\'' + data.shetuanxinxiid + '\')">经费申请进度</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="STbumenzengshan(\'' + data.mingcheng +
+                                    '\',\'' + data.shetuanxinxiid + '\')">删减部门</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="STzhidingxinshezhang(\'' + data.shetuanxinxiid +
+                                    '\')">指定新社长</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="STzhidingbuzhang(\'' + data.shetuanxinxiid +
+                                    '\')">指定部长</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="STzhidingbianji(\'' + data.shetuanxinxiid +
+                                    '\')">指定编辑</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="STchakansheyuanxinxi(\'' + data.shetuanxinxiid +
+                                    '\')">查看社员信息</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="STchakanbaomingxinxi(\'' + data.shetuanxinxiid +
+                                    '\')">查看报名信息</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="STxinxiweihu(\'' + data.mingcheng +
+                                    '\',\'' + data.shetuanid + '\',\'' + data.shetuanxinxiid + '\')">信息维护</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="STjiesan(\'' + data.mingcheng +
+                                    '\',\'' + data.shetuanxinxiid + '\')">解散社团</h4></div></div>';
+                            }
+                            if (isContains(data.zhiwu, "部长")) {
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="STchakanbumenrenyuan(\'' + data.shetuanxinxiid +
+                                    '\')">查看部门人员信息</h4></div></div>';
+                            }
+                            html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="STtuichushetuan(\'' + data.shetuanxinxiid +
+                                '\')">退出社团</h4></div></div>';
+                            $('#xiangxicaozuo').html(html);
+                            api.hideProgress();
+                        } else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+							    name: 'index',
+							    script: jsfun
+							});
+                        }
+                    }
+                },
+                error: function() {
+                    alert("错误FUUI");
+                    api.hideProgress();
+                }
+            });
+        } else if (leibie == "zuzhi") {
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl')+"app_ZuZhiCaoZuo",
+                data: {
+                    CODE: code
+                },
+                dataType: 'json',
+                cache: false,
+                timeout: 5000,
+                success: function(data) {
+                    html = "";
+                    var data = eval(data);
+                    if (data) {
+                        if (data.xueshengzuzhixinxiid != null) {
+                            html += '<li class="aui-list-header" style="font-size:20px;">' + data.mingcheng + '</li>';
+                            html += '<div class="aui-list-item"><div class="aui-list-item-inner"><h4 style="font-size:18px;">职务：' + data.zhiwu + '</h4></div></div>';
+                            if (isContains(data.zhiwu, "负责人")) {
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="shenqingjingfeiXS(\'' + data.mingcheng +
+                                    '\',\'' + data.xueshengzuzhixinxiid + '\')">申请活动经费</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="chakanjfshenqingXS(\'' + data.mingcheng +
+                                    '\',\'' + data.xueshengzuzhixinxiid + '\')">经费申请进度</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="zenshanbumenXS(\'' + data.mingcheng +
+                                    '\',\'' + data.xueshengzuzhixinxiid + '\')">删减部门</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="zhidingxinshezhangXS(\'' + data.xueshengzuzhixinxiid +
+                                    '\')">指定新负责人</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="zhidingbuzhangXS(\'' + data.xueshengzuzhixinxiid +
+                                    '\')">指定部长</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="zhidingbianjiXS(\'' + data.xueshengzuzhixinxiid +
+                                    '\')">指定编辑</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="chakanrenyuanxinxiXS(\'' + data.xueshengzuzhixinxiid +
+                                    '\')">查看人员信息</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="chakanbaomingxinxiXS(\'' + data.xueshengzuzhixinxiid +
+                                    '\')">查看报名信息</h4></div></div>';
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="xinxiweihuiXS(\'' + data.mingcheng +
+                                    '\',\'' + data.xueshengzuzhixinxiid + '\',\'' + data.xueshengzuzhiid + '\')">信息维护</h4></div></div>';
+                            }
+                            if (isContains(data.zhiwu, "部长")) {
+                                html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="chankanbumenrenyuanXS(\'' + data.xueshengzuzhixinxiid +
+                                    '\')">查看部门人员信息</h4></div></div>';
+                            }
+                            html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:45px;"><h4 style="font-size:18px;width:100%;margin-left:10px;" onclick="tuichuxueshengzuzhiXS(\'' + data.xueshengzuzhixinxiid +
+                                '\')">退出学生组织</h4></div></div>';
+                            $('#xiangxicaozuo').html(html);
+                            api.hideProgress();
+                        } else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+							    name: 'index',
+							    script: jsfun
+							});
+                        }
+                    }
+                },
+                error: function() {
+                    alert("错误FUUK");
+                    api.hideProgress();
+                }
+            });
+        }
+    };
+
+    function shenqingjingfei(mingcheng, xinxiid) {
+        api.openWin({
+            name: 's_shengqingjingfei',
+            url: 'shetuancaozuo/s_shengqingjingfei.html',
+            pageParam: {
+                mingcheng: mingcheng,
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function chakanjfshenqing(mingcheng, xinxiid) {
+        api.openWin({
+            name: 's_jfshenqingjindu',
+            url: 'shetuancaozuo/s_jfshenqingjindu.html',
+            pageParam: {
+                mingcheng: mingcheng,
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+
+    function STxinxiweihu(mingcheng, shetuanid, shetuanxinxiid) {
+        api.openWin({
+            name: 's_xinxiweihu',
+            url: 'shetuancaozuo/s_xinxiweihu.html',
+            pageParam: {
+                mingcheng: mingcheng,
+                shetuanid: shetuanid,
+                shetuanxinxiid: shetuanxinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function xinxiweihuiXS(mingcheng, xueshengzuzhixinxiid, xueshengzuzhiid) {
+        api.openWin({
+            name: 'x_xinxiweihu',
+            url: 'shetuancaozuo/x_xinxiweihu.html',
+            pageParam: {
+                mingcheng: mingcheng,
+                xueshengzuzhixinxiid: xueshengzuzhixinxiid,
+                xueshengzuzhiid: xueshengzuzhiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function STjiesan(mingcheng, xinxiid) {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var xueshengid = dataInfo.id;
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_ST_SheTuanJieSan",
+            data: {
+                xueshengid: xueshengid,
+                shetuanxinxiid: xinxiid,
+            },
+            dataType: 'text',
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                if (data == "done") {
+                    alert("已提交申请，请等待审核！");
+                    window.location.reload();
+                } else if (data == "noti") {
+                    api.openWin({
+                        name: 's_jiesanshetuan',
+                        url: 'shetuancaozuo/s_jiesanshetuan.html',
+                        pageParam: {
+                            mingcheng: mingcheng,
+                            xinxiid: xinxiid,
+                        },
+                        reload: true,
+						allowEdit:true
+                    });
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function() {
+                alert("超时");
+            }
+        });
+    }
+
+    function shenqingjingfeiXS(mingcheng, xinxiid) {
+        api.openWin({
+            name: 'x_shengqingjingfei',
+            url: 'shetuancaozuo/x_shengqingjingfei.html',
+            pageParam: {
+                mingcheng: mingcheng,
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+
+    function chakanjfshenqingXS(mingcheng, xinxiid) {
+        api.openWin({
+            name: 'x_jfshenqingjindu',
+            url: 'shetuancaozuo/x_jfshenqingjindu.html',
+            pageParam: {
+                mingcheng: mingcheng,
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+
+    function STzhidingxinshezhang(xinxiid) {
+        api.openWin({
+            name: 's_zhidingxinshezhang',
+            url: 'shetuancaozuo/s_zhidingxinshezhang.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function zhidingxinshezhangXS(xinxiid) {
+        api.openWin({
+            name: 'x_zhidingxinshezhang',
+            url: 'shetuancaozuo/x_zhidingxinshezhang.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function STbumenzengshan(mingcheng, xinxiid) {
+        api.openWin({
+            name: 's_zengshanbumen',
+            url: 'shetuancaozuo/s_zengshanbumen.html',
+            pageParam: {
+                mingcheng: mingcheng,
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+
+    function zenshanbumenXS(mingcheng, xinxiid) {
+        api.openWin({
+            name: 'x_zengshanbumen',
+            url: 'shetuancaozuo/x_zengshanbumen.html',
+            pageParam: {
+                mingcheng: mingcheng,
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function STzhidingbuzhang(xinxiid) {
+        api.openWin({
+            name: 's_zhidingbuzhang',
+            url: 'shetuancaozuo/s_zhidingbuzhang.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+
+    function zhidingbuzhangXS(xinxiid) {
+        api.openWin({
+            name: 'x_zhidingbuzhang',
+            url: 'shetuancaozuo/x_zhidingbuzhang.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function STzhidingbianji(xinxiid) {
+        api.openWin({
+            name: 's_zhidingbianji',
+            url: 'shetuancaozuo/s_zhidingbianji.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function zhidingbianjiXS(xinxiid) {
+        api.openWin({
+            name: 'x_zhidingbianji',
+            url: 'shetuancaozuo/x_zhidingbianji.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function STchakansheyuanxinxi(xinxiid) {
+        api.openWin({
+            name: 's_chakansheyuanxinxi',
+            url: 'shetuancaozuo/s_chakansheyuanxinxi.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function chakanrenyuanxinxiXS(xinxiid) {
+        api.openWin({
+            name: 'x_chakanrenyuanxinxi',
+            url: 'shetuancaozuo/x_chakanrenyuanxinxi.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function STchakanbumenrenyuan(xinxiid) {
+        api.openWin({
+            name: 's_chakanbumensheyuan',
+            url: 'shetuancaozuo/s_chakanbumensheyuan.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+
+    function chankanbumenrenyuanXS(xinxiid) {
+        api.openWin({
+            name: 'x_chakanbumenrenyuan',
+            url: 'shetuancaozuo/x_chakanbumenrenyuan.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function STchakanbaomingxinxi(xinxiid) {
+        api.openWin({
+            name: 's_chakanbaomingxinxi',
+            url: 'shetuancaozuo/s_chakanbaomingxinxi.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+
+    function chakanbaomingxinxiXS(xinxiid) {
+        api.openWin({
+            name: 'x_chakanbaomingxinxi',
+            url: 'shetuancaozuo/x_chakanbaomingxinxi.html',
+            pageParam: {
+                xinxiid: xinxiid,
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function cfm() {
+        if (confirm("确认退出？") == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function STtuichushetuan(xinxiid) {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        if (cfm()) {
+            var xueshengid = dataInfo.id;
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl')+"app_ST_TuiChuSheTuan",
+                data: {
+                    CODE: xinxiid,
+                    xueshengid: xueshengid,
+                },
+                dataType: 'text',
+                cache: false,
+                timeout: 5000,
+                success: function(data) {
+                    if (data == "havejob") {
+                        alert("当前有职务，不能退出！");
+                    } else if (data == "success") {
+                        alert("退出成功");
+                        var jsfun = 'fanhui22();';
+                        api.execScript({
+                            name: 'wodeshetuan',
+                            script: jsfun
+                        });
+                    } else if (data == "fail") {
+                        alert("退出失败");
+                        var jsfun = 'fanhui22();';
+                        api.execScript({
+                            name: 'wodeshetuan',
+                            script: jsfun
+                        });
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                },
+                error: function() {
+                    alert("超时");
+                }
+            });
+        }
+    }
+
+    function tuichuxueshengzuzhiXS(xinxiid) {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        if (cfm()) {
+            var xueshengid = dataInfo.id;
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl')+"app_XS_TuiChuXueShengZuZhi",
+                data: {
+                    CODE: xinxiid,
+                    xueshengid: xueshengid,
+                },
+                dataType: 'text',
+                cache: false,
+                timeout: 5000,
+                success: function(data) {
+                    if (data == "havejob") {
+                        alert("当前有职务，不能退出！");
+                    } else if (data == "success") {
+                        alert("退出成功");
+                        var jsfun = 'fanhui22();';
+                        api.execScript({
+                            name: 'wodeshetuan',
+                            script: jsfun
+                        });
+                    } else if (data == "fail") {
+                        alert("退出失败");
+                        var jsfun = 'fanhui22();';
+                        api.execScript({
+                            name: 'wodeshetuan',
+                            script: jsfun
+                        });
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                },
+                error: function() {
+                    alert("超时");
+                }
+            });
+        }
+    }
+
+    function fanhui() {
+        api.closeWin({
+            name: 's_shengqingjingfei'
+        });
+        window.location.reload();
+    }
+
+    function weihufanhui() {
+        api.closeWin({
+            name: 's_xinxiweihu'
+        });
+        window.location.reload();
+    }
+
+    function weihufanhui2() {
+        api.closeWin({
+            name: 'x_xinxiweihu'
+        });
+        window.location.reload();
+    }
+
+    function fanhui2() {
+        api.closeWin({
+            name: 's_jiesanshetuan'
+        });
+        window.location.reload();
+    }
+
+    function fanhui3() {
+        api.closeWin({
+            name: 'x_shengqingjingfei'
+        });
+        window.location.reload();
+    }
+
+    function stzdfanhui() {
+        api.closeWin({
+            name: 's_zhidingxinshezhang',
+        });
+        window.location.reload();
+    }
+
+    function xszdfanhui() {
+        api.closeWin({
+            name: 'x_zhidingxinshezhang',
+        });
+        window.location.reload();
+    }
+
+    function stzsfanhui() {
+        api.closeWin({
+            name: 's_zengshanbumen',
+        });
+        window.location.reload();
+    }
+
+    function xszsfanhui() {
+        api.closeWin({
+            name: 'x_zengshanbumen',
+        });
+        window.location.reload();
+    }
+
+    function stzdbz_fanhui() {
+        api.closeWin({
+            name: 's_zhidingbuzhang'
+        });
+        window.location.reload();
+    }
+
+    function xszdbz_fanhui() {
+        api.closeWin({
+            name: 'x_zhidingbuzhang'
+        });
+        window.location.reload();
+    }
+
+    function fanhui6() {
+        api.closeWin({
+            name: 's_zhidingbianji'
+        });
+        window.location.reload();
+    }
+
+    function fanhui7() {
+        api.closeWin({
+            name: 'x_zhidingbianji'
+        });
+        window.location.reload();
+    }
+
+    function fanhui8() {
+        api.closeWin({
+            name: 's_chakansheyuanxinxi'
+        });
+        window.location.reload();
+    }
+
+    function fanhui9() {
+        api.closeWin({
+            name: 'x_chakanrenyuanxinxi'
+        });
+        window.location.reload();
+    }
+
+    function fanhui10() {
+        api.closeWin({
+            name: 's_chakanbumensheyuan'
+        });
+        window.location.reload();
+    }
+
+    function fanhui11() {
+        api.closeWin({
+            name: 'x_chakanbumenrenyuan'
+        });
+        window.location.reload();
+    }
+
+    function fanhui12() {
+        api.closeWin({
+            name: 's_chakanbaomingxinxi'
+        });
+        window.location.reload();
+    }
+
+    function fanhui13() {
+        api.closeWin({
+            name: 'x_chakanbaomingxinxi'
+        });
+        window.location.reload();
+    }
+</script>
+
+</html>

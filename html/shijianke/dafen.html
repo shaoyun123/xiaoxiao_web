@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/c ss" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<script type="text/javascript" src="../../script/fullcalendar/jquery.mobile-1.4.5.min.js"></script>
+		<script type="text/javascript" src="../../script/zepto.min.js"></script>
+		<script type="text/javascript" src="../../script/fullcalendar/Sortable.min.js"></script>
+		<style>
+			body {
+				width: 100%;
+				height: 100%;
+			}
+			#sort li {
+				border: 1px solid #ccc;
+				height: 50px;
+				line-height: 50px;
+				margin: 1px;
+			}
+			#sort p {
+				border: 1px solid #ccc;
+				height: 50px;
+				line-height: 50px;
+				margin: 1px;
+				text-align: center;
+				width: 100px;
+			}
+			.line-limit-length {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;/*文本不换行，这样超出一行的部分被截取，显示...*/
+			}
+		</style>
+	</head>
+	<body>
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="display:none;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				考评排序
+			</div>
+		</header>
+		<div id="sort" style="">
+			<div id="foos"></div>
+			<div style="position: relative;background: #fff;">
+				<ul id="foo"></ul>
+				<ul id="fooss"></ul>
+				<div id="zuyuan" style="display:none;">
+					小组长正在打分，请稍后...
+				</div>
+			</div>
+			<button class="aui-btn aui-btn-info" id="btn" onclick="tijiao();" style="top:80px;position: relative;left:45%;display:none;">
+				提交
+			</button>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin();
+			var jsfun = "youtixing();";
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+		}
+
+		apiready = function() {
+		api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+			api.addEventListener({
+				name : 'viewdisappear'
+			}, function() {
+				goback();
+			});
+			var data = api.pageParam.data;
+//			alert($api.jsonToStr(data));
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var html = '';
+			var yiqiandaoxiaozu = data.qiandaoxinxi.yiqiandaoxiaozu;
+			var paixuxiaozu = data.qiandaoxinxi.xiaozupaixu;
+			var paixuxiaozu_arr = paixuxiaozu.split(",");
+			var paixuxiaozu_len = paixuxiaozu_arr.length - 1;
+			for (var i = 0; i < yiqiandaoxiaozu.length; i++) {
+				if (data.qiandaoxinxi.suozaixiaozuid == yiqiandaoxiaozu[i].id) {
+					if (yiqiandaoxiaozu[i].paixu == '' || yiqiandaoxiaozu[i].paixu == null) {
+						if (yiqiandaoxiaozu[i].xiaoZuZhangId == studentid) {
+							$("#btn").css("display", "block");
+							html += '<span>提示：长按拖动排序</span>';
+							html += '<div style="position:absolute;z-index: 9999">';
+							for (var k = 1; k < paixuxiaozu_len; k++) {
+								html += '<p>第' + k + '名</p>';
+							}
+							html += '</div>';
+							var jianbaoshunxu = data.qiandaoxinxi.xiaozupaixu;
+							var jianbaoshunxu_arr = jianbaoshunxu.split(",");
+							for (var k = 0; k < yiqiandaoxiaozu.length; k++) {
+								for (var x = 0; x < yiqiandaoxiaozu.length; x++) {
+									var xiaozuid = yiqiandaoxiaozu[x].id;
+									var xiaozuming = yiqiandaoxiaozu[x].xueXiZuMing;
+									if (jianbaoshunxu_arr[k] == xiaozuid) {
+										if (data.qiandaoxinxi.suozaixiaozuid != xiaozuid) {// 自己不能给自己打分
+											html += '<li style="padding-left:100px;" class="action-btn line-limit-length" id="' + xiaozuid + '">&nbsp&nbsp&nbsp&nbsp简报' + (k + 1) + '组&nbsp&nbsp&nbsp&nbsp' + xiaozuming + '</li>';
+										}
+									}
+								}
+							}
+						} else {
+							$("#zuyuan").css("display", "block");
+						}
+					} else {
+						dafen();
+					}
+				}
+			}
+			$("#foo").html(html);
+			tuodong();
+			$(".ui-loader").hide();
+		};
+		function shuaxin() {
+			var data = api.pageParam.data;
+			var kechengid = data.keChengID;
+			var jsfun = 'chakan(' + kechengid + ');';
+			api.execScript({
+				name : 'shouye_shijianke',
+				script : jsfun
+			});
+		}
+
+		function dafen() {
+			var data = api.pageParam.data;
+			var html = '';
+			var yiqiandaoxiaozu = data.qiandaoxinxi.yiqiandaoxiaozu;
+			for (var i = 0; i < yiqiandaoxiaozu.length; i++) {
+				html += '<div style="height:40px;line-height:40px;border-bottom:1px solid #ccc;">' + yiqiandaoxiaozu[i].xueXiZuMing;
+				if (yiqiandaoxiaozu[i].paixu == '') {
+					html += '<span id="qiandao" style="float:right;color:orange;">&nbsp&nbsp&nbsp&nbsp未提交</span>';
+				} else {
+					html += '<span id="qiandao" style="float:right;">&nbsp&nbsp&nbsp&nbsp已提交</span>';
+				}
+				html += '</div>';
+			}
+			html += '<button onclick="chakan();" class="aui-btn aui-btn-info" style="left:15%;margin-top:10px;">查看本组打分</button>';
+			html += '<button onclick="shuaxin();" class="aui-btn aui-btn-info" style="left:45%;margin-top:10px;">刷新</button>';
+			$("#fooss").html(html);
+		}
+
+		function chakan() {
+			var data = api.pageParam.data;
+			var html = '';
+			html += '<div id="yc" style="width:100%;height:100%;opacity:0.5;background:#ccc;position:absolute;z-index:999;">';
+			html += '</div>';
+			html += '<div id="ycs" style="position:absolute;border:1px solid #000;border-radius:5px;width:80%;height:auto;background:#fff;z-index:1000;margin-top:200px;margin-left:10%;">'
+			var yiqiandaoxiaozu = data.qiandaoxinxi.yiqiandaoxiaozu;
+			for (var i = 0; i < yiqiandaoxiaozu.length; i++) {
+				var xiaozuid = yiqiandaoxiaozu[i].id;
+				if (data.qiandaoxinxi.suozaixiaozuid == xiaozuid) {
+					var dafen = yiqiandaoxiaozu[i].paixu;
+					var dafens = dafen.split(";");
+					html += '<div>';
+					for (var k = 0; k < dafens.length; k++) {
+						var s = dafens[k].split("_");
+						for (var j = 0; j < yiqiandaoxiaozu.length; j++) {
+							if (s[1] == yiqiandaoxiaozu[j].id)
+								html += '<span>&nbsp&nbsp&nbsp&nbsp' + yiqiandaoxiaozu[j].xueXiZuMing + '</span><span style="float:right;">' + s[2] + '分</span><br>';
+						}
+					}
+					html += '</div>';
+				} else {
+				}
+			}
+			html += '<button onclick="guanbi();" class="aui-btn aui-btn-info" style="left:43%;text-align:center;">关闭</button>';
+			html += '</div>';
+			$("#foos").html(html);
+		}
+
+		function guanbi() {
+			$("#yc").hide();
+			$("#ycs").hide();
+		}
+
+		function tijiao() {
+			var data = api.pageParam.data;
+			var kechengid = data.keChengID;
+			var xiaozupaiming = '';
+			var y = 0;
+			var length = $('li').length;
+			$('li').each(function() {
+				var yiqiandaoxiaozu = data.qiandaoxinxi.yiqiandaoxiaozu;
+				for (var j = 0; j < yiqiandaoxiaozu.length; j++) {
+					if (data.qiandaoxinxi.suozaixiaozuid == yiqiandaoxiaozu[j].id) {
+						// 登录用户的大组id == 大组id?????
+						var xiaozuid = data.qiandaoxinxi.suozaixiaozuid;
+						xiaozupaiming += xiaozuid + '_' + $(this).attr("id") + '_' + (length - y) + ';';
+					}
+				}
+				y++;
+			});
+			var dazuid;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xueshengid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var yiqiandaoxiaozu = data.qiandaoxinxi.yiqiandaoxiaozu;
+			var xiaozuid = data.qiandaoxinxi.suozaixiaozuid;
+			var fendazu = api.pageParam.fendazu;
+			var fenxiaozu = api.pageParam.fenxiaozu;
+			if (fendazu == 1) {
+				dazuid = data.qiandaoxinxi.chouqian.daZuXuHao;
+			}
+			api.confirm({
+				title : '提交后不能修改，请慎重考虑',
+				buttons : ['提交', '取消']
+			}, function(ret, err) {
+				var index = ret.buttonIndex;
+				if (index == 2) {
+				} else if (index == 1) {
+					api.confirm({
+						title : '确定提交？',
+						buttons : ['确定', '取消']
+					}, function(ret, err) {
+						var indexs = ret.buttonIndex;
+						if (indexs == 2) {
+						} else if (indexs == 1) {
+							$.ajax({
+								type : "POST",
+								url : $api.getStorage('serverUrl') + "app_dafen",
+								data : {
+									xueshengid : xueshengid,
+									status : status,
+									token : token,
+									dangqianxiaozuid : xiaozuid,
+									kaopingid : data.ID,
+									xiaozupaimingid : xiaozupaiming,
+									dangqiandazuid : yiqiandaoxiaozu[0].fenZuId,
+									kechengid : data.keChengID,
+									fendazu : fendazu,
+									fenxiaozu : fenxiaozu,
+									dazuid : dazuid,
+								},
+								dataType : 'json',
+								cache : false,
+								success : function(data) {
+									if (data.status == "success") {
+										alert("提交成功");
+										var jsfun = 'chakan(' + kechengid + ');';
+										api.execScript({
+											name : 'shouye_shijianke',
+											script : jsfun
+										});
+									}
+								},
+								error : function() {
+									console.log("app_dafen");
+								}
+							});
+						}
+					});
+				}
+			});
+		}
+
+		//解决安卓端长按时出现浏览器选择打开问题
+		function tuodong() {
+			document.oncontextmenu = function(e) {
+				//或者return false;
+				e.preventDefault();
+			};
+			var elementsld;
+			var touch = {};
+			touch.current = 0;
+			touch.lenght = 4;
+			function move(elem, targetW, current) {
+				elem.animate({
+					translate3d : targetW * current + "px,0,0"
+				}, 300, 'steps', function() {
+				});
+			}
+
+			var sort = Sortable.create(document.getElementById('foo'), {
+				disabled : true,
+				animation : 150,
+				onStart : function() {
+					Zepto("#foo").removeClass("animationframes")
+				},
+				onEnd : function() {
+					sort.options.disabled = true;
+					longtap = false;
+					//	console.log(elementsld);
+					elementsld.css("background-color", "");
+					touchmove = true;
+				}
+			})
+			var longtap = false
+			jQuery('#foo li').on("taphold", function(e) {
+				elementsld = $(this);
+				elementsld.css("background-color", "#46b99f");
+				longtap = true;
+				elementsld.bind('contextmenu', function(e) {
+					e.preventDefault();
+				}, false)
+			})
+			Zepto('#foo li').on('touchstart', function(e) {
+				setTimeout(function() {
+					if (longtap) {
+						//					console.log('longtap')
+						sort.options.disabled = false;
+						sort._onTapStart(e);
+					}
+				}, 1000);
+			})
+		}
+	</script>
+</html>

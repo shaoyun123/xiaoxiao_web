@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		
+		
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/style.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			.auiitem {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				color: #212121;
+				background-color: #ffffff;
+				position: relative;
+				min-height: 2.2 rem;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				display: -webkit-box;
+				display: -webkit-flex;
+				display: flex;
+				-webkit-box-pack: justify;
+				-webkit-justify-content: space-between;
+				justify-content: space-between;
+			}
+			.list-group {
+				padding-left: 0;
+				margin-bottom: 20px;
+			}
+			.list-group-item {
+				position: relative;
+				display: block;
+				padding: 10px 15px;
+				margin-bottom: -1px;
+				background-color: #fff;
+				border: 1px solid #ddd;
+			}
+			.v {
+				border-collapse: collapse;
+				margin-left: 0;
+			}
+			.v td {
+				border: 1px solid #8B8B83;
+			}
+		</style>
+	</head>
+	<body>
+		<!--<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+		<ul class="aui-list aui-form-list">
+		<li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">
+		个人德育成绩公示
+		</li>
+		<nav style="padding-top:40px;">
+		<ul id="gerendeyuxiangqing"></ul>
+		</nav>
+		</ul>
+		</div>-->
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-header" style="font-size:20px;">
+					个人德育成绩公示
+				</li>
+				<form id="deyuform" name="deyuform">
+					<nav>
+						<ul id="gerendeyuxiangqing"></ul>
+					</nav>
+				</form>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+//			alert(api.pageParam.deyufenid);
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;	
+//			var studentid = api.pageParam.xueshengid;	
+			var deyufenid = api.pageParam.deyufenid;
+			var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+			var banjiid = dataInfo.banJiID;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var code = studentid + ',zytech,' + xuexiaoXuehao + ',zytech,' + banjiid;
+//			alert(studentid);
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_DeYufenxiangqing",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+					deyufenid : deyufenid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+//				alert($api.jsonToStr(data));
+					var data = eval(data);
+					html = "";
+					if (data) {
+						if (data != null) {
+							xueshenggeren_xiangqing(data);
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					api.hideProgress();
+					alert("错误UQ");
+				}
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				api.closeWin({
+					name : 'deyugongshi_xiangqing',
+				});
+			});
+		};
+		function xueshenggeren_xiangqing(data) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+//			var xuehao = data.xueHao;			
+//			var xingming = data.xingMing;
+			var xuehao = api.pageParam.xuehao;
+			var xingming = api.pageParam.xingming;
+			var deyufenid = api.pageParam.deyufenid;
+			var xuhao_deyu = $api.getStorage('xuhao_deyu');
+			var xingming_deyu = $api.getStorage('xingming_deyu');
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var xueshengid = dataInfo.id;
+//			var xueshengid = api.pageParam.xueshengid;
+			var code = deyufenid;
+//			alert(xuehao);
+
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_BackGeRenDeYuxiangqing",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+					xueshengid : xueshengid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data2) {
+					if (data2) {
+						if (data2 != null) {
+							var data2 = eval(data2);
+							var x = -1;
+							html = "";
+//							alert($api.jsonToStr(data2[0]));
+							if (data != null) {
+								html += '<div class="aui-list-item">';
+								html += '<div class="aui-list-item-inner"><span class="title"><font style="vertical-align:inherit;">学号：' + xuehao + '&emsp;&emsp;&emsp;姓名：' + xingming + '</span></div></div>';
+								html += '<div class="auiitem">';
+								html += '<table id="tab1" class="v" style="background-color:#FFFFFF;border: 1px solid #8B8B83;"><tbody>';
+								for (var i = 0; i < data.fangAns.length; i++) {
+									html += '<tr><td style="width:70%;"><font style="vertical-align:inherit;font-size:20px;font-weight:bold;">' + data.fangAns[i].mingcheng + '(' + data.fangAns[i].manfen + ')</font></td><td style="width:50%;text-align:center;"><font style="vertical-align:inherit;text-align:center;"></font></td><tr>';
+									for (var j = 0; j < data.fangAns[i].childList.length; j++) {
+										if (data.fangAns[i].childList[j].xiangleixing == 0) {
+											html += '<tr><td style="width:50%;text-align:center;"><font style="ertical-align:inherit;text-align:center;">' + data.fangAns[i].childList[j].mingcheng + '(' + data.fangAns[i].childList[j].manfen + ')</font></td><td style="width:50%;text-align:center;">'
+											var l = -1;
+											for(var k = 0 ; k<data2.length ; k++){
+												var arr=[];
+												 arr = data2[k];
+												if(arr[0] == data.fangAns[i].childList[j].pingfenid){
+//													alert(data.fangAns[i].childList[j].pingfenid+"-------"+k);
+													l = k;
+													break;
+												}
+											}
+											if (l == -1) {
+												html += '<font style="vertical-align:inherit;text-align:center;">0</font>';
+											} else {
+												var asd = [];
+												asd = data2[l];
+//												alert(l + "---" + asd[1]);
+												html += '<font style="vertical-align:inherit;text-align:center;">' + asd[1] + ' </font>';
+											}
+											html += '</td></tr>';
+										} else {
+											html += '<tr><td style="width:50%;text-align:center;"><font style="vertical-align:inherit;font-size:15px;font-weight:bold;text-align:center;">' + data.fangAns[i].childList[j].mingcheng + '(' + data.fangAns[i].childList[j].manfen + ')</font></td><td style="width:50%;"><font style="vertical-align:inherit;"></font></td><tr>';
+											for (var k = 0; k < data.fangAns[i].childList[j].childList.length; k++) {
+												html += '<tr><td style="width:50%;text-align:center;"><font style="ertical-align:inherit;text-align:center;">' + data.fangAns[i].childList[j].childList[k].mingcheng + '(' + data.fangAns[i].childList[j].childList[k].manfen + ')</font></td><td style="width:50%;text-align:center;">';
+												var l = -1;
+												for (var q = 0; q < data2.length; q++) {
+													var arr = [];
+													arr = data2[q];
+													if (arr[0] == data.fangAns[i].childList[j].childList[k].pingfenid) {
+														l = q;
+														break;
+													}
+												}
+												if (l == -1) {
+													html += '<font style="vertical-align:inherit;text-align:center;">0</font>';
+												} else {
+													var asd = [];
+													asd = data2[l];
+													html += '<font style="vertical-align:inherit;text-align:center;">' + asd[1] + ' </font>';
+												}
+												html += '</td></tr>';
+											}
+										}
+									}
+									//html += '';
+								}
+								html += '</tbody></table>';
+								html += '</div>';
+							}
+							$('#gerendeyuxiangqing').append(html);
+							api.hideProgress();
+						} else {
+							api.hideProgress();
+							alert("该人德育分详情可能已被修改");
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function(e) {
+					api.hideProgress();
+					alert("错误LL");
+				}
+			});
+		}
+	</script>
+</html>

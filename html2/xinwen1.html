@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			.container {
+				height: 50px;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				overflow: hidden;
+				width: 100%;
+			}
+			.nav {
+				height: 100%;
+				width: 100%;
+				overflow-x: scroll;
+				overflow-y: hidden;
+				background: rgb(240,240,240);
+			}
+			#con {
+				width: 900px;
+				height: 100%;
+				display: flex;
+				align-items: center;
+			}
+			#con > div {
+				text-align: center;
+				font-size: 18px;
+				width: 80px;
+				list-style: none;
+			}
+			.container ::-webkit-scrollbar {
+				display: none;
+			}
+			.aui-list .aui-list-item-media {
+				width: 4rem;
+			}
+			.items {
+				color: red;
+			}
+			a {
+				color: #0062CC;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<nav class="nav">
+				<ul id="con">
+					<div class="aui-tab-item aui-active items" onclick="showData(this,0)" id="jiri" style="font-size:16px;color:#696969;background:  rgb(240,240,240);">
+						全部
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,1)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						北化科学教
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,2)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						合作交流
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,3)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						党建思政
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,4)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						基层动态
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,5)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						菁菁校园
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,6)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						投稿
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,7)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						通知公告
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,8)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						报告讲座
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,9)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						教务新闻
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,10)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						教务学生通
+					</div>
+				</ul>
+			</nav>
+		</div>
+		<div class="aui-content" id="menu_mun" style="width: 100%;">
+			<div style="background: #fff;">
+				<div class="a" style="border-bottom: 1px solid #ccc;padding: 8px;">
+					<div>
+						2018年全国腐蚀电化学及测试方法学术交流会在北京召开
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>北化科学教研   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						<span style="float:right;">状态：未读取</span>
+					</div>
+				</div>
+				<div class="b" style="border-bottom: 1px solid #ccc;padding: 8px;">
+					<div>
+						2018年青年教师工程实践常州安庆团举行结业仪式
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>合作交流   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						<span style="float:right;">状态：已读取</span>
+					</div>
+				</div>
+				<div class="c" style="border-bottom: 1px solid #ccc;padding: 8px;">
+					<div>
+						新校区建设指挥部组织开展教职工理论学习暨党风廉政教育活动
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>党建思政   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						<span style="float:right;">状态：未读取</span>
+					</div>
+				</div>
+				<div class="d" style="border-bottom: 1px solid #ccc;padding: 8px;">
+					<div>
+						新校区建设指挥部组织开展教职工理论学习暨党风廉政教育活动
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>基层动态   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						<span style="float:right;">状态：未读取</span>
+					</div>
+				</div>
+				<div class="e" style="border-bottom: 1px solid #ccc;padding: 8px;">
+					<div>
+						新校区建设指挥部组织开展教职工理论学习暨党风廉政教育活动
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>菁菁校园   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						<span style="float:right;">状态：未读取</span>
+					</div>
+				</div>
+				<div class="f" style="border-bottom: 1px solid #ccc;padding: 8px;">
+					<div>
+						新校区建设指挥部组织开展教职工理论学习暨党风廉政教育活动
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>投稿   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						<span style="float:right;">状态：未读取</span>
+					</div>
+				</div>
+				<div class="g" style="border-bottom: 1px solid #ccc;padding: 8px;">
+					<div>
+						新校区建设指挥部组织开展教职工理论学习暨党风廉政教育活动
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>通知公告   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						<span style="float:right;">状态：未读取</span>
+					</div>
+				</div>
+				<div class="h" style="border-bottom: 1px solid #ccc;padding: 8px;">
+					<div>
+						新校区建设指挥部组织开展教职工理论学习暨党风廉政教育活动
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>报告讲座   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						<span style="float:right;">状态：未读取</span>
+					</div>
+				</div>
+				<div class="i" style="border-bottom: 1px solid #ccc;padding: 8px;">
+					<div>
+						新校区建设指挥部组织开展教职工理论学习暨党风廉政教育活动
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>教务新闻   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						<span style="float:right;">状态：未读取</span>
+					</div>
+				</div>
+				<div class="j" style="border-bottom: 1px solid #ccc;padding: 8px;">
+					<div>
+						新校区建设指挥部组织开展教职工理论学习暨党风廉政教育活动
+					</div>
+					<div style="font-size: 14px;color: gray;">
+						<span>教务学生通   &nbsp;&nbsp;&nbsp;&nbsp;2018-08-23</span>
+						<span style="float:right;">状态：未读取</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		var searchStatus = '0';
+		function showData(obj, val) {
+			if (searchStatus != val) {
+				searchStatus = val;
+				if (val == 0) {
+					$(".a").show();$(".b").show();$(".c").show();$(".d").show();$(".e").show();$(".f").show();$(".g").show();$(".h").show();$(".i").show();$(".j").show();
+				}else if (val == 1) {
+					$(".a").show();$(".b").hide();$(".c").hide();$(".d").hide();$(".e").hide();$(".f").hide();$(".g").hide();$(".h").hide();$(".i").hide();$(".j").hide();
+				} else if (val == 2) {
+					$(".a").hide();$(".b").show();$(".c").hide();$(".d").hide();$(".e").hide();$(".f").hide();$(".g").hide();$(".h").hide();$(".i").hide();$(".j").hide();
+				} else if (val == 3) {
+					$(".a").hide();$(".b").hide();$(".c").show();$(".d").hide();$(".e").hide();$(".f").hide();$(".g").hide();$(".h").hide();$(".i").hide();$(".j").hide();
+				} else if (val == 4) {
+					$(".a").hide();$(".b").hide();$(".c").hide();$(".d").show();$(".e").hide();$(".f").hide();$(".g").hide();$(".h").hide();$(".i").hide();$(".j").hide();
+				} else if (val == 5) {
+					$(".a").hide();$(".b").hide();$(".c").hide();$(".d").hide();$(".e").show();$(".f").hide();$(".g").hide();$(".h").hide();$(".i").hide();$(".j").hide();
+				} else if (val == 6) {
+					$(".a").hide();$(".b").hide();$(".c").hide();$(".d").hide();$(".e").hide();$(".f").show();$(".g").hide();$(".h").hide();$(".i").hide();$(".j").hide();
+				}else if (val == 7) {
+					$(".a").hide();$(".b").hide();$(".c").hide();$(".d").hide();$(".e").hide();$(".f").hide();$(".g").show();$(".h").hide();$(".i").hide();$(".j").hide();
+				} else if (val == 8) {
+					$(".a").hide();$(".b").hide();$(".c").hide();$(".d").hide();$(".e").hide();$(".f").hide();$(".g").hide();$(".h").show();$(".i").hide();$(".j").hide();
+				} else if (val == 9) {
+					$(".a").hide();$(".b").hide();$(".c").hide();$(".d").hide();$(".e").hide();$(".f").hide();$(".g").hide();$(".h").hide();$(".i").show();$(".j").hide();
+				} else if (val == 10) {
+					$(".a").hide();$(".b").hide();$(".c").hide();$(".d").hide();$(".e").hide();$(".f").hide();$(".g").hide();$(".h").hide();$(".i").hide();$(".j").show();
+				}
+				$('.items').each(function() {
+					$(this).removeClass('aui-active');
+				});
+				$(obj).addClass('aui-active');
+			}
+		}
+
+		var pag;
+		var cou = 0;
+		apiready = function() {
+			
+			
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					cou = 0;
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0,
+				}
+			}, function(ret, err) {
+
+			});
+		};
+	</script>
+</html>

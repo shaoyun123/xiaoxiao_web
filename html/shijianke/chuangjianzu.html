@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		</head>
+		<body>
+			<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+				<a class="aui-pull-left aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+				<div  class="aui-title  border-b"  id="title" name="richeng" style="font-size:20px;color:gray;">
+					确认信息
+				</div>
+			</header>
+			<div class="aui-content aui-margin-b-15" style="margin-top:70px;">
+				<section class="aui-grid aui-margin-b-15">
+					<div class="aui-row" id="list"></div>
+				</section>
+			</div>
+		</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin();
+		}
+
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var data = api.pageParam.data;
+			var banjiid = dataInfo.banJiID;
+			var xiaozuming = dataInfo.xingMing;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_insertxiaozu",
+				data : {
+					xueshengid : studentid,
+					kechengid : api.pageParam.shijiankechengid,
+					status : status,
+					token : token,
+					xiaozuming : xiaozuming,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+				if (data.status == 'success'||data.status == 'samename') {
+					a();
+				}
+				},
+				error : function() {
+					console.log("app_insertxiaozu");
+				}
+			})
+		};
+
+		function shuaxin() {
+			var datas = api.pageParam.data;
+			var kechengid = api.pageParam.shijiankechengid;
+			var jsfun = 'getxiaozu(' + kechengid + ');';
+			api.execScript({
+				name : 'shouye_shijianke',
+				script : jsfun
+			});
+		}
+		
+		function a() {
+			
+		var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var data = api.pageParam.data;
+//				alert($api.jsonToStr(data));
+			var html = '';
+
+			for (var i = 0; i < data.allXiaoZu.length; i++) {
+				if (data.allXiaoZu[i].zhuangTai == 1) {// 已提交
+				} else {
+					var xiaozuid = data.allXiaoZu[i].ID;
+					if (studentid == data.allXiaoZu[i].xueShengID) {
+						html += '<li style="border-bottom: 1px solid #ccc;height: 50px;line-height:50px;">';
+						html += '&nbsp&nbsp&nbsp&nbsp<span style="width:60%;" class="line-limit-length">' + data.allXiaoZu[i].xueXiZuMing + '</span>';
+						html += '<span style="color:blue;float:right;height:50px;width:20%;" onclick="tijiao('+ i +');">确定</span>';
+						html += '</li>';
+					} else {
+						html += '<li style="border-bottom: 1px solid #ccc;height: 50px;line-height:50px;">';
+						html += '&nbsp&nbsp&nbsp&nbsp<span style="width:60%;" class="line-limit-length">' + data.allXiaoZu[i].xueXiZuMing + '</span>';
+						html += '<span style="width:20%;float:right;"></span>';
+						html += '</li>';
+					}
+				}
+			}
+			$("#list").html(html);
+		}
+		
+		
+		
+		function tijiao(i) {// 组长自己提交
+			var data = api.pageParam.data;
+			var chengyuanid = data.allXiaoZu[i].chengYuanIDLieBiao;
+			var xiaozuid = data.allXiaoZu[i].ID;			
+				var dataInfo = $api.getStorage('loginDataInfo');
+				var status = dataInfo.status;
+				var studentid = dataInfo.id;
+				var banjiid = dataInfo.banJiID;
+				var token = $api.getStorage("logintoken");
+				var fendazu = $api.getStorage('fendazu');
+				var fenxiaozu = $api.getStorage('fenxiaozu');
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_submitxiaozu",
+					data : {
+						xueshengid : studentid,
+						xiaozuid : xiaozuid,
+						chengyuanid : chengyuanid,
+						status : status,
+						token : token,
+						kechengid : data.allXiaoZu[i].keChengID,
+						fendazu : fendazu,
+						fenxiaozu :　fenxiaozu,
+					},
+					dataType : 'json',
+					cache : false,
+					success : function(data) {					
+//					alert($api.jsonToStr(data));
+						if (data.status == "success") {
+							alert("提交成功");
+//							shuaxin();
+						}else if(data.status == "nodazu"){
+						alert("没有大组");
+						}else if(data.status == "full"){
+						alert("所有大组已满");
+						}
+						shuaxin();
+					},
+					error : function() {
+					console.log("app_submitxiaozu");
+					}
+				})			
+		}
+	</script>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>s_xinxiweihu</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../script/bootstrap-switch.min.js"></script>
+    <style>
+        .auiitem {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            color: #212121;
+            background-color: #ffffff;
+            position: relative;
+            min-height: 2.2rem;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            height: 34px;
+            padding: 6px 12px;
+            font-size: 17px;
+            line-height: 1.42857143;
+            color: #555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+        }
+
+        .form-control:focus {
+            border-color: #66afe9;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
+        }
+        header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light"  style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            我的社团
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">信息维护</li>
+            <form id="biao" name="biao" method="post" class="form-horizontal" style="margin-bottom: 10px;padding-top:40px;" role="form" data-toggle="validation" novalidate="novalidate">
+                <nav>
+                    <ul id="xianshi">
+                    </ul>
+                </nav>
+            </form>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 's_xinxiweihu',
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+        loadData();
+        var dataInfo = $api.getStorage('loginDataInfo');
+        var xueshengid = dataInfo.id;
+        var status = dataInfo.status;
+        var token = $api.getStorage("logintoken");
+        var shetuanid = api.pageParam.shetuanid;
+        var mingcheng = api.pageParam.mingcheng;
+        var shetuanxinxiid = api.pageParam.shetuanxinxiid;
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_ST_XinXiWeiHu",
+            data: {
+                xueshengid: xueshengid,
+                shetuanxinxiid: shetuanxinxiid,
+                status: status,
+                token: token,
+            },
+            dataType: 'json',
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                html = "";
+                var data = eval(data);
+                if (data) {
+                    if (data.shetuanid != null && data.shetuanid != "") {
+                        html += '<div class="auiitem"><div class="aui-list-item-inner"><h2 style="text-align:center;width:100%;font-size:24px;">社团信息维护</h2></div></div>';
+                        html += '<input type ="hidden" name="xueshengid" id="xueshengid" value="' + xueshengid + '"><input type ="hidden" name="status" id="status" value="' + status + '">';
+                        html += '<input type ="hidden" name="token" id="token" value="' + token + '"><input type ="hidden" name="shetuanid" id="shetuanid" value="' + shetuanid + '">';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width: 50%;border-top:1px solid #000000;border-right:1px solid #000000;border-left:1px solid #000000;text-align:center;"><font style="font-size:18px;">社团名称：' +
+                            data.mingcheng + '</font></div>';
+                        html +=
+                            '<div class="aui-list-item-inner" style="width: 50%;border-top:1px solid #000000;border-right:1px solid #000000;text-align:center;"><font style="font-size:18px;">星级：' + data.xingji +
+                            '星级</font></div></div>';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border-top:1px solid #000000;border-right:1px solid #000000;border-left:1px solid #000000;border-bottom:1px solid #000000;"><font style="font-size:18px;width:40%;">社团主页：</font><input name="zhuye"  id="zhuye" type="text" value="' +
+                            data.shetuanjieshaourl + '" style="width:60%;border:0.5px solid gray;margin:1px 10px;" /></div></div>';
+                        html += '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border-left:1px solid #000000;border-right:1px solid #000000;"><h4 style="font-size:18px;width:100%;">社团介绍:<br>';
+                        html += '<textarea  name="jieshao" id="jieshao"  class="form-control"  style="height:250px;margin-left:10px;resize:none;width:90%;">'+data.shetuanjieshao+'</textarea></h4>';
+                        html += '</div></div>';
+                        html +=
+                            '<div class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-title"></div><div class="aui-list-item-right" style="margin-right:3px;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" value="提交" onclick="tijiao()"></div></div></div></div>';
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                    $('#xianshi').html(html);
+                    api.hideProgress();
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function() {
+                alert("超时");
+            }
+        });
+    };
+
+    function tijiao() {
+        if ($("#zhuye").val() == "") {
+            alert("请填写主页地址")
+            $("#zhuye").focus();
+            return false;
+        }
+        if ($("#jieshao").val() == "") {
+            alert("请填写社团介绍")
+            $("#jieshao").focus();
+            return false;
+        }
+        var formData = new FormData($("#biao")[0]);
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_SubSheTuanXinXiWeiHu",
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                if (data) {
+                    if (data == "success") {
+                        alert("提交成功");
+                        var jsfun="weihufanhui();";
+                        api.execScript({
+                            name: 'shetuancaozuo',
+                            script: jsfun
+                        });
+                    } else {
+                        alert("提交失败");
+                        var jsfun="weihufanhui();";
+                        api.execScript({
+                            name: 'shetuancaozuo',
+                            script: jsfun
+                        });
+                    }
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function() {
+              alert("超时");
+            }
+        });
+    }
+</script>
+
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+			<!--    -->		
+	 	<title>提示用户名和密码一样</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<style>
+		</style>
+	</head>
+	<body>
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-item">
+					<div class="aui-list-item-inner">
+						<div class="aui-list-item-label">
+							密码
+						</div>
+						<div class="aui-list-item-input">
+							<input type="password" placeholder="新密码" id="pwd1">
+						</div>
+					</div>
+				</li>
+				<li class="aui-list-item">
+					<div class="aui-list-item-inner">
+						<div class="aui-list-item-label">
+							确认密码
+						</div>
+						<div class="aui-list-item-input">
+							<input type="password" placeholder="确认密码" id="pwd2">
+						</div>
+					</div>
+				</li>
+			</ul>
+			<span style="color: red" id="message" style="display: none;"></span>
+			<div class="aui-btn aui-btn-info aui-pull-left" id="next" onclick="commit()" style="width: 90%;margin-left: 16px;margin-top: 6px;">
+				确认修改
+			</div>
+			<!-- <div class="aui-btn aui-btn-info aui-pull-right" id="components" onclick="component()" style="width: 40%;margin-right: 16px;margin-top: 6px;">
+			继续登录
+			</div> -->
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+		};
+		function commit() {
+			//		alert(1111)
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var pwd1 = $("#pwd1").val();
+			var pwd2 = $("#pwd2").val();
+			var username = dataInfo.xueHao;
+			var userId = dataInfo.id;
+			var status = dataInfo.status;
+			var xuexiaoxuehao = dataInfo.xuexiao_xuehao;
+			var loginName = dataInfo.yongHuMing;
+			if (pwd1 == "" || pwd2 == "") {
+				alert("密码不能为空!");
+				api.hideProgress();
+				return;
+			}
+			if (pwd1.length < 6 || pwd1.length > 17) {
+				alert("密码长度必须在6-16之间");
+				return;
+			}
+			if (pwd1 != pwd2) {
+				alert("两次密码必须相同");
+				api.hideProgress();
+				return;
+			}
+//			var temp = '000000';
+//			if ($api.getStorage('loginstatus') == "xuesheng") {
+//				temp = username;
+//			}
+//			if (pwd1 == temp) {
+//				alert("用户名和密码不能相同!");
+//				api.hideProgress();
+//				return;
+//			}
+			var result = "";
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_updatePasswordById", //如果地址访问不到会请求出错，请填写自己的接口地址
+				data : {
+					userId : userId,
+					status : status,
+					userPassword : pwd1,
+					xuexiaoxuehao:xuexiaoxuehao,
+					loginName:loginName
+				},
+				dataType : 'json',
+				cache : false,
+				crossDomain : true,
+				timeout : 5000,
+				success : function(data) {
+					if (data.retInfo == "fail") {
+						alert("密码修改错误 请联系管理员!");
+						api.hideProgress();
+						return;
+					} else {
+						var dataInfo = $api.getStorage('loginDataInfo');
+						dataInfo.miMaMD5 = pwd1;
+						$api.setStorage('loginDataInfo',dataInfo);
+						$api.setStorage('loginPassword', pwd1);
+						var tempStr = '尊敬的' + dataInfo.xingMing + '老师：';
+						var tempCon = '';
+						if (dataInfo.status == "xuesheng") {
+							tempStr = dataInfo.xingMing + '同学：';
+						}
+						tempCon = "        您的密码已经修改成功，点击“确定”按钮将正常登录系统。";
+						api.alert({
+							title : tempStr,
+							msg : tempCon,
+							buttons : ['确定']
+						}, function(ret, err) {
+							if (ret.buttonIndex == 1) {
+								var jsfun = 'closeWin();';
+								api.execScript({
+									name : 'newpage-win',
+									script : jsfun
+								});
+								jsfun = 'toPage();';
+								api.execScript({
+									name : 'root',
+									script : jsfun
+								});
+							}
+						});
+					}
+				},
+				error : function() {
+					alert("超时！！");
+					api.hideProgress();
+				}
+			});
+		}
+
+		function component() {
+			var jsfun = 'closeWin()';
+			api.execScript({
+				name : 'newpage-win',
+				script : jsfun
+			});
+		}
+	</script>
+</html>

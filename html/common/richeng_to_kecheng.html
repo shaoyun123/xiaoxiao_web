@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>richeng_to_kecheng</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;z-index:10;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				课程表
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">
+					我的课程
+				</li>
+				<nav style="padding-top:40px;">
+					<ul id="kechengxianshi"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'richeng_to_kecheng',
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var id = api.pageParam.id;
+			var xueshengid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var code = id;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_XianShiDanMenKeCheng",
+				data : {
+					CODE : code,
+					xueshengid : xueshengid,
+					status : status,
+					token : token,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+					if (data) {
+						html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="font-size:18px;">';
+						html += '课程：' + data.kecheng.kechengmingcheng + '<br>';
+						html += '时间：' + data.kecheng.kaishishijian + '~' + data.kecheng.jieshushijian + '<br>';
+						if (data.kecheng.kaishizhou != null && data.kecheng.kaishizhou != "") {
+							if (data.kecheng.danshuangzhou == "1") {
+								html += '上课周次：' + data.kecheng.danshuangzhoushuoming + '&emsp;';
+							} else {
+								html += '上课周次：' + data.kecheng.kaishizhou + '~' + data.kecheng.jieshuzhou + '周&emsp;';
+							}
+						} else {
+							html += '上课周次：第' + data.zhou + '周&emsp;';
+						}
+						if (data.kecheng.zhouci == "1") {
+							html += '周一<br>';
+						} else if (data.kecheng.zhouci == "2") {
+							html += '周二<br>';
+						} else if (data.kecheng.zhouci == "3") {
+							html += '周三<br>';
+						} else if (data.kecheng.zhouci == "4") {
+							html += '周四<br>';
+						} else if (data.kecheng.zhouci == "5") {
+							html += '周五<br>';
+						} else if (data.kecheng.zhouci == "6") {
+							html += '周六<br>';
+						} else {
+							html += '周日<br>';
+						}
+						html += '上课节次：' + data.kecheng.kaishijieci + '~' + data.kecheng.jieshujieci + '节<br>';
+						html += '地点：' + data.kecheng.xiaoquming + ' ' + data.kecheng.jiaoshiming + '<br>';
+						html += '任课教师：' + data.kecheng.renkejiaoshi + '</div>';
+						html += '</div></div>';
+						$('#kechengxianshi').html(html);
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误");
+				}
+			});
+		};
+	</script>
+</html>

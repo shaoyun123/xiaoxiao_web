@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>x_chakanbaomingxinxi</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../script/bootstrap-switch.min.js"></script>
+    <style>
+		header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            我的社团
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">报名信息</li>
+            <nav style="padding-top:40px;">
+                <ul id="caozuo">
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        var jsfun = 'fanhui13();';
+        api.execScript({
+            name: 'shetuancaozuo',
+            script: jsfun
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var zuzhixinxiid = api.pageParam.xinxiid;
+        var xueshengid = dataInfo.id;
+        var person = new Array();
+        loadData();
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_XS_ChaKanBaoMingXinXi",
+            data: {
+                zuzhixinxiid: zuzhixinxiid,
+                xueshengid: xueshengid,
+            },
+            dataType: 'json',
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                var data = eval(data);
+                html = "";
+                if (data) {
+                    if (data.tai == "1") {
+                        if (data.naxins.length > 0) {
+                            for (var i = 0; i < data.naxins.length; i++) {
+                                person[0] = data.naxins[i].xingming;
+                                person[1] = data.naxins[i].xingbie;
+                                person[2] = data.naxins[i].chushengriqi;
+                                person[3] = data.naxins[i].lianxidianhua;
+                                person[4] = data.naxins[i].baomingbumen;
+                                person[5] = data.naxins[i].aihaotechang;
+                                person[6] = data.naxins[i].ziwojieshao;
+                                person[7] = data.naxins[i].naxingid;
+                                person[8] = data.naxins[i].zhuangtai;
+                                html += '<div class="aui-list-item"><div style="width:75%;font-size:18px;"><h4 style="font-size:18px;color:#09c6d0;">姓名：' + data.naxins[i].xingming + '</h4>';
+                                if (data.naxins[i].xingbie == "1") {
+                                    html += '<h4 style="font-size:18px;">性别：男</h4>';
+                                } else {
+                                    html += '<h4 style="font-size:18px;">性别：女</h4>';
+                                }
+                                html += '<h4 style="font-size:18px;">出生日期：' + data.naxins[i].chushengriqi + '</h4><h4 style="font-size:18px;">联系电话：' + data.naxins[i].lianxidianhua + '</h4>';
+                                if (data.naxins[i].baomingbumen != null) {
+                                    html += '<h4 style="font-size:18px;">报名部门：' + data.naxins[i].baomingbumen + '</h4>';
+                                } else {
+                                    html += '<h4 style="font-size:18px;">报名部门：</h4>';
+                                }
+                                if (data.naxins[i].zhuangtai == "0") {
+                                    html += '<h4 style="font-size:18px;">状态：待处理</h4>';
+                                } else if (data.naxins[i].zhuangtai == "1") {
+                                    html += '<h4 style="font-size:18px;">状态：已通过</h4>';
+                                } else {
+                                    html += '<h4 style="font-size:18px;">状态：被拒绝</h4>';
+                                }
+                                html += '</div>';
+                                html += '<div class="aui-list-item-inner" style="width:25%;"><div style="text-align:right;"><input type="button" class="aui-btn aui-btn-info" value="查看详情" onclick="shenhecaozuo(\'' + person +
+                                    '\')"></div></div>';
+                                html += '</div>';
+                            }
+                            $('#caozuo').html(html);
+                            api.hideProgress();
+                        } else {
+                            html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;"><h4 style="font-size:18px;">暂无报名信息</h4></div></div>';
+                            $('#caozuo').html(html);
+                            api.hideProgress();
+                        }
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function() {
+                alert("超时");
+                api.hideProgress();
+            }
+        });
+    };
+
+    function shenhecaozuo(renyuan) {
+        api.openWin({
+            name: 'x_shenhebaoming',
+            url: 'x_shenhebaoming.html',
+            pageParam: {
+                renyuan: renyuan
+            },
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+
+    function fanhui13() {
+        api.closeWin({
+            name: 'x_shenhebaoming'
+        });
+        window.location.reload();
+    }
+</script>
+
+</html>

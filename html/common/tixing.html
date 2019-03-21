@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>tixing</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;z-index: 999;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				校校
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+			<div class="aui-tab" id="tab">
+				<div class="aui-tab-item aui-active items" onclick="showData(this,'1')">
+					提醒
+				</div>
+				<div class="aui-tab-item items" onclick="showData(this,'2')">
+					新闻
+				</div>
+			</div>
+			<ul class="aui-list aui-form-list">
+				<nav >
+					<ul id="xianshi"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'tixing'
+			});
+			$api.rmStorage('loginpages');
+			$api.setStorage('addMessager_rc', '');
+			var jsfun = "youtixing();";
+			api.execScript({
+				name : "index",
+				script : jsfun
+			});
+		}
+
+		var searchStatus = '1';
+		function showData(obj, val) {
+			if (searchStatus != val) {
+				searchStatus = val;
+				$('.items').each(function() {
+					$(this).removeClass('aui-active');
+				});
+				$(obj).addClass('aui-active');
+				chushi();
+				cou = 0;
+			}
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var pag;
+		var cou = 0;
+		apiready = function() {
+			chushi();
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					cou = 0;
+					chushi();
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0,
+				}
+			}, function(ret, err) {
+				xiala();
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		};
+		function chushi() {
+			loadData();
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			if (status == "xuesheng") {
+				var id = dataInfo.id;
+				var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_XianShiTiXing",
+					data : {
+						id : id,
+						page : "",
+						xuexiaoXuehao : xuexiaoXuehao,
+						status : status,
+						token : token,
+						searchStatus : searchStatus,
+					},
+					dataType : 'json',
+					cache : false,
+					success : function(data) {
+						var data = eval(data);
+						html = "";
+						if (data) {
+							if (data.page != null && data.page != "") {
+								pag = data.page;
+								$api.setStorage('loginpages', data.pages);
+								for (var i = 0; i < data.txtzst.length; i++) {
+									if (data.txtzst[i].type != null && data.txtzst[i].type == "4") {
+										if (data.txtzst[i].zhuangtai == "0") {
+											html += '<div class="aui-list-item" style="height:60px;" id="' + data.txtzst[i].id + 'div' + data.txtzst[i].type + '"><div style="width:80%;" onclick="chakannew(\'' + data.txtzst[i].id + '\',\'' + data.txtzst[i].type + '\')">';
+											html += '<div><p id="' + data.txtzst[i].id + '_' + data.txtzst[i].type + '" style="font-size:18px;color:#ec344d;">(未读)：</p><p style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + data.txtzst[i].title + '</p></div>';
+											html += '</div><div class="aui-list-item-inner" style="width:20%;" onclick="chakannew(\'' + data.txtzst[i].id + '\',\'' + data.txtzst[i].type + '\')"></div></div>';
+										} else {
+											html += '<div class="aui-list-item" style="height:60px;" id="' + data.txtzst[i].id + 'div' + data.txtzst[i].type + '"><div style="width:80%;" onclick="chakannew(\'' + data.txtzst[i].id + '\',\'' + data.txtzst[i].type + '\')">';
+											html += '<div><p id="' + data.txtzst[i].id + '_' + data.txtzst[i].type + '" style="font-size:18px;">(已读)：</p><p style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + data.txtzst[i].title + '</p></div>';
+											html += '</div><div class="aui-list-item-inner" style="width:20%;" onclick="chakannew(\'' + data.txtzst[i].id + '\',\'' + data.txtzst[i].type + '\')"></div></div>';
+										}
+									} else {
+										if (data.txtzst[i].zhuangtai == "0") {
+											html += '<div class="aui-list-item" style="height:60px;" id="' + data.txtzst[i].id + 'div2"><div style="width:80%;" onclick="chakan(\'' + data.txtzst[i].id + '\',\'' + id + '\',\'' + data.txtzst[i].xingming + '\',\'' + data.txtzst[i].type + '\')">';
+											html += '<div><p id="' + data.txtzst[i].id + '_' + data.txtzst[i].type + '" style="font-size:18px;color:#ec344d;">(未读)' + data.txtzst[i].xingming + '：</p><p style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + data.txtzst[i].title + '</p></div>';
+											html += '</div><div class="aui-list-item-inner" style="width:20%;"><input type="button" class="aui-btn aui-btn-info" value="删除" onclick="shanchu(\'' + data.txtzst[i].id + '\',\'2\')"></div></div>';
+										} else {
+											html += '<div class="aui-list-item" style="height:60px;" id="' + data.txtzst[i].id + 'div2"><div style="width:80%;" onclick="chakan(\'' + data.txtzst[i].id + '\',\'' + id + '\',\'' + data.txtzst[i].xingming + '\',\'' + data.txtzst[i].type + '\')">';
+											html += '<div><p id="' + data.txtzst[i].id + '_' + data.txtzst[i].type + '" style="font-size:18px;">(已读)' + data.txtzst[i].xingming + '：</p><p style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + data.txtzst[i].title + '</p></div>';
+											html += '</div><div class="aui-list-item-inner" style="width:20%;"><input type="button" class="aui-btn aui-btn-info" value="删除" onclick="shanchu(\'' + data.txtzst[i].id + '\',\'2\')"></div></div>';
+										}
+									}
+								}
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+						$('#xianshi').html(html);
+						api.hideProgress();
+					},
+					error : function() {
+						alert("错误002");
+						api.hideProgress();
+					}
+				});
+			} else if (status == "fudaoyuan") {
+				var id = dataInfo.id;
+			} else if (status == "jiaoshi") {
+				var id = dataInfo.id;
+			}
+		}
+
+		function xiala() {
+			var zong = $api.getStorage("loginpages");
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			if (status == "xuesheng") {
+				var id = dataInfo.id;
+				var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+				if (pag < zong) {
+					pag = pag + 1;
+					loadData();
+					$.ajax({
+						type : "POST",
+						url : $api.getStorage('serverUrl') + "app_XianShiTiXing",
+						data : {
+							id : id,
+							page : pag,
+							xuexiaoXuehao : xuexiaoXuehao,
+							status : status,
+							token : token,
+							searchStatus : searchStatus,
+						},
+						dataType : 'json',
+						cache : false,
+						success : function(data) {
+							var data = eval(data);
+							html = "";
+							if (data) {
+								if (data.page != null && data.page != "") {
+									for (var i = 0; i < data.txtzst.length; i++) {
+										if (data.txtzst[i].type != null && data.txtzst[i].type == "4") {
+											if (data.txtzst[i].zhuangtai == "0") {
+												html += '<div class="aui-list-item" style="height:60px;" id="' + data.txtzst[i].id + 'div' + data.txtzst[i].type + '"><div style="width:80%;" onclick="chakannew(\'' + data.txtzst[i].id + '\',\'' + data.txtzst[i].type + '\')">';
+												html += '<div><p id="' + data.txtzst[i].id + '_' + data.txtzst[i].type + '" style="font-size:18px;color:#ec344d;">(未读)：</p><p style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + data.txtzst[i].title + '</p></div>';
+												html += '</div><div class="aui-list-item-inner" style="width:20%;" onclick="chakannew(\'' + data.txtzst[i].id + '\',\'' + data.txtzst[i].type + '\')"></div></div>';
+											} else {
+												html += '<div class="aui-list-item" style="height:60px;" id="' + data.txtzst[i].id + 'div' + data.txtzst[i].type + '"><div style="width:80%;" onclick="chakannew(\'' + data.txtzst[i].id + '\',\'' + data.txtzst[i].type + '\')">';
+												html += '<div><p id="' + data.txtzst[i].id + '_' + data.txtzst[i].type + '" style="font-size:18px;">(已读)：</p><p style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + data.txtzst[i].title + '</p></div>';
+												html += '</div><div class="aui-list-item-inner" style="width:20%;" onclick="chakannew(\'' + data.txtzst[i].id + '\',\'' + data.txtzst[i].type + '\')"></div></div>';
+											}
+										} else {
+											if (data.txtzst[i].zhuangtai == "0") {
+												html += '<div class="aui-list-item" style="height:60px;" id="' + data.txtzst[i].id + 'div2"><div style="width:80%;" onclick="chakan(\'' + data.txtzst[i].id + '\',\'' + id + '\',\'' + data.txtzst[i].xingming + '\',\'' + data.txtzst[i].type + '\')">';
+												html += '<div><p id="' + data.txtzst[i].id + '_' + data.txtzst[i].type + '" style="font-size:18px;color:#ec344d;">(未读)' + data.txtzst[i].xingming + '：</p><p style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + data.txtzst[i].title + '</p></div>';
+												html += '</div><div class="aui-list-item-inner" style="width:20%;"><input type="button" class="aui-btn aui-btn-info" value="删除" onclick="shanchu(\'' + data.txtzst[i].id + '\',\'' + data.txtzst[i].type + '\')"></div></div>';
+											} else {
+												html += '<div class="aui-list-item" style="height:60px;" id="' + data.txtzst[i].id + 'div2"><div style="width:80%;" onclick="chakan(\'' + data.txtzst[i].id + '\',\'' + id + '\',\'' + data.txtzst[i].xingming + '\',\'' + data.txtzst[i].type + '\')">';
+												html += '<div><p id="' + data.txtzst[i].id + '_' + data.txtzst[i].type + '" style="font-size:18px;">(已读)' + data.txtzst[i].xingming + '：</p><p style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + data.txtzst[i].title + '</p></div>';
+												html += '</div><div class="aui-list-item-inner" style="width:20%;"><input type="button" class="aui-btn aui-btn-info" value="删除" onclick="shanchu(\'' + data.txtzst[i].id + '\',\'' + data.txtzst[i].type + '\')"></div></div>';
+											}
+										}
+									}
+								}
+							} else {
+								alert("已登出");
+								api.hideProgress();
+								var jsfun = 'logout();';
+								api.execScript({
+									name : 'index',
+									script : jsfun
+								});
+							}
+							$('#xianshi').append(html);
+							api.hideProgress();
+						},
+						error : function() {
+							alert("错误002");
+							api.hideProgress();
+						}
+					});
+				} else {
+					if (cou == 0) {
+						html = $("#xianshi").html();
+						if (zong == 1) {
+							html += '<h4 style="text-align:center;position:fixed;bottom:0px;height:15px;width:100%;font-size:12px;">已到最底端，没有更多数据</h4>';
+						} else {
+							html += '<h4 style="text-align:center;bottom:0px;height:10px;width:100%;">已到最底端，没有更多数据</h4>';
+						}
+						$('#xianshi').html(html);
+						cou = cou + 1;
+					}
+				}
+			} else if (status == "fudaoyuan") {
+				var id = dataInfo.id;
+			} else if (status == "jiaoshi") {
+				var id = dataInfo.id;
+			}
+		}
+
+		function chakan(id, jieshourenid, xingming, type) {
+			$('#' + id + '_' + type).html('(已读)：' + xingming);
+			document.getElementById(id + '_' + type).style.color = "gray";
+			api.openWin({
+				name : 'tixingxiangqing',
+				url : 'tixingxiangqing.html',
+				pageParam : {
+					id : id,
+					jieshourenid : jieshourenid,
+					xingming : xingming,
+					type : type,
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function chakannew(id, type) {
+			$('#' + id + '_' + type).html('(已读)：');
+			document.getElementById(id + '_' + type).style.color = "gray";
+			api.openWin({
+				name : 'tixingxiangqing',
+				url : 'tixingxiangqing.html',
+				pageParam : {
+					id : id,
+					type : type,
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function cfm() {
+			if (confirm("确认删除？") == true) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function shanchu(id, type) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			if (status == "xuesheng") {
+				var ids = dataInfo.id;
+			} else if (status == "fudaoyuan") {
+				var ids = dataInfo.id;
+			} else if (status == "jiaoshi") {
+				var ids = dataInfo.id;
+			}
+			var code = ids + ',zytech,' + status;
+			var tempId = id + "div" + type;
+			if (cfm()) {
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_DeleteTiXing",
+					data : {
+						CODE : id,
+						key : code,
+						token : token,
+					},
+					dataType : 'text',
+					cache : false,
+					timeout : 5000,
+					async : true,
+					success : function(data) {
+						if (data == "success") {
+							$("#" + tempId).remove();
+						} else if (data == "dengchu") {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						} else {
+							alert("删除失败！");
+						}
+					},
+					error : function() {
+						alert("登录超时！")
+					}
+				});
+			}
+		}
+
+		function fanhuii() {
+			api.closeWin({
+				name : 'tixingxiangqing',
+			});
+		}
+
+		function fanhuitotixingxq() {
+			window.location.reload();
+		}
+	</script>
+</html>

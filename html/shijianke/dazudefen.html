@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/c ss" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			.aui-list .aui-list-item-media {
+				width: 6rem;
+			}
+		</style>
+	</head>
+	<body>
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				详情
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="padding-top:70px;">
+			<ul class="aui-list aui-form-list">
+				<div class="aui-content" id="menu_mun">
+					<ul class="aui-list aui-media-list" id="appContent"></ul>
+				</div>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'dazudefen'
+			});
+		}
+
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var datas = api.pageParam.data;
+//			alert($api.jsonToStr(datas));
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getdazu",
+				data : {
+					xueshengid : studentid,
+					status : status,
+					token : token,
+					kaopingid : datas.qiandaoxinxi.chouqian.kaoPingID,
+					kechengid : datas.keChengID,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+//						alert($api.jsonToStr(data));
+					var html = '';
+					for (var i = 0; i < data.dazuxinxi.length; i++) {
+						if (data.dazuxinxi[i].chouqian.zhuangTai == 4) {
+							html += '<li class="aui-list-item" style="height:60px;line-height:60px;" onclick="show(' + data.dazuxinxi[i].ID + ')">';
+							html += '<div style="display:inline;">';
+							html += '<div class="aui-font-size-18">' + data.dazuxinxi[i].zuMingCheng + '</div>';
+							html += '</div>';
+							html += '</li>';
+						} else {
+						}
+					}
+					$("#appContent").html(html);
+				},
+				error : function(data) {
+					alert("err");
+				}
+			});
+		};
+		function show(dazuid) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var fendazu = $api.getStorage("fendazu");
+			var token = $api.getStorage("logintoken");
+			var datas = api.pageParam.data;
+			$.ajax({
+				type : "POST", 
+				url : $api.getStorage('serverUrl') + "app_score",  // 获取所有考评，考评下的所有大组，大组下的所有小组，各小组详细信息，得分，扣分，演讲人，照片等
+				data : {
+					xueshengid : studentid,
+					status : status,
+					token : token,
+					kaopingid : datas.qiandaoxinxi.chouqian.kaoPingID,
+					kechengid : datas.keChengID,
+					dazuid : dazuid,
+					fendazu : fendazu,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+//						alert($api.jsonToStr(data));
+					if (data) {
+						api.openWin({
+							name : 'allkaoping',
+							url : 'allkaoping.html',
+							pageParam : {
+								data : data,
+								kaopingid : datas.qiandaoxinxi.chouqian.kaoPingId,
+							},
+							reload : true,
+							allowEdit : true
+						});
+					}
+				},
+				error : function(data) {
+					console.log("app_score");
+				}
+			});
+		}
+	</script>
+</html>

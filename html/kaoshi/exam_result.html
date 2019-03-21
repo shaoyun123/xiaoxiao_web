@@ -1,0 +1,530 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/style1.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css"/>
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<script type="text/javascript" src="../../script/jquery.runner-min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap.min.js"></script>
+		<style>
+			input, textarea {
+				-webkit-user-select: auto !important;
+				-khtml-user-select: auto !important;
+				-moz-user-select: auto !important;
+				-ms-user-select: auto !important;
+				-o-user-select: auto !important;
+				user-select: auto !important;
+			}
+			.funkyradio-info {
+				margin: 5px;
+			}
+			.funkyradio-info label {
+				display: inline-block;
+				text-align: left;
+				position: relative;
+			}
+			.funkyradio-info label input {
+				width: 15px;
+				vertical-align: bottom;
+				margin-right: 0.1 rem;
+				opacity: 0;
+			}
+			.funkyradio-info .spot {
+				display: inline-block;
+				width: 20px;
+				height: 20px;
+				background: url("../../image/mrdh.png") no-repeat; /*默认的样式图片*/
+				background-size: 16px;
+				position: absolute;
+				top: 0.2 rem;
+				left: 0;
+				z-index: 5;
+			}
+			input:checked + .spot {
+				width: 20px;
+				height: 20px;
+				background: url("../../image/dh.png") no-repeat; /*选中后的样式图片*/
+				background-size: 19px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-bottom: 10px;">
+				<a class="aui-btn aui-pull-left" onclick="goback()"> <span class="aui-iconfont aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+				<div  class="aui-title " style="color:black;font-size:20px;" id="title" name="richeng">
+					考试结果
+				</div>
+			</header>
+			<div id="xianshi" onclick="" class="flex-con"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			var jsfun = 'funIniGroup()';
+			api.execScript({
+				name : 'shouye_kaoshi',
+				script : jsfun
+			});
+			api.closeWin();
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			loadData();
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			init_quiz_object();
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		}
+		function funIniGroup() {
+			var examstatus = api.pageParam.examstatus;
+			var examway = api.pageParam.examway;
+			var examzhuangtai = api.pageParam.examzhuangtai;
+			var examfangshi = api.pageParam.examfangshi;
+			var html = '';
+			html += '<div class="row">';
+			html += '<div class="col-lg-12"> ';
+			html += '<div class="panel panel-default">';
+			html += '<div class="panel-heading">';
+			html += '<div class="exam-title">';
+			html += '题目  ';
+			html += '</div>';
+			html += '</div>';
+			html += '<div class="panel-body">';
+			html += '<div class="alert alert-info">';
+			html += '<div class="exam-question"> ';
+			html += '考题题目 ';
+			html += '</div>';
+			html += '</div>';
+			html += '<div class="panel panel-default">';
+			html += '<div class="panel-heading">';
+			html += '<div class="exam-choice-title">';
+			html += '题目选项 ';
+			html += '</div>';
+			html += '</div>';
+			html += '<div class="panel-body">';
+			html += '<div class="exam-choice">';
+			html += '<textarea id="wenda" disabled="disabled" style="width: 100%;height: 200px;display:none;color:#000;" placeholder="请输入答案"></textarea>';
+			html += '<div id="tk">';
+			html += '<div id="tk1" class="tks" style="display:none;">①<input disabled="disabled" id="tks1" name="tk" style="border-bottom:1px solid #000;width:100%;color:#000;"></input></div>';
+			html += '<div id="tk2" class="tks" style="display:none;">②<input disabled="disabled" id="tks2" name="tk" style="border-bottom:1px solid #000;width:100%;color:#000;"></input></div>';
+			html += '<div id="tk3" class="tks" style="display:none;">③<input disabled="disabled" id="tks3" name="tk" style="border-bottom:1px solid #000;width:100%;color:#000;"></input></div>';
+			html += '<div id="tk4" class="tks" style="display:none;">④<input disabled="disabled" id="tks4" name="tk" style="border-bottom:1px solid #000;width:100%;color:#000;"></input></div>';
+			html += '<div id="tk5" class="tks" style="display:none;">⑤<input disabled="disabled" id="tks5" name="tk" style="border-bottom:1px solid #000;width:100%;color:#000;"></input></div>';
+			html += '</div>';
+			html += '<div class="funkyradio">';
+			// 多选
+			html += '<div class="funkyradio-infos radios1" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox1" value="1" disabled="disabled" /> A&nbsp&nbsp';
+			html += '<label for="radio1" id="radio111">A 选项</label>';
+			html += '</div>';
+			html += '<div class="funkyradio-infos radios2" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox2" value="2" disabled="disabled" /> B&nbsp&nbsp';
+			html += '<label for="radio2" id="radio222">B 选项</label>';
+			html += '</div>';
+			html += '<div class="funkyradio-infos radios3" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox3" value="3" disabled="disabled" /> C&nbsp&nbsp';
+			html += '<label for="radio3" id="radio333">C 选项</label>';
+			html += '</div>';
+			html += '<div class="funkyradio-infos radios4" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox4" value="4" disabled="disabled" /> D&nbsp&nbsp';
+			html += '<label for="radio4" id="radio444">D 选项</label>';
+			html += '</div>';
+			html += '<div class="funkyradio-infos radios5" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox5" value="5" disabled="disabled" /> E&nbsp&nbsp';
+			html += '<label for="radio5" id="radio555">C 选项</label>';
+			html += '</div>';
+			html += '<div class="funkyradio-infos radios6" style="display:none;">';
+			html += '<input type="checkbox" name="radios" id="checkbox6" value="6" disabled="disabled" /> F&nbsp&nbsp';
+			html += '<label for="radio6" id="radio666">D 选项</label>';
+			html += '</div>';
+			html += '<div style="display:none;" class="pds radio1 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio0" value="0" disabled="disabled"/> A&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio1" id="radio11"></span>';
+			html += '</label></div>';
+			html += '<div style="display:none;" class="pds radio2 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio1" value="1" disabled="disabled"/> B&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio2" id="radio22"></span>';
+			html += '</label></div>';
+			html += '<div style="display:none;" class="pd radio3 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio2" value="2" disabled="disabled"/> C&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio3" id="radio33"></span>';
+			html += '</label></div>';
+			html += '<div style="display:none;" class="pd radio4 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio3" value="3" disabled="disabled"/> D&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio4" id="radio44"></span>';
+			html += '</label></div>';
+			html += '<div style="display:none;" class="pd radio5 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio4" value="4" disabled="disabled"/> E&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio5" id="radio55"></span>';
+			html += '</label></div>';
+			html += '<div style="display:none;" class="pd radio6 funkyradio-info"><label>';
+			html += '<input type="radio" name="radio" id="radio5" value="5" disabled="disabled"/> F&nbsp&nbsp';
+			html += '<i class="spot"></i><span for="radio6" id="radio66"></span>';
+			html += '</label></div>';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			html += '<div class="panel panel-default">';
+			html += '<div class="panel-heading">';
+			html += '题目操作';
+			html += '</div>';
+			html += '<div class="panel-body">';
+			html += '<button type="button" class="btn btn-outline btn-primary btn-lg btn-block btn-success" onclick="pre()">上一题   ';
+			html += '</button>';
+			html += '<button type="button" class="btn btn-outline btn-primary btn-lg btn-block btn-success" onclick="next()">下一题';
+			html += '</button>';
+			html += '<button type="button" class="btn btn-outline btn-primary btn-lg btn-block btn-success" onclick="toIndex()">返回首页 ';
+			html += '</button>';
+			if (examfangshi == 2 && examzhuangtai == 1) {
+				html += '<button type="button" class="btn btn-outline btn-primary btn-lg btn-block btn-danger" data-toggle="modal" data-target="#new-exam">重新考试 ';
+				html += '</button>';
+			}
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+			if (examfangshi == 2 && examzhuangtai == 1) {
+				html += '<div class="modal fade" id="new-exam" tabindex="-1" role="dialog" aria-labelledby="new-exam-label" aria-hidden="true">';
+				html += '<div class="modal-dialog">';
+				html += '<div class="modal-content">';
+				html += '<div class="modal-header">';
+				html += '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">';
+				html += '&times;';
+				html += '</button>';
+				html += '<h4 class="modal-title" id="new-exam-label">';
+				html += '申请重新考试 ';
+				html += '</h4>';
+				html += '</div>';
+				html += '<div class="modal-body">';
+				html += '重新考试将会删除您就的考试答卷，并重新生成新卷进行考试。您已经获得的分数将会消失，成绩以新考试的成绩为主。是否进行重新考试？';
+				html += '</div>';
+				html += '<div class="modal-footer">';
+				html += '<button type="button" class="btn btn-default" data-dismiss="modal">关闭 ';
+				html += '</button>';
+				html += '<button type="button" class="btn btn-danger" onclick="GetExam()">';
+				html += '重新考试 ';
+				html += '</button>';
+				html += '</div>';
+				html += '</div>';
+				html += '</div>';
+				html += '</div> ';
+			}
+			$("#xianshi").html(html);
+		}
+
+		var quiz;
+		var i = -1;
+		function init_quiz_object() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xingming = dataInfo.xingMing;
+			var id = dataInfo.id;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var kaoshiid = api.pageParam.kaoshiid;
+			var kaoshixueshengid = api.pageParam.kaoshixueshengid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getcontent",
+				data : {
+					kaoshiid : kaoshiid,
+					xueshengid : id,
+					kaoshixueshengid : kaoshixueshengid,
+					status : status,
+					token : token,
+					ischongkao : 'yes',
+				},
+				cache : false,
+				dataType : 'json',
+				success : function(data) {
+					quiz = data;
+					funIniGroup();
+					next();
+					api.hideProgress();
+				},
+				error : function() {
+					setTimeout(function() {
+						init_quiz_object();
+					}, 5000);
+				}
+			})
+		}
+
+		function xianshi() {
+			var kaoti = quiz.kaoti[i];
+			var neirong = kaoti.kaotineirong;
+			if (kaoti.leixing == 1) {
+				var timus = neirong.split("zqxj");
+				var len = timus.length - 2;
+				for (var y = 1; y < timus.length - 1; y++) {
+					var timu = timus[0];
+					$('.exam-title').text("题目（单选题）");
+					$('.exam-question').html(timu);
+					$('.exam-choice-title').text('以下选项只有一个为正确选项');
+					$(".funkyradio").css("display", "block");
+					$("#wenda").css("display", "none");
+					$(".radio" + y).css("display", "block");
+					$(".funkyradio-infos").css("display", "none");
+					$("#tk").css("display", "none");
+					$('#radio' + y + y).text(timus[y]);
+				}
+			} else if (kaoti.leixing == 2) {
+				var timus = neirong.split("zqxj");
+				for (var y = 1; y < timus.length - 1; y++) {
+					var timu = timus[0];
+					$('.exam-title').text("题目（多选题）");
+					$('.exam-question').html(timu);
+					$('.exam-choice-title').text('以下选项中有一个或者多个为正确选项');
+					$("#wenda").css("display", "none");
+					$("#tk").css("display", "none");
+					$(".radios" + y).css("display", "block");
+					$(".funkyradio-info").css("display", "none");
+					$('#radio' + y + y + y).text(timus[y]);
+				}
+			} else if (kaoti.leixing == 3) {
+				$('.exam-title').text("题目（填空题）");
+				$(".funkyradio").css("display", "none");
+				$("#tk").css("display", "block");
+				var tktimus = neirong.split("qzxj");
+				var tktimu = '';
+				var shuzi = ['①', '②', '③', '④', '⑤'];
+				var sz = 0;
+				for (var y = 0; y < tktimus.length - 1; y++) {
+					if (y % 2 == 0) {
+						tktimu += tktimus[y];
+					} else {
+						tktimus[y] = '__' + shuzi[sz++] + '__';
+						tktimu += tktimus[y];
+						$("#tk" + sz).css("display", "block");
+						for (var szs = 5; szs > sz; szs--) {
+							$("#tk" + szs).css("display", "none");
+						}
+					}
+					$('.exam-question').html(tktimu);
+					$('.exam-choice-title').text('请在对应的位置填上正确答案');
+					$("#wenda").css("display", "none");
+				}
+			} else if (kaoti.leixing == 4) {
+				$('.exam-title').text("题目（判断题）");
+				$('.exam-question').html(neirong);
+				// 考题题目
+				$('.exam-choice-title').text('判断题目说法的正确性');
+				// 题目选项
+				$(".funkyradio").css("display", "block");
+				$(".funkyradio-info").css("display", "block");
+				$("#tk").css("display", "none");
+				$(".funkyradio-infos").css("display", "none");
+				$('.pd').css("display", "none");
+				$("#wenda").css("display", "none");
+				$(".pds").css("display", "block");
+				$('#radio11').text('错误');
+				$('#radio22').text('正确');
+			} else if (kaoti.leixing == 7) {
+				$("#tk").css("display", "none");
+				$('.exam-title').text("题目（问答题）");
+				$(".funkyradio").css("display", "none");
+				$('.exam-question').html(neirong);
+				$('.exam-choice-title').text('请在该区域作答');
+				$("#wenda").css("display", "block");
+			}
+		}
+
+		function next() {
+			if (i >= quiz.kaoti.length - 1) {
+				alert('已经是最后一题了');
+			} else {
+				i++;
+				var leixing = quiz.kaoti[i].leixing;
+				if (leixing == 1 || leixing == 4) {
+					$("input[name='radio']").attr("checked", false);
+					var historydaan = quiz.kaoti[i].item[2];
+					$("#radio" + historydaan).prop("checked", true);
+				} else if (leixing == 2) {
+					$("input[name='radios']").attr("checked", false);
+					var historydaan = quiz.kaoti[i].item[2].split('');
+					for (var x = 0; x < 6; x++) {
+						if (historydaan[x] == 1)
+							$("#checkbox" + (x + 1)).prop("checked", true);
+					}
+				} else if (leixing == 3) {
+					var t = quiz.kaoti[i].item[2];
+					var kongge = t.split("qzxj")[0];
+					for (var ii = 0; ii < kongge; ii++) {
+						var iii = ii, iiii = ii;
+						iii++;
+						iiii += 3;
+						var daan = quiz.kaoti[i].item[iiii]
+						var daans = daan.split('zqjx')[0];
+						$("#tks" + iii).val(changeHtmlToString(daans));
+					}
+				} else if (leixing == 7) {
+					//				alert($api.jsonToStr(quiz.kaoti[i]));
+					var daan = quiz.kaoti[i].item[3]
+					var daans = daan.split('qzxj')[1];
+					$("#wenda").val(changeHtmlToString(daans));
+				}
+				xianshi();
+			}
+		}
+
+		function pre() {
+			if (i <= 0) {
+				alert('已经是第一题了');
+			} else {
+				i--;
+				var leixing = quiz.kaoti[i].leixing;
+				if (leixing == 1 || leixing == 4) {
+					$("input[name='radio']").attr("checked", false);
+					var historydaan = quiz.kaoti[i].item[2];
+					$("#radio" + historydaan).prop("checked", true);
+				} else if (leixing == 2) {
+					$("input[name='radios']").attr("checked", false);
+					var historydaan = quiz.kaoti[i].item[2].split('');
+					for (var x = 0; x < 6; x++) {
+						if (historydaan[x] == 1)
+							$("#checkbox" + (x + 1)).prop("checked", true);
+					}
+				} else if (leixing == 3) {
+					var t = quiz.kaoti[i].item[2];
+					var kongge = t.split("qzxj")[0];
+					for (var ii = 0; ii < kongge; ii++) {
+						var iii = ii, iiii = ii;
+						iii++;
+						iiii += 3;
+						var daan = quiz.kaoti[i].item[iiii]
+						var daans = daan.split('zqjx')[0];
+						$("#tks" + iii).val(changeHtmlToString(daans));
+					}
+				} else if (leixing == 7) {
+					var daan = quiz.kaoti[i].item[4]
+					var daans = daan.split('qzxj')[0];
+					$("#wenda").val(changeHtmlToString(daans));
+				}
+				xianshi();
+			}
+		}
+
+		function end() {
+			var kaoshiid = api.pageParam.kaoshiid;
+			var jsfun = 'GetExam(' + kaoshiid + ')';
+			api.execScript({
+				name : 'shouye_kaoshi',
+				frameName : 'kaoshi_frm',
+				script : jsfun
+			});
+		}
+
+		function GetExam() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xingming = dataInfo.xingMing;
+			var id = dataInfo.id;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var kaoshiid = api.pageParam.kaoshiid;
+			var kaoshixueshengid = api.pageParam.kaoshixueshengid;
+			var xuehao = dataInfo.xueHao;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_chongkao",
+				data : {
+					kaoshiid : kaoshiid,
+					kaoshixueshengid : kaoshixueshengid,
+					xueshengid : id,
+					status : status,
+					token : token,
+					xuehao : xuehao,
+					banjiid : api.pageParam.banjiid,
+				},
+				cache : false,
+				dataType : 'json',
+				success : function(data) {
+					end();
+				},
+				error : function() {
+					alert("系统故障，请重试");
+				}
+			})
+		}
+
+		function toIndex() {
+			api.openWin({
+				name : 'shouye_kaoshi',
+				url : "./kaoshi_title.html",
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function changeHtmlToString(str) {
+			var rega = new RegExp("&amp;", "g");
+			var regb = new RegExp("&lt;", "g");
+			var regc = new RegExp("'", "g");
+			var regd = new RegExp("&gt;", "g");
+			var rege = new RegExp("&quot;", "g");
+			var regf = new RegExp("&nbsp;", "g");
+			var regg = new RegExp("&acute;", "g");
+			var regh = new RegExp("<P.*?>", "g");
+			var regi = new RegExp("<span.*?>", "g");
+			var regj = new RegExp("</span>", "g");
+			var regk = new RegExp("&#8212;", "g");
+			var regl = new RegExp("&#8216;", "g");
+			var regm = new RegExp("&#8217;", "g");
+			var regn = new RegExp("&#8220;", "g");
+			var rego = new RegExp("&#8221;", "g");
+			var regp = new RegExp("&#8230;", "g");
+			var regq = new RegExp("&#8240;", "g");
+			var regr = new RegExp("<br />", "g");
+			var regs = new RegExp("<br/>", "g");
+			var regt = new RegExp("<br>", "g");
+			str = str.toString().replace(rega, "&");
+			str = str.toString().replace(regb, "<");
+			str = str.toString().replace(regc, "kjdssdjk");
+			str = str.toString().replace(regd, ">");
+			str = str.toString().replace(rege, "\"");
+			str = str.toString().replace(regf, " ");
+			str = str.toString().replace(regg, "´");
+			str = str.toString().replace(regh, "<P>");
+			str = str.toString().replace(regh, "<p>");
+			str = str.toString().replace(regi, "");
+			str = str.toString().replace(regg, "");
+			str = str.toString().replace(regk, "—");
+			str = str.toString().replace(regl, "‘");
+			str = str.toString().replace(regm, "’");
+			str = str.toString().replace(regn, "“");
+			str = str.toString().replace(rego, "”");
+			str = str.toString().replace(regp, "…");
+			str = str.toString().replace(regq, "‰");
+			str = str.toString().replace(regr, "<br/>");
+			str = str.toString().replace(regs, "\n");
+			str = str.toString().replace(regt, "\n");
+			return str;
+		}
+	</script>
+</html>

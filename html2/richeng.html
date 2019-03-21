@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>shouye_richeng</title>
+		<link rel="stylesheet" type="text/css" href=" ../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				日程
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="background-color: #fffff1;padding-top:90px;text-align: center;">
+			<div class="aui-col-xs-4 aui-col-sm-4">
+				<i><img  src="../image/wodekecheng.png" style="width:35%;height:60px;border-radius:50%;" onclick="xuanze(1)"></i>
+				<div class="aui-grid-label">
+					我的课程
+				</div>
+			</div>
+			<div class="aui-col-xs-4 aui-col-sm-4">
+				<i><img  src="../image/historykecheng.png" style="width:35%;height:60px;border-radius:50%;" onclick="xuanze3()"></i>
+				<div class="aui-grid-label">
+					历史课程
+				</div>
+			</div>
+			<div class="aui-col-xs-4 aui-col-sm-4">
+				<i><img  src="../image/wodericheng.png" style="width:35%;height:60px;border-radius:50%;" onclick="xuanze(2)"></i>
+				<div class="aui-grid-label">
+					我的日程
+				</div>
+			</div>
+			<div class="aui-col-xs-4 aui-col-sm-4">
+				<i><img  src="../image/beiwanglu.png" 	style="width:35%;height:60px;border-radius:50%;" onclick="xuanze(3)"></i>
+				<div class="aui-grid-label">
+					我的事件
+				</div>
+			</div>
+			<div class="aui-col-xs-4 aui-col-sm-4">
+				<i><img  src="../image/historyhuodong.png" style="width:35%;height:60px;border-radius:50%;" onclick="xuanze2()"></i>
+				<div class="aui-grid-label">
+					历史活动
+				</div>
+			</div>
+			<section class="aui-grid aui-margin-b-15">
+				<div class="aui-row" id="menu_mun" style="background: rgb(245,245,245);"></div>
+			</section>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'shouye_richeng'
+			});
+			api.execScript({
+				name : 'index',
+			});
+		}
+
+		apiready = function() {
+			
+		};
+		function xuanze(action) {
+			if (action == "1") {
+				api.openWin({
+					name : 'wodekechengtitle',
+					url : "wodekecheng.html",
+					reload : true,
+					allowEdit : true
+				});
+			} else if (action == "2") {
+				api.openWin({
+					name : 'wodericheng',
+					url : "wodericheng.html",
+					reload : true,
+					allowEdit : true
+				});
+			} else if (action == "3") {
+				api.openWin({
+					name : 'mybeiwanglu',
+					url : 'wodebeiwanglu.html',
+					reload : true,
+					allowEdit : true
+				});
+			}
+		}
+
+		function xuanze2() {
+			api.openWin({
+				name : 'historyhuodong',
+				url : "lishihuodong.html",
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function xuanze3() {
+			api.openWin({
+				name : 'historykecheng_title',
+				url : "lishikecheng.html",
+				reload : true,
+				allowEdit : true
+			});
+		}
+	</script>
+</html>

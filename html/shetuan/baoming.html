@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>baoming</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+    <style>
+        .auiitem {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            color: #212121;
+            background-color: #ffffff;
+            position: relative;
+            min-height: 2.2rem;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            height: 34px;
+            padding: 6px 12px;
+            font-size: 17px;
+            line-height: 1.42857143;
+            color: #555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+        }
+
+        .form-control:focus {
+            border-color: #66afe9;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
+        }
+        header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            学生社团
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">社团报名</li>
+            <form id="biao" name="biao" method="post" class="form-horizontal" style="margin-bottom: 10px;padding-top:40px;" role="form" data-toggle="validation" novalidate="novalidate">
+                <nav>
+                    <ul id="baomingbiao">
+                    </ul>
+                </nav>
+            </form>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'baoming',
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        loadData();
+        var xueshengid = dataInfo.id;
+        var idx = api.pageParam.idx;
+        var xingming = dataInfo.xingMing;
+        var xuexiaoxuehao = dataInfo.xuexiao_xuehao;
+        var code = xueshengid + ',zytech,' + xuexiaoxuehao;
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_BaoMing",
+            data: {
+                CODE: code,
+                idx: idx,
+            },
+            dataType: 'json',
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                var data = eval(data);
+                html = "";
+                if (data) {
+                    if (data.key == 1) {
+                        html += '<div class="auiitem"><div class="aui-list-item-inner"><h2 style="text-align:center;width:100%;font-size:24px;">' + data.jibenxinxi.mingcheng + '报名表</h2></div></div>';
+                        html += '<input type ="hidden" name="leixing" id="leixing" value="0"><input type="hidden" name="xueshengzuzhixinxiid" id="xueshengzuzhixinxiid" value="' + data.xinxi.xueshengzuzhixinxiid + '">';
+                        html += '<input type ="hidden" name="xingming" id="xingming" value="'+xingming+'"><input type ="hidden" name="xueshengid" id="xueshengid" value="'+xueshengid+'">';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width: 50%;border-top:1px solid #000000;border-right:1px solid #000000;border-left:1px solid #000000;text-align:center;"><font style="font-size:18px;">姓名：' +
+                            xingming + '</font></div>';
+                        html +=
+                            '<div class="aui-list-item-inner" style="width: 50%;border-top:1px solid #000000;border-right:1px solid #000000;text-align:center;"><font style="font-size:18px;">性别：<input name="xingbie" id="nan"type="radio" value="1" />';
+                        html += '<label for="nan">男</label>&emsp;<input name="xingbie"id="nv" type="radio" value="0" /><label for="nv">女</label></font></div></div>';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border:1px solid #000000;"><font style="font-size:18px;width:30%;">联系电话：</font><input name="dianhua" id="dianhua" type="tel" style="width:70%;border:0.5px solid gray;margin:1px 10px;" /></div></div>';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border-right:1px solid #000000;border-left:1px solid #000000;border-bottom:1px solid #000000;"><font style="font-size:18px;width:30%;">出生日期：</font><input name="chushengriqi"  id="chushengriqi" type="date" style="width:70%;border:0.5px solid gray;margin:1px 10px;" /></div></div>';
+                        if (data.xinxi.bumen.length>0) {
+                            html +=
+                                '<div class="auiitem"><div class="aui-list-item-inner" style="font-size:18px;width:100%;border-left:1px solid #000000;border-right:1px solid #000000;border-bottom:1px solid #000000;"><h4 style="font-size:18px;">报名部门:';
+                            for (var i = 0; i < data.xinxi.bumen.length; i++) {
+                                html += '<input name="bumen" id="bumenshu' + i + '" type="radio" value="' + data.xinxi.bumen[i].shetuanbumenxinxiid + '" style="font-size:18px;;margin-left:5px;"/><label for="bumenshu' + i +
+                                    '" style="font-size:18px;">' + data.xinxi.bumen[i].mingcheng + '</label>';
+                            }
+                            html += '</h4></div></div>';
+                        }
+                        html += '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border-left:1px solid #000000;border-right:1px solid #000000;"><h4 style="font-size:18px;width:100%;">爱好特长:<br>';
+                        html += '<textarea  name="aihaotechang" id="aihaotechang"  class="form-control" style="height:250px;margin-left:10px;resize:none;width:90%;"></textarea></h4>';
+                        html += '</div></div>';
+                        html += '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border:1px solid #000000;"><h4 style="font-size:18px;width:100%;">自我介绍:<br>';
+                        html += '<textarea  name="ziwojieshao" id="ziwojieshao"  class="form-control" style="height:250px;margin-left:10px;resize:none;width:90%;"></textarea></h4>';
+                        html += '</div></div>';
+                        html +=
+                            '<div class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-title"></div><div class="aui-list-item-right" style="margin-right:3px;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" value="提交" onclick="baomingzuzhi()"></div></div></div></div>';
+                    } else {
+                        html += '<div class="auiitem"><div class="aui-list-item-inner"><h2 style="text-align:center;width:100%;font-size:24px;">' + data.jibenxinxi.mingcheng + '报名表</h2></div></div>';
+                        html += '<input type ="hidden" name="leixing" id="leixing" value="1"><input type="hidden" name="shetuanxinxiid" id="shetuanxinxiid" value="' + data.xinxi.shetuanxinxiid + '">';
+                        html += '<input type ="hidden" name="xingming" id="xingming" value="'+xingming+'"><input type ="hidden" name="xueshengid" id="xueshengid" value="'+xueshengid+'">';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width: 50%;border-top:1px solid #000000;border-right:1px solid #000000;border-left:1px solid #000000;text-align:center;"><font style="font-size:18px;">姓名：' +
+                            xingming + '</font></div>';
+                        html +=
+                            '<div class="aui-list-item-inner" style="width: 50%;border-top:1px solid #000000;border-right:1px solid #000000;text-align:center;"><font style="font-size:18px;">性别：<input name="xingbie" id="nan"type="radio" value="1" />';
+                        html += '<label for="nan">男</label>&emsp;<input name="xingbie"id="nv" type="radio" value="0" /><label for="nv">女</label></font></div></div>';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border:1px solid #000000;"><font style="font-size:18px;width:30%;">联系电话：</font><input name="dianhua" id="dianhua" type="tel" style="width:70%;border:0.5px solid gray;margin:1px 10px;" /></div></div>';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border-right:1px solid #000000;border-left:1px solid #000000;border-bottom:1px solid #000000;"><font style="font-size:18px;width:30%;">出生日期：</font><input name="chushengriqi"  id="chushengriqi" type="date" style="width:70%;border:0.5px solid gray;margin:1px 10px;" /></div></div>';
+                        if (data.xinxi.bumen.length>0) {
+                            html +=
+                                '<div class="auiitem"><div class="aui-list-item-inner" style="font-size:18px;width:100%;border-left:1px solid #000000;border-right:1px solid #000000;border-bottom:1px solid #000000;"><h4 style="font-size:18px;">报名部门:';
+                            for (var i = 0; i < data.xinxi.bumen.length; i++) {
+                                html += '<input name="bumen" id="bumenshu' + i + '" type="radio" value="' + data.xinxi.bumen[i].shetuanbumenxinxiid + '" style="font-size:18px;;margin-left:5px;"/><label for="bumenshu' + i +
+                                    '" style="font-size:18px;">' + data.xinxi.bumen[i].mingcheng + '</label>';
+                            }
+                            html += '</h4></div></div>';
+                        }
+                        html += '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border-left:1px solid #000000;border-right:1px solid #000000;"><h4 style="font-size:18px;width:100%;">爱好特长:<br>';
+                        html += '<textarea  name="aihaotechang" id="aihaotechang"  class="form-control" style="height:250px;margin-left:10px;resize:none;width:90%;"></textarea></h4>';
+                        html += '</div></div>';
+                        html += '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border:1px solid #000000;"><h4 style="font-size:18px;width:100%;">自我介绍:<br>';
+                        html += '<textarea  name="ziwojieshao" id="ziwojieshao"  class="form-control" style="height:250px;margin-left:10px;resize:none;width:90%;"></textarea></h4>';
+                        html += '</div></div>';
+                        html +=
+                            '<div class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-title"></div><div class="aui-list-item-right" style="margin-right:3px;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" value="提交" onclick="baomingzuzhi()"></div></div></div></div>';
+                    }
+                }
+                $('#baomingbiao').html(html);
+                api.hideProgress();
+            },
+            error: function() {
+                alert("错误DKGL");
+				api.hideProgress();
+				var jsfun = 'logout();';
+				api.execScript({
+				    name: 'index',
+				    script: jsfun
+				});
+            }
+        });
+    };
+
+    function baomingzuzhi() {
+        var radio=document.getElementsByName("bumen");
+        if(radio.length>0){
+          var list=$('input:radio[name="bumen"]:checked').val();
+          if(list==null){
+            alert("请选择部门");
+            $('input:radio[name="bumen"]').focus();
+            return false;
+          }
+        }
+
+        if ($("#dianhua").val() == "") {
+            alert("请填写联系电话")
+            $("#dianhua").focus();
+            return false;
+        }
+
+        var phone = document.getElementById('dianhua').value;
+        if (!(/^1[34578]\d{9}$/.test(phone))) {
+            alert("电话号码有误，请重填");
+            $("#dianhua").focus();
+            return false;
+        }
+
+        if ($("#chushengriqi").val() == "") {
+            alert("请填写出生日期")
+            $("#chushengriqi").focus();
+            return false;
+        }
+
+        if (!$(':radio[name=xingbie]:checked').length) {
+            alert("请选择性别");
+            $("#xingbie").focus();
+            return false;
+        }
+
+        if ($("#aihaotechang").val() == "") {
+            alert("请填写爱好特长")
+            $("#aihaotechang").focus();
+            return false;
+        }
+        if ($("#ziwojieshao").val() == "") {
+            alert("请填写自我介绍")
+            $("#ziwojieshao").focus();
+            return false;
+        }
+        var formData = new FormData($("#biao")[0]);
+        $.ajax({
+          type: "POST",
+          url: $api.getStorage('serverUrl')+"app_TiJiaoBaoMingBiao",
+          data: formData,
+          processData: false,
+          contentType: false,
+          cache: false,
+          timeout: 5000,
+          success: function(data){
+            if(data=="success"){
+              alert("提交成功");
+              var jsfun="fanhuil();";
+              api.execScript({
+                  name: 'shetuanbaoming',
+                  script: jsfun
+              });
+            }
+            else if(data==notime){
+              alert("已过报名时间");
+              var jsfun="fanhuil();";
+              api.execScript({
+                  name: 'shetuanbaoming',
+                  script: jsfun
+              });
+            }
+            else if(data=="fail"){
+              alert("提交失败");
+              var jsfun="fanhuil();";
+              api.execScript({
+                  name: 'shetuanbaoming',
+                  script: jsfun
+              });
+            }
+            else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+            }
+          },
+          error: function(){
+            alert("错误SKKL");
+          }
+        });
+    }
+</script>
+
+</html>

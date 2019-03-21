@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+		</style>
+	</head>
+	<body>
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">
+					我的课程
+				</li>
+				<form action="" id="frm" name="frm">
+					<nav style="padding-top:40px;">
+						<ul id="kechengxianshi">
+							<li class="aui-list-item" style="">
+								<div class="aui-list-item-inner">
+									<div class="aui-list-item-label">
+										课程：
+									</div>
+									<div class="aui-list-item-input">
+										<span id="kechengming" style="float: left;"></span>
+									</div>
+								</div>
+							</li>
+							<li class="aui-list-item" style="">
+								<div class="aui-list-item-inner">
+									<div class="aui-list-item-label">
+										时间：
+									</div>
+									<div class="aui-list-item-input">
+										<span  id="kechengshijian"></span>
+									</div>
+								</div>
+							</li>
+							<li class="aui-list-item" style="">
+								<div class="aui-list-item-inner">
+									<div class="aui-list-item-label">
+										上课周次：
+									</div>
+									<div class="aui-list-item-input">
+										<span  id="kechengzhouci"></span>
+										<span  id="zhouci" style="padding-left: 10px;"></span>
+									</div>
+								</div>
+							</li>
+							<li class="aui-list-item" style="">
+								<div class="aui-list-item-inner">
+									<div class="aui-list-item-label">
+										上课节次：
+									</div>
+									<div class="aui-list-item-input">
+										<span  id="kechengjieci"></span>
+									</div>
+								</div>
+							</li>
+							<li class="aui-list-item" style="">
+								<div class="aui-list-item-inner">
+									<div class="aui-list-item-label">
+										地点：
+									</div>
+									<div class="aui-list-item-input">
+										<span  id="didian"></span>
+									</div>
+								</div>
+							</li>
+							<li class="aui-list-item" style="">
+								<div class="aui-list-item-inner">
+									<div class="aui-list-item-label">
+										任课教师：
+									</div>
+									<div class="aui-list-item-input">
+										<span  id="renkejiaoshi"></span>
+									</div>
+								</div>
+							</li>
+							<li class="aui-list-item" style="">
+								<div class="aui-list-item-inner">
+									<div class="aui-list-item-label">
+										<a href="javascript:kechengbeizhu(1);" style="color:red;padding-top: 10px;">课程备注</a>&emsp;&emsp;
+									</div>
+								</div>
+							</li>
+							<li class="aui-list-item" style="display: none;" id="1" >
+								<div class="aui-list-item-inner">
+									<textarea id="kechengbeizhu" name="kechengbeizhu" style="border: 1px solid #cd0000;width:97%;height: 150px;" ></textarea>
+								</div>
+							</li>
+							<li class="aui-list-item" style="">
+								<div class="aui-list-item-inner">
+									<div class="aui-list-item-label">
+										<a href="javascript:kechengbeizhu(2);" style="color:red">本节课程备注</a>
+									</div>
+								</div>
+							</li>
+							<li class="aui-list-item" style="display: none;" id="2">
+								<div class="aui-list-item-inner">
+									<textarea id="jiekechengbeizhu" name="jiekechengbeizhu"  style="border: 1px solid #cd0000;width:97%;height: 150px;" ></textarea>
+								</div>
+							</li>
+							<li class="aui-list-item">
+								<div class="aui-list-item-inner">
+									<div class="aui-list-item-title"></div>
+									<div style="margin-right:40%;">
+										<div class="aui-btn aui-btn-info">
+											<input type="button" class="btn btn-info" value="保存" onclick="savekechengbeizhu()">
+										</div>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</nav>
+				</form>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var id = api.pageParam.id;
+			var zhouci = api.pageParam.zhouci;
+			var riqi = api.pageParam.datetime;
+			var xueshengid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var kaishijieci = api.pageParam.kaishijieci;
+			var jieshujieci = api.pageParam.jieshujieci;
+			var code = id;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_XianShiDanMenKeCheng",
+				data : {
+					CODE : code,
+					xueshengid : xueshengid,
+					status : status,
+					token : token,
+					zhouci : zhouci,
+					riqi : riqi,
+					kaishijieci : kaishijieci,
+					jieshujieci : jieshujieci,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+					if (data) {
+						$("#kechengming").text(data.kecheng.kechengmingcheng);
+						$("#kechengshijian").text(data.kecheng.kaishishijian + '~' + data.kecheng.jieshushijian);
+						if (data.kecheng.jieshuzhou != null && data.kecheng.jieshuzhou != "") {
+							$("#kechengzhouci").text(data.kecheng.kaishizhou + '~' + data.kecheng.jieshuzhou + '周');
+						} else {
+							if (data.kecheng.leixing == 3) {
+								$("#kechengzhouci").text(data.kecheng.kaishizhou + '周');
+							} else {
+								$("#kechengzhouci").text(data.kecheng.kaishizhou + '  调课周');
+							}
+						}
+						if (data.kecheng.zhouci == "1") {
+							$("#zhouci").text('周一');
+						} else if (data.kecheng.zhouci == "2") {
+							$("#zhouci").text('周二');
+						} else if (data.kecheng.zhouci == "3") {
+							$("#zhouci").text('周三');
+						} else if (data.kecheng.zhouci == "4") {
+							$("#zhouci").text('周四');
+						} else if (data.kecheng.zhouci == "5") {
+							$("#zhouci").text('周五');
+						} else if (data.kecheng.zhouci == "6") {
+							$("#zhouci").text('周六');
+						} else {
+							$("#zhouci").text('周日');
+						}
+						$("#kechengjieci").text(data.kecheng.kaishijieci + '~' + data.kecheng.jieshujieci + '节');
+						$("#didian").text(data.kecheng.xiaoquming + ' ' + data.kecheng.jiaoshiming);
+						$("#renkejiaoshi").text(data.kecheng.renkejiaoshi);
+						$("#kechengbeizhu").val(data.kecheng.kechengbeizhu);
+						$("#jiekechengbeizhu").val(data.kecheng.jiekechengbeizhu);
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误");
+				}
+			});
+		};
+		function kechengbeizhu(type) {
+			var yangshi = document.getElementById(type).style.display;
+			if (yangshi == 'none') {
+				document.getElementById(type).style.display = "block";
+			}
+			if (yangshi == 'block') {
+				document.getElementById(type).style.display = "none";
+			}
+		}
+
+		function savekechengbeizhu() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var id = api.pageParam.id;
+			var zhouci = api.pageParam.zhouci;
+			var riqi = api.pageParam.datetime;
+			var kaishijieci = api.pageParam.kaishijieci;
+			var jieshujieci = api.pageParam.jieshujieci;
+			var xueshengid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var code = id;
+			var kechengbeizhu = $("#kechengbeizhu").val();
+			var jiekechengbeizhu = $("#jiekechengbeizhu").val();
+			if (kechengbeizhu == '' && jiekechengbeizhu == '') {
+				alert("您没有填写备注信息，无需保存！！");
+			}
+			if (kechengbeizhu == '' && jiekechengbeizhu != '') {
+				$.ajax({
+					url : $api.getStorage('serverUrl') + "app_savejiekechengbeizhu",
+					type : "post",
+					data : {
+						code : code,
+						xueshengid : xueshengid,
+						zhouci : zhouci,
+						kaishijieci : kaishijieci,
+						jieshujieci : jieshujieci,
+						token : token,
+						status : status,
+						riqi : riqi,
+						jiekechengbeizhu : jiekechengbeizhu,
+					},
+					dataType : 'text',
+					cache : false,
+					success : function(data) {
+						if (data) {
+							if (data == "success") {
+								alert("本节课程备注成功！");
+								api.openFrame({
+									name : "index",
+									url : "../index.html",
+									bgColor : 'rgba(0,0,0,.2)',
+									bounces : false,
+									reload : true,
+									allowEdit : true,
+								});
+							} else {
+								alert("本节课程备注失败！");
+								api.openFrame({
+									name : "index",
+									url : "../index.html",
+									bgColor : 'rgba(0,0,0,.2)',
+									bounces : false,
+									reload : true,
+									allowEdit : true,
+								});
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("error");
+					}
+				});
+			}
+			if (kechengbeizhu != '' && jiekechengbeizhu == '') {
+				$.ajax({
+					url : $api.getStorage('serverUrl') + "app_savekechengbeizhu",
+					type : "post",
+					data : {
+						code : code,
+						xueshengid : xueshengid,
+						token : token,
+						status : status,
+						kechengbeizhu : kechengbeizhu,
+					},
+					dataType : 'text',
+					cache : false,
+					success : function(data) {
+						if (data) {
+							if (data == "success") {
+								alert("课程备注成功！");
+								api.openFrame({
+									name : "index",
+									url : "../index.html",
+									bgColor : 'rgba(0,0,0,.2)',
+									bounces : false,
+									reload : true,
+									allowEdit : true,
+								});
+							} else {
+								alert("课程备注失败！");
+								api.openFrame({
+									name : "index",
+									url : "../index.html",
+									bgColor : 'rgba(0,0,0,.2)',
+									bounces : false,
+									reload : true,
+									allowEdit : true,
+								});
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("error");
+					}
+				});
+			}
+			if (kechengbeizhu != '' && jiekechengbeizhu != '') {
+				$.ajax({
+					url : $api.getStorage('serverUrl') + "app_savedoublekechengbeizhu",
+					type : "post",
+					data : {
+						code : code,
+						xueshengid : xueshengid,
+						zhouci : zhouci,
+						kaishijieci : kaishijieci,
+						jieshujieci : jieshujieci,
+						token : token,
+						status : status,
+						riqi : riqi,
+						jiekechengbeizhu : jiekechengbeizhu,
+						kechengbeizhu : kechengbeizhu,
+					},
+					dataType : 'text',
+					cache : false,
+					success : function(data) {
+						if (data) {
+							if (data == "success") {
+								alert("课程备注成功！");
+								api.openFrame({
+									name : "index",
+									url : "../index.html",
+									bgColor : 'rgba(0,0,0,.2)',
+									bounces : false,
+									reload : true,
+									allowEdit : true,
+								});
+							} else if (data == "successjiekecheng") {
+								alert("本节课程备注成功！！这门课程的备注失败");
+								api.openFrame({
+									name : "index",
+									url : "../index.html",
+									bgColor : 'rgba(0,0,0,.2)',
+									bounces : false,
+									reload : true,
+									allowEdit : true,
+								});
+							} else if (data == "successkecheng") {
+								alert("这门课程备注成功！！本节课程的备注失败");
+								api.openFrame({
+									name : "index",
+									url : "../index.html",
+									bgColor : 'rgba(0,0,0,.2)',
+									bounces : false,
+									reload : true,
+									allowEdit : true,
+								});
+							} else {
+								alert("课程备注失败！");
+								api.openFrame({
+									name : "index",
+									url : "../index.html",
+									bgColor : 'rgba(0,0,0,.2)',
+									bounces : false,
+									reload : true,
+									allowEdit : true,
+								});
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("error");
+					}
+				});
+			}
+		}
+	</script>
+</html>

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>historyhuodongMain</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			.white_content {
+				display: none;
+				position: absolute;
+				left: 2%;
+				right: 2%;
+				width: 96%;
+				height: 400px;
+				border: 2px solid lightblue;
+				background-color: white;
+				z-index: 2111;
+				overflow: auto;
+			}
+			.richeng {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 90%;
+				background-color: white;
+				z-index: 2;
+				overflow: auto;
+			}
+			.rightbottom1 {
+				position: absolute;
+				bottom: 0;
+				right: 0;
+			}
+			.auibtn {
+				position: relative;
+				display: inline-block;
+				font-size: 0.7 rem;
+				font-weight: 200;
+				font-family: inherit;
+				text-decoration: none;
+				text-align: center;
+				margin: 0;
+				background: #e0e0e0;
+				padding: 0.25 rem 0.6 rem;
+				border-radius: 0.2 rem;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				white-space: nowrap;
+				vertical-align: middle;
+				cursor: pointer;
+				touch-action: manipulation;
+				-webkit-user-select: none;
+				user-select: none;
+			}
+			.container {
+				position: relative;
+				width: 100%;
+			}
+			a {
+				margin-left: 14px;
+				color: #0062CC;
+				position: relative;
+			}
+			.disabled {
+				color: #808080;
+			}
+		</style>
+	</head>
+	<body id="bodys" style="background-color: #e7e7ef;">
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<div id="appContent" class="aui-content"></div>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var pag;
+		var cou = 0;
+		apiready = function() {
+			chushi();
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					cou = 0;
+					chushi();
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0,
+				}
+			}, function(ret, err) {
+				xiala();
+			});
+		};
+		function chushi() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_HistoryHuoDongList",
+				data : {
+					CODE : studentid,
+					token : token,
+					status : status,
+					page : "",
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+					if (data) {
+						if (data.page != null && data.page != "") {
+							pag = data.page;
+							$api.setStorage('loginpages', data.pages);
+							for (var i = 0; i < data.huodongs.length; i++) {
+								html += '<div class="mask" style="width: 100%;height: 100%;z-index: 10;"><li class="aui-list-item"><div class="container"><div class="aui-list-item-title" style="font-size:18px;height:70%;">';
+								html += '活动名称：' + data.huodongs[i].huodongmingcheng + '<br>';
+								html += '时间：' + data.huodongs[i].riqi + ' ' + data.huodongs[i].kaishishijian + '~' + data.huodongs[i].jieshushijian + '<br>';
+								html += '地点：' + data.huodongs[i].didian + '<br>';
+								html += '说明：' + data.huodongs[i].shuoming + '';
+								html += '</div>';
+								html += '<input id="' + data.huodongs[i].huodongid + '" type="hidden" value="' + data.huodongs[i].canyuren + '"/>';
+								var mydate = new Date();
+								var time = mydate.getFullYear();
+								if (mydate.getMonth() < 10) {
+									time += '-0' + (mydate.getMonth() + 1);
+								} else {
+									time += '-' + (mydate.getMonth() + 1);
+								}
+								if (mydate.getDate() < 10) {
+									time += '-0' + mydate.getDate();
+								} else {
+									time += '-' + mydate.getDate();
+								}
+								if (mydate.getHours() < 10) {
+									time += ' 0' + mydate.getHours();
+								} else {
+									time += ' ' + mydate.getHours();
+								}
+								if (mydate.getMinutes() < 10) {
+									time += ':0' + mydate.getMinutes();
+								} else {
+									time += ':' + mydate.getMinutes();
+								}
+								var kaishi_time = data.huodongs[i].riqi + ' ' + data.huodongs[i].kaishishijian;
+								var jieshu_time = data.huodongs[i].riqi + ' ' + data.huodongs[i].jieshushijian;
+								if (data.huodongs[i].tianjiarenid == studentid) {
+									html += '<div class="aui-list-item-inner aui-font-size-12" style="height:30%; color:#696969; text-align:top;">';
+									html += '<div style="width:40%;height:1%;position:absolute;bottom:25px;">'
+									if (data.huodongs[i].zhuangtai == 0) {
+										html += '待确认';
+									} else if (data.huodongs[i].zhuangtai == 1) {
+										html += '已参加';
+									} else {
+										html += '已拒绝';
+									}
+									html += '</div>';
+									html += '<div class="" style="width:60%;height:1%;position:absolute;right:5px;bottom:25px;">';
+									html += '<a value="备注" onclick="beizhu(\'' + data.huodongs[i].huodongid + '\')">备注</a>';
+									html += '<a class="" value="查看" onclick="ShowDiv(\'MyDiv\',\'' + data.huodongs[i].huodongid + '\')">查看</a>';
+									if (time < kaishi_time) {
+										html += '<a class="" value="修改" onclick="updatehuodong(\'' + data.huodongs[i].huodongid + '\')">修改</a>';
+									} else {
+										html += '<a class="disabled" disabled="disabled" value="修改">修改</a>';
+									}
+									if (data.huodongs[i].zhuangtai == 0) {
+										if (time > jieshu_time) {
+											html += '<a  value="参加" class="disabled" disabled="disabled">参加</a>';
+											html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+										} else {
+											html += '<a class="" value="参加" onclick="chanjiaihuodong(\'' + data.huodongs[i].huodongid + '\')">参加</a>';
+											html += '<a class="" value="拒绝" onclick="jujuehuodong(\'' + data.huodongs[i].huodongid + '\',\'' + studentid + '\')">拒绝</a></div></div>';
+										}
+									} else if (data.huodongs[i].zhuangtai == 1) {
+										html += '<a value="参加" class="disabled" disabled="disabled">参加</a>';
+										if (time > jieshu_time) {
+											html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+										} else {
+											html += '<a class="" value="拒绝" onclick="jujuehuodong(\'' + data.huodongs[i].huodongid + '\',\'' + studentid + '\')">拒绝</a></div></div>';
+										}
+									} else {
+										if (time > jieshu_time) {
+											html += '<a value="参加" class="disabled" disabled="disabled">参加</a>';
+											html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+										} else {
+											html += '<a class="" value="参加" onclick="chanjiaihuodong(\'' + data.huodongs[i].huodongid + '\')">参加</a>';
+											html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a>';
+										}
+										html += '</div></div>';
+									}
+								} else {
+									html += '<div class="aui-list-item-inner aui-font-size-12" style="height:30%;color:#696969; text-align:top;">';
+									html += '<div style="width:40%;height:5%;position:absolute;bottom:25px;">'
+									if (data.huodongs[i].zhuangtai == 0) {
+										html += '待确认';
+									} else if (data.huodongs[i].zhuangtai == 1) {
+										html += '已参加';
+									} else {
+										html += '已拒绝';
+									}
+									html += '</div>'
+									html += '<div class="" style="text-align:top;width:60%;height:1%;position:absolute;right:5px;bottom:25px;">';
+									html += '<a value="备注" onclick="beizhu(\'' + data.huodongs[i].huodongid + '\')">备注</a>';
+									html += '<a class="" value="查看 " onclick="ShowDiv(\'MyDiv\',\'' + data.huodongs[i].huodongid + '\')">查看</a>';
+									if (time < kaishi_time) {
+										html += '<a class="disabled" disabled="disabled" value="修改" >修改</a>';
+									} else {
+										html += '<a class="disabled" disabled="disabled" value="修改">修改&nbsp&nbsp</a>';
+									}
+									if (data.huodongs[i].zhuangtai == 0) {
+										if (time > jieshu_time) {
+											html += '<a  value="参加" class="disabled" disabled="disabled">参加</a>';
+											html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+										} else {
+											html += '<a class="" value="参加" onclick="chanjiaihuodong(\'' + data.huodongs[i].huodongid + '\')">参加</a>';
+											html += '<a class="" value="拒绝" onclick="jujuehuodong(\'' + data.huodongs[i].huodongid + '\',\'' + studentid + '\')">拒绝</a></div></div>';
+										}
+									} else if (data.huodongs[i].zhuangtai == 1) {
+										html += '<a value="参加" class="disabled" disabled="disabled">参加</a>';
+										if (time > jieshu_time) {
+											html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+										} else {
+											html += '<a class="" value="拒绝" onclick="jujuehuodong(\'' + data.huodongs[i].huodongid + '\',\'' + studentid + '\')">拒绝</a></div></div>';
+										}
+									} else {
+										if (time > jieshu_time) {
+											html += '<a value="参加" class="disabled" disabled="disabled">参加</a>';
+											html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+										} else {
+											html += '<a class="" value="参加" onclick="chanjiaihuodong(\'' + data.huodongs[i].huodongid + '\')">参加</a>';
+											html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a>';
+										}
+										html += '</div></div>';
+									}
+								}
+								html += '</div></li> ';
+								html += '<div style="width:100%;background-color:white;display:none;" id="beizhu' + data.huodongs[i].huodongid + '"><div style="width:100%;background-color:white;"><div><textarea id="huodongbeizhu' + data.huodongs[i].huodongid + '" name="huodongbeizhu"  style="border: 1px solid #cd0000;width:97%;height: 150px;" >' + data.huodongs[i].beizhu + '</textarea></div></div>';
+								html += '<div style="width:100%;background-color:white;"><div style="padding-left:120px;"><input type="button" class="aui-btn aui-btn-info"" value="保存" onclick="save(\'' + data.huodongs[i].huodongid + '\')"></div></div>';
+								html += '</div></div>';
+								html += '<div id="MyDiv" class="white_content" style="border-radius:25px;overflow-x:hidden;"><!-- 弹出框 --><div class="richeng"><table><thead><tr><th style="width:30%;text-align:left;"><br>学号</th><th style="width:30%;text-align:left;"><br>姓名</th><th style="width:30%;text-align:left;"><br>参与状态</th></tr></thead>';
+								html += '<tbody id="canyuren"></tbody></table></div><div id="move" style="cursor:pointer;position: relative;top:90%;left:40%;"><span style="font-size: 16px;" class="aui-btn-info aui-btn" onclick="CloseDiv(\'MyDiv\')">关闭</span></div></div><div class="mask" style="width: 100%;height: 100%;z-index: 10;"></div>';
+								$('#appContent').html(html);
+							}
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+					api.hideProgress();
+				},
+				error : function() {
+					alert("错误");
+					api.hideProgress();
+				}
+			});
+		}
+
+		function beizhu(id) {
+			var ids = "beizhu" + id;
+			var zhanshi = document.getElementById(ids).style.display;
+			if (zhanshi == 'none') {
+				document.getElementById(ids).style.display = "block";
+			} else {
+				document.getElementById(ids).style.display = "none";
+			}
+		}
+
+		function save(id) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var neirong = $("#huodongbeizhu" + id).val();
+			if (neirong == '' || null == neirong) {
+				alert("您没有填写备注信息，无需保存！！");
+			} else {
+				$.ajax({
+					url : $api.getStorage('serverUrl') + "app_savehuodongbeizhu",
+					type : "post",
+					data : {
+						xueshengid : studentid,
+						token : token,
+						status : status,
+						id : id,
+						neirong : neirong,
+					},
+					dataType : 'text',
+					cache : false,
+					success : function(data) {
+						if (data) {
+							if (data == "success") {
+								alert("备注成功！");
+								window.location.reload();
+							} else {
+								alert("备注失败！");
+								window.location.reload();
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("error");
+					}
+				});
+			}
+		}
+
+		function xiala() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var zong = $api.getStorage("loginpages");
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			if (status == "xuesheng") {
+				var studentid = dataInfo.id;
+				if (pag < zong) {
+					pag = pag + 1;
+					loadData();
+					$.ajax({
+						type : "POST",
+						url : $api.getStorage('serverUrl') + "app_HistoryHuoDongList",
+						data : {
+							CODE : studentid,
+							token : token,
+							status : status,
+							page : pag,
+						},
+						dataType : 'json',
+						cache : false,
+						success : function(data) {
+							var data = eval(data);
+							html = "";
+							if (data) {
+								if (data.page != null && data.page != "") {
+									for (var i = 0; i < data.huodongs.length; i++) {
+										html += '<li class="aui-list-item"><div class="container"><div class="aui-list-item-title" style="font-size:18px;height:70%;">';
+										html += '活动名称：' + data.huodongs[i].huodongmingcheng + '<br>';
+										html += '时间：' + data.huodongs[i].riqi + ' ' + data.huodongs[i].kaishishijian + '~' + data.huodongs[i].jieshushijian + '<br>';
+										html += '地点：' + data.huodongs[i].didian + '&nbsp&nbsp&nbsp&nbsp';
+										html += '说明：' + data.huodongs[i].shuoming + '';
+										html += '</div>';
+										html += '<input id="' + data.huodongs[i].huodongid + '" type="hidden" value="' + data.huodongs[i].canyuren + '"/>';
+										var mydate = new Date();
+										var time = mydate.getFullYear();
+										if (mydate.getMonth() < 10) {
+											time += '-0' + (mydate.getMonth() + 1);
+										} else {
+											time += '-' + (mydate.getMonth() + 1);
+										}
+										if (mydate.getDate() < 10) {
+											time += '-0' + mydate.getDate();
+										} else {
+											time += '-' + mydate.getDate();
+										}
+										if (mydate.getHours() < 10) {
+											time += ' 0' + mydate.getHours();
+										} else {
+											time += ' ' + mydate.getHours();
+										}
+										if (mydate.getMinutes() < 10) {
+											time += ':0' + mydate.getMinutes();
+										} else {
+											time += ':' + mydate.getMinutes();
+										}
+										var kaishi_time = data.huodongs[i].riqi + ' ' + data.huodongs[i].kaishishijian;
+										var jieshu_time = data.huodongs[i].riqi + ' ' + data.huodongs[i].jieshushijian;
+										if (data.huodongs[i].tianjiarenid == studentid) {
+											html += '<div class="aui-list-item-inner aui-font-size-12" style="height:30%; color:#696969; text-align:top;">';
+											html += '<div style="width:40%;height:5%;position:absolute;bottom:25px;">'
+											if (data.huodongs[i].zhuangtai == 0) {
+												html += '待确认';
+											} else if (data.huodongs[i].zhuangtai == 1) {
+												html += '已参加';
+											} else {
+												html += '已拒绝';
+											}
+											html += '</div>';
+											html += '<div class="" style="width:60%;height:1%;position:absolute;right:5px;bottom:25px;">';
+											html += '<a value="备注" onclick="beizhu(\'' + data.huodongs[i].huodongid + '\')">备注</a>';
+											html += '<a class="" value="查看" onclick="ShowDiv(\'MyDiv\',\'' + data.huodongs[i].huodongid + '\')">查看</a>';
+											if (time < kaishi_time) {
+												html += '<a class="" value="修改" onclick="updatehuodong(\'' + data.huodongs[i].huodongid + '\')">修改</a>';
+											} else {
+												html += '<a class="disabled" disabled="disabled" value="修改">修改</a>';
+											}
+											if (data.huodongs[i].zhuangtai == 0) {
+												if (time > jieshu_time) {
+													html += '<a  value="参加" class="disabled" disabled="disabled">参加</a>';
+													html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+												} else {
+													html += '<a class="" value="参加" onclick="chanjiaihuodong(\'' + data.huodongs[i].huodongid + '\')">参加</a>';
+													html += '<a class="" value="拒绝" onclick="jujuehuodong(\'' + data.huodongs[i].huodongid + '\',\'' + studentid + '\')">拒绝</a></div></div>';
+												}
+											} else if (data.huodongs[i].zhuangtai == 1) {
+												html += '<a value="参加" class="disabled" disabled="disabled">参加</a>';
+												if (time > jieshu_time) {
+													html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+												} else {
+													html += '<a class="" value="拒绝" onclick="jujuehuodong(\'' + data.huodongs[i].huodongid + '\',\'' + studentid + '\')">拒绝</a></div></div>';
+												}
+											} else {
+												if (time > jieshu_time) {
+													html += '<a value="参加" class="disabled" disabled="disabled">参加</a>';
+													html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+												} else {
+													html += '<a class="" value="参加" onclick="chanjiaihuodong(\'' + data.huodongs[i].huodongid + '\')">参加</a>';
+													html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a>';
+												}
+												html += '</div></div>';
+											}
+										} else {
+											html += '<div class="aui-list-item-inner aui-font-size-12" style="height:30%;color:#696969; text-align:top;">';
+											html += '<div style="width:40%;height:1%;position:absolute;bottom:25px;">'
+											if (data.huodongs[i].zhuangtai == 0) {
+												html += '待确认';
+											} else if (data.huodongs[i].zhuangtai == 1) {
+												html += '已参加';
+											} else {
+												html += '已拒绝';
+											}
+											html += '</div>'
+											html += '<div class="" style="text-align:top;width:60%;height:1%;position:absolute;right:5px;bottom:25px;">';
+											html += '<a value="备注" onclick="beizhu(\'' + data.huodongs[i].huodongid + '\')">备注</a>';
+											html += '<a class="" value="查看 " onclick="ShowDiv(\'MyDiv\',\'' + data.huodongs[i].huodongid + '\')">查看</a>';
+											if (time < kaishi_time) {
+												html += '<a class="" value="修改" onclick="updatehuodong(\'' + data.huodongs[i].huodongid + '\')">修改</a>';
+											} else {
+												html += '<a class="disabled" disabled="disabled" value="修改">修改</a>';
+											}
+											if (data.huodongs[i].zhuangtai == 0) {
+												if (time > jieshu_time) {
+													html += '<a  value="参加" class="disabled" disabled="disabled">参加</a>';
+													html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+												} else {
+													html += '<a class="" value="参加" onclick="chanjiaihuodong(\'' + data.huodongs[i].huodongid + '\')">参加</a>';
+													html += '<a class="" value="拒绝" onclick="jujuehuodong(\'' + data.huodongs[i].huodongid + '\',\'' + studentid + '\')">拒绝</a></div></div>';
+												}
+											} else if (data.huodongs[i].zhuangtai == 1) {
+												html += '<a value="参加" class="disabled" disabled="disabled">参加</a>';
+												if (time > jieshu_time) {
+													html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+												} else {
+													html += '<a class="" value="拒绝" onclick="jujuehuodong(\'' + data.huodongs[i].huodongid + '\',\'' + studentid + '\')">拒绝</a></div></div>';
+												}
+											} else {
+												if (time > jieshu_time) {
+													html += '<a value="参加" class="disabled" disabled="disabled">参加</a>';
+													html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a></div></div>';
+												} else {
+													html += '<a class="" value="参加" onclick="chanjiaihuodong(\'' + data.huodongs[i].huodongid + '\')">参加</a>';
+													html += '<a class="disabled" disabled="disabled" value="拒绝">拒绝</a>';
+												}
+												html += '</div></div>';
+											}
+										}
+										html += '</div></li> ';
+										html += '<div style="width:100%;background-color:white;display:none;" id="beizhu' + data.huodongs[i].huodongid + '"><div style="width:100%;background-color:white;"><div><textarea id="huodongbeizhu' + data.huodongs[i].huodongid + '" name="huodongbeizhu"  style="border: 1px solid #cd0000;width:97%;height: 150px;" >' + data.huodongs[i].beizhu + '</textarea></div></div>';
+										html += '<div style="width:100%;background-color:white;"><div style="padding-left:120px;"><input type="button" class="aui-btn aui-btn-info"" value="保存" onclick="save(\'' + data.huodongs[i].huodongid + '\')"></div></div>';
+										html += '</div></div>';
+										html += '<div id="MyDiv" class="white_content" style="border-radius:25px;padding:5px;"><!-- 弹出框 --><div class="richeng"><table><thead><tr><th style="width:30%;text-align:left;"><br>学号</th><th style="width:30%;text-align:left;"><br>姓名</th><th style="width:30%;text-align:left;"><br>参与状态</th></tr></thead>';
+										html += '<tbody id="canyuren"></tbody></table></div><div id="move" style="cursor:pointer;position: relative;top:90%;left:40%;"><span style="font-size: 16px;" class="aui-btn-info aui-btn" onclick="CloseDiv(\'MyDiv\')">关闭</span></div></div>';
+									}
+								}
+							} else {
+								alert("已登出");
+								api.hideProgress();
+								var jsfun = 'logout();';
+								api.execScript({
+									name : 'index',
+									script : jsfun
+								});
+							}
+							$('#appContent').append(html);
+							api.hideProgress();
+						},
+						error : function() {
+							alert("错误");
+							api.hideProgress();
+						}
+					});
+				} else {
+					if (cou == 0) {
+						html = $("#appContent").html();
+						if (zong == 1) {
+							html += '<h4 style="text-align:center;position:fixed;bottom:0px;height:15px;width:100%;font-size:12px;">已到最底端，没有更多数据</h4>';
+						} else {
+							html += '<h4 style="text-align:center;bottom:0px;height:10px;width:100%;">已到最底端，没有更多数据</h4>';
+						}
+						$('#appContent').html(html);
+						cou = cou + 1;
+					}
+				}
+			}
+		}
+
+		function jujuehuodong(huodongid, studentid) {
+			api.openWin({
+				name : 'tianxie_jujueliyou_title',
+				url : "../common/tianxie_jujueliyou_title.html",
+				pageParam : {
+					huodongid : huodongid,
+					num : '4',
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function updatehuodong(huodongid) {
+			api.openWin({
+				name : 'xiugaihuodong',
+				url : 'xiugaihuodong.html',
+				pageParam : {
+					huodongid : huodongid,
+					num : '4',
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function fanhuihistoryricheng2() {
+			api.closeWin({
+				name : 'xiugaihuodong',
+			});
+			window.location.reload();
+		}
+
+		function fanhuihistoryricheng() {
+			api.closeWin({
+				name : 'tianxie_jujueliyou_title',
+			});
+			window.location.reload();
+		}
+
+		function chanjiaihuodong(huodongid) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var code = huodongid + ',zytech,' + studentid;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_ChanJiaHuoDong",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+				},
+				dataType : 'text',
+				cache : false,
+				success : function(data) {
+					if (data) {
+						if (data == "success") {
+							alert("参加成功");
+							window.location.reload();
+						} else {
+							alert("该活动已过期");
+							window.location.reload();
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误DDS");
+				}
+			});
+		}
+
+		//弹出隐藏层
+		function ShowDiv(show_div, huodongid) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			$("#" + show_div).show();
+			$("#" + show_div).css('top', ($(window).scrollTop() + 100) + 'px');
+			loadData();
+			$(".mask").css({
+				width : "100%",
+				height : "100%",
+				opacity : "0.4",
+				filter : "alpha(opacity = 40)",
+				backgroundColor : "black",
+				top : "0",
+				left : "0"
+			})
+			document.body.style.overflow = "hidden";
+			// 不显示滚动条
+			// 取消冒泡
+			var event = event || window.event;
+			if (event && event.stopPropagation) {
+				event.stopPropagation();
+			} else {
+				event.cancelBubble = true;
+			}
+			var canyuren = document.getElementById(huodongid).value;
+			var xueshengid = dataInfo.id;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_CanYuRenByid_huodong",
+				data : {
+					CODE : canyuren,
+					xueshengid : xueshengid,
+					status : status,
+					token : token,
+					huodongid : huodongid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					var html = "";
+					if (data) {
+						if (data != null) {
+							if (data.daoyuan.length > 0) {
+								for (var i = 0; i < data.daoyuan.length; i++) {
+									html += '<tr id="' + data.daoyuan[i].fudaoyuanid + '"><td style="width:30%;font-size:20px;">辅导员</td><td style="width:30%;font-size:20px;">' + data.daoyuan[i].xingming + '</td><td style="width:30%;font-size:20px;">' + tf(data.daoyuan[i].canyuzhuangtai) + '</td></tr>';
+								}
+							}
+							if (data.student.length > 0) {
+								for (var i = 0; i < data.student.length; i++) {
+									html += '<tr id="' + data.student[i].xueshengid + '"><td style="width:30%;font-size:20px;">' + data.student[i].xuehao + '</td><td style="width:30%;font-size:20px;">' + data.student[i].xingming + '</td><td style="width:30%;font-size:20px;">' + tf(data.student[i].canyuzhuangtai);
+									if (data.student[i].liyou != null && data.student[i].liyou != "") {
+										html += '<font style="color:#ec344d;">(理由:' + data.student[i].liyou + ')</font>';
+									}
+									html += '</td></tr>';
+								}
+							}
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+					$("#canyuren").html(html);
+					api.hideProgress();
+					var jsfun = 'guanbi();';
+					var jsName = 'historyhuodong';
+					api.execScript({
+						name : jsName,
+						script : jsfun
+					});
+				},
+				error : function() {
+					alert("错误GJFK");
+					api.hideProgress();
+				}
+			});
+		}
+
+		function tf(key) {
+			var zhuangtai;
+			if (key == 0) {
+				zhuangtai = "未选择";
+			} else if (key == 1) {
+				zhuangtai = "参与";
+			} else {
+				zhuangtai = "拒绝";
+			}
+			return zhuangtai;
+		}
+
+		//关闭弹出层1
+		function CloseDiv(close_div) {
+			document.getElementById(close_div).style.display = 'none';
+			$("#canyuren").html("");
+			var jsfun = 'kaiqi();';
+			var jsName = 'historyhuodong';
+			api.execScript({
+				name : jsName,
+				script : jsfun
+			});
+			$(".mask").css({
+				width : "100%",
+				height : "100%",
+				opacity : "1",
+				filter : "alpha(opacity = 100)",
+				backgroundColor : "black",
+				top : "0",
+				left : "0"
+			})
+			document.body.style.overflow = "hidden";
+			// 不显示滚动条
+			// 取消冒泡
+			var event = event || window.event;
+			if (event && event.stopPropagation) {
+				event.stopPropagation();
+			} else {
+				event.cancelBubble = true;
+			}
+		};
+	</script>
+</html>

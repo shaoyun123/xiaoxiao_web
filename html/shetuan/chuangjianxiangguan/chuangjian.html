@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>chuangjian</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../script/bootstrap-switch.min.js"></script>
+    <style>
+        .auiitem {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            color: #212121;
+            background-color: #ffffff;
+            position: relative;
+            min-height: 2.2rem;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            height: 34px;
+            padding: 6px 12px;
+            font-size: 17px;
+            line-height: 1.42857143;
+            color: #555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+        }
+
+        .form-control:focus {
+            border-color: #66afe9;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
+        }
+
+        select {
+            -webkit-appearance: menulist;
+            box-sizing: border-box;
+            align-items: center;
+            white-space: pre;
+            -webkit-rtl-ordering: logical;
+            color: black;
+            background-color: white;
+            cursor: default;
+            border-width: 1px;
+            border-style: solid;
+            border-color: initial;
+            border-image: initial;
+        }
+        header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            学生社团
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">创建</li>
+            <form id="biao" name="biao" method="post" class="form-horizontal" style="margin-bottom: 10px;padding-top:40px;" role="form" data-toggle="validation" novalidate="novalidate">
+                <nav>
+                    <ul id="xiangxi">
+                    </ul>
+                </nav>
+            </form>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'chuangjian',
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+        loadData();
+        var dataInfo = $api.getStorage('loginDataInfo');
+        var xueshengid = dataInfo.id;
+        var xuexiaoxuehao = dataInfo.xuexiao_xuehao;
+        var xingming = dataInfo.xingMing;
+        var status = dataInfo.status;
+        var token = $api.getStorage("logintoken");
+        var banjiid = dataInfo.banJiID;
+        var key = api.pageParam.key;
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_ZhiDaoJiaoShiList",
+            data: {
+                xueshengid: xueshengid,
+                status: status,
+                token: token,
+                banjiid: banjiid,
+            },
+            dataType: 'json',
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                html = "";
+                var data = eval(data);
+                if (data) {
+                    if (key == "1") {
+                        html += '<div class="auiitem"><div class="aui-list-item-inner"><h2 style="text-align:center;width:100%;font-size:24px;">创建学生组织申请表</h2></div></div>';
+                        html += '<input type ="hidden" name="leixing" id="leixing" value="0"><input type="hidden" name="xuexiaoxuehao" id="xuexiaoxuehao" value="' + xuexiaoxuehao + '">';
+                        html += '<input type ="hidden" name="xingming" id="xingming" value="' + xingming + '"><input type ="hidden" name="xueshengid" id="xueshengid" value="' + xueshengid + '">';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width: 50%;border-top:1px solid #000000;border-right:1px solid #000000;border-left:1px solid #000000;text-align:center;"><font style="font-size:18px;">姓名：' +
+                            xingming + '</font></div>';
+                        html +=
+                            '<div class="aui-list-item-inner" style="width: 50%;border-top:1px solid #000000;border-right:1px solid #000000;text-align:center;"><font style="font-size:18px;width:33%;">电话：</font><input name="dianhua" id="dianhua" type="tel" style="width:67%;border:0.5px solid gray;margin:1px 10px;" /></div></div>';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border-top:1px solid #000000;border-right:1px solid #000000;border-left:1px solid #000000;"><font style="font-size:18px;width:40%;">学生组织名称：</font><input name="mingcheng"  id="mingcheng" type="text" style="width:60%;border:0.5px solid gray;margin:1px 10px;" /></div></div>';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border:1px solid #000000;"><font style="font-size:18px;width:40%;">指导老师：</font>';
+                        html += '<select id="jiaoshi" name="jiaoshi" style="width: 60%;margin:1px 10px;">';
+                        for (var i = 0; i < data.length; i++) {
+                            html += '<option value="' + data[i].yonghuid + '">' + data[i].yonghuxingming + '</option>';
+                        }
+                        html += '</select>';
+                        html += '</div></div>';
+                        html += '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border-left:1px solid #000000;border-right:1px solid #000000;"><h4 style="font-size:18px;width:100%;">学生组织介绍:<br>';
+                        html += '<textarea  name="jieshao" id="jieshao"  class="form-control" style="height:250px;margin-left:10px;resize:none;width:90%;"></textarea></h4>';
+                        html += '</div></div>';
+                        html += '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border:1px solid #000000;"><h4 style="font-size:18px;width:100%;">创建理由:<br>';
+                        html += '<textarea  name="liyou" id="liyou"  class="form-control" style="height:250px;margin-left:10px;resize:none;width:90%;"></textarea></h4>';
+                        html += '</div></div>';
+                        html +=
+                            '<div class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-title"></div><div class="aui-list-item-right" style="margin-right:3px;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" value="提交" onclick="subsub()"></div></div></div></div>';
+                    } else {
+                        html += '<div class="auiitem"><div class="aui-list-item-inner"><h2 style="text-align:center;width:100%;font-size:24px;">创建社团申请表</h2></div></div>';
+                        html += '<input type ="hidden" name="leixing" id="leixing" value="0"><input type="hidden" name="xuexiaoxuehao" id="xuexiaoxuehao" value="' + xuexiaoxuehao + '">';
+                        html += '<input type ="hidden" name="xingming" id="xingming" value="' + xingming + '"><input type ="hidden" name="xueshengid" id="xueshengid" value="' + xueshengid + '">';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width: 50%;border-top:1px solid #000000;border-right:1px solid #000000;border-left:1px solid #000000;text-align:center;"><font style="font-size:18px;">姓名：' +
+                            xingming + '</font></div>';
+                        html +=
+                            '<div class="aui-list-item-inner" style="width: 50%;border-top:1px solid #000000;border-right:1px solid #000000;text-align:center;"><font style="font-size:18px;width:33%;">电话：</font><input name="dianhua" id="dianhua" type="tel" style="width:67%;border:0.5px solid gray;margin:1px 10px;" /></div></div>';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border-top:1px solid #000000;border-right:1px solid #000000;border-left:1px solid #000000;"><font style="font-size:18px;width:40%;">社团名称：</font><input name="mingcheng"  id="mingcheng" type="text" style="width:60%;border:0.5px solid gray;margin:1px 10px;" /></div></div>';
+                        html +=
+                            '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border:1px solid #000000;"><font style="font-size:18px;width:40%;">指导老师：</font>';
+                        html += '<select id="jiaoshi" name="jiaoshi" style="width: 60%;margin:1px 10px;">';
+                        for (var i = 0; i < data.length; i++) {
+                            html += '<option value="' + data[i].yonghuid + '">' + data[i].yonghuxingming + '</option>';
+                        }
+                        html += '</select>';
+                        html += '</div></div>';
+                        html += '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border-left:1px solid #000000;border-right:1px solid #000000;"><h4 style="font-size:18px;width:100%;">社团介绍:<br>';
+                        html += '<textarea  name="jieshao" id="jieshao"  class="form-control" style="height:250px;margin-left:10px;resize:none;width:90%;"></textarea></h4>';
+                        html += '</div></div>';
+                        html += '<div class="auiitem"><div class="aui-list-item-inner" style="width:100%;border:1px solid #000000;"><h4 style="font-size:18px;width:100%;">创建理由:<br>';
+                        html += '<textarea  name="liyou" id="liyou"  class="form-control" style="height:250px;margin-left:10px;resize:none;width:90%;"></textarea></h4>';
+                        html += '</div></div>';
+                        html +=
+                            '<div class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-title"></div><div class="aui-list-item-right" style="margin-right:3px;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" value="提交" onclick="subchuangjian()"></div></div></div></div>';
+                    }
+                    $('#xiangxi').html(html);
+                    api.hideProgress();
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function() {
+                api.hideProgress();
+                alert("超时");
+            }
+        });
+    };
+
+    function subchuangjian() {
+        if ($("#dianhua").val() == "") {
+            alert("请填写联系电话")
+            $("#dianhua").focus();
+            return false;
+        }
+
+        var phone = document.getElementById('dianhua').value;
+        if (!(/^1[34578]\d{9}$/.test(phone))) {
+            alert("电话号码有误，请重填");
+            $("#dianhua").focus();
+            return false;
+        }
+
+        if ($("#mingcheng").val() == "") {
+            alert("请填写社团名称")
+            $("#mingcheng").focus();
+            return false;
+        }
+
+        if ($("#jiaoshi").val() == "") {
+            alert("请选择指导教师")
+            $("#jiaoshi").focus();
+            return false;
+        }
+
+        if ($("#liyou").val() == "") {
+            alert("请填写创建理由")
+            $("#liyou").focus();
+            return false;
+        }
+        if ($("#jieshao").val() == "") {
+            alert("请填写社团介绍")
+            $("#jieshao").focus();
+            return false;
+        }
+        var formData = new FormData($("#biao")[0]);
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_TiJiaoChuangJianSheTuan",
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                if (data == "success") {
+                    alert("提交成功");
+                    var jsfun = "fanhuil();";
+                    api.execScript({
+                        name: 'chuangjianshetuan',
+                        script: jsfun
+                    });
+                } else if (data == "fail") {
+                    alert("提交失败");
+                    var jsfun = "fanhuil();";
+                    api.execScript({
+                        name: 'chuangjianshetuan',
+                        script: jsfun
+                    });
+                } else if (data == "mingcheng") {
+                    alert("社团名字重复");
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function() {
+                alert("超时");
+            }
+        });
+    }
+
+    function subsub() {
+        if ($("#dianhua").val() == "") {
+            alert("请填写联系电话")
+            $("#dianhua").focus();
+            return false;
+        }
+
+        var phone = document.getElementById('dianhua').value;
+        if (!(/^1[34578]\d{9}$/.test(phone))) {
+            alert("电话号码有误，请重填");
+            $("#dianhua").focus();
+            return false;
+        }
+
+        if ($("#mingcheng").val() == "") {
+            alert("请填写学生组织名称")
+            $("#mingcheng").focus();
+            return false;
+        }
+
+        if ($("#jiaoshi").val() == "") {
+            alert("请选择指导教师")
+            $("#jiaoshi").focus();
+            return false;
+        }
+
+        if ($("#liyou").val() == "") {
+            alert("请填写创建理由")
+            $("#liyou").focus();
+            return false;
+        }
+        if ($("#jieshao").val() == "") {
+            alert("请填写学生组织介绍")
+            $("#jieshao").focus();
+            return false;
+        }
+        var formData = new FormData($("#biao")[0]);
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_TiJiaoChuangJianXSZZ",
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                if (data == "success") {
+                    alert("提交成功");
+                    var jsfun = "fanhuil();";
+                    api.execScript({
+                        name: 'chuangjianshetuan',
+                        script: jsfun
+                    });
+                } else if (data == "fail") {
+                    alert("提交失败");
+                    var jsfun = "fanhuil();";
+                    api.execScript({
+                        name: 'chuangjianshetuan',
+                        script: jsfun
+                    });
+                } else if (data == "mingcheng") {
+                    alert("学生组织名字重复");
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function() {
+                alert("超时");
+            }
+        });
+    }
+</script>
+
+</html>

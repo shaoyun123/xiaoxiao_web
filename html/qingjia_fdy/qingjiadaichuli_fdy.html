@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>qingjiadaichuli_fdy</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+    <script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+    <style>
+        body {
+            padding-bottom: 25px;
+        }
+        header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray; font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            请假
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;">待处理</li>
+            <nav>
+                <ul id="xianshi">
+
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'qingjiadaichuli_fdy',
+        });
+        var jsfun = "youtixing();";
+        api.execScript({
+            name: 'index',
+            script: jsfun
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    var pag;
+    var cou = 0;
+    apiready = function() {
+        loadData();
+        chushi();
+        api.setRefreshHeaderInfo({
+            visible: true,
+            bgColor: '#ccc',
+            textColor: '#fff',
+            textDown: '下拉刷新...',
+            textUp: '松开刷新...',
+            showTime: true
+        }, function(ret, err) {
+            setTimeout(function() {
+                cou = 0;
+                chushi();
+                api.refreshHeaderLoadDone();
+            }, 2000)
+        });
+        api.addEventListener({
+            name: 'scrolltobottom',
+            extra: {
+                threshold: 0,
+            }
+        }, function(ret, err) {
+            xiala();
+        });
+        api.addEventListener({
+            name: 'keyback'
+        }, function(ret, err) {
+            var jsfun = "fanhuix();";
+            api.execScript({
+                name: 'index',
+                script: jsfun
+            });
+        });
+    };
+
+    function chushi() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var yonghuid = dataInfo.id;
+        var yuanxiid = dataInfo.yuanXiID;
+        var yonghuxingming = dataInfo.xingMing;
+        var token = $api.getStorage("logintoken");
+        var leibie = dataInfo.status;
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_QingJiaDaiCchuLi_fdy",
+            data: {
+                CODE: yonghuid,
+                page: "",
+                token: token,
+                status: leibie,
+            },
+            dataType: 'json',
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                var data = eval(data);
+                html = "";
+                if (data) {
+                    if (data.pages != null && data.pages != "") {
+                        pag = data.page;
+                        $api.setStorage('loginpages', data.pages);
+                        for (var i = 0; i < data.qingjias.length; i++) {
+                            html += '<div class="aui-list-item"><div style="width80%;font-size:18px;"><h4 style="font-size:18px;">申请人学号：' + data.qingjias[i].xuehao + '</h4>';
+                            html += '<h4 style="font-size:18px;">申请人姓名：' + data.qingjias[i].xueshengxingming + '</h4>';
+                            if (data.qingjias[i].qingjialeibie == "1") {
+                                html += '<h4 style="font-size:18px;">请假类别：事假</h4>';
+                            } else {
+                                html += '<h4 style="font-size:18px;">请假类别：病假</h4>';
+                            }
+                            if (data.qingjias[i].zhuangtai == "1") {
+                                html += '<h4 style="font-size:18px;">状态：待处理</h4>';
+                            } else if (data.qingjias[i].zhuangtai == "4") {
+                                html += '<h4 style="font-size:18px;">状态：待销假</h4>';
+                            }
+                            html += '<h4 style="font-size:18px;">开始时间：' + data.qingjias[i].qingjiakaishishijian + '</h4><h4 style="font-size:18px;">结束时间：' + data.qingjias[i].qingjiajieshushijian + '</h4>';
+                            html += '<h4 style="font-size:18px;">请假天数：' + data.qingjias[i].tianshu + '</h4><h4 style="font-size:18px;">申请时间：' + data.qingjias[i].shenqingshijian + '</h4></div>';
+                            html += '<div class="aui-list-item-inner" style="width:20%;"><div style="text-align:right;"><input type="button" class="aui-btn aui-btn-info"  value="详情" onclick="xiangqing(\'' + data.qingjias[i].qingjiaid +
+                                '\')"></div></div>';
+                            html += '</div>';
+                        }
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+                $('#xianshi').html(html);
+                api.hideProgress();
+            },
+            error: function() {
+                alert("超时");
+                api.hideProgress();
+            }
+        });
+    }
+
+    function xiala() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var yonghuid = dataInfo.id;
+        var zong = $api.getStorage("loginpages");
+        var token = $api.getStorage("logintoken");
+        var status = dataInfo.status;
+        if (pag < zong) {
+            loadData();
+            pag = pag + 1;
+            $.ajax({
+                type: "POST",
+                url: $api.getStorage('serverUrl')+"app_QingJiaDaiCchuLi_fdy",
+                data: {
+                    CODE: yonghuid,
+                    page: pag,
+                    token: token,
+                    status: status,
+                },
+                dataType: 'json',
+                cache: false,
+                timeout: 5000,
+                success: function(data) {
+                    var data = eval(data);
+                    html = "";
+                    if (data) {
+                        if (data.pages != null && data.pages != "") {
+                            for (var i = 0; i < data.qingjias.length; i++) {
+                                html += '<div class="aui-list-item"><div style="width80%;font-size:18px;"><h4 style="font-size:18px;">申请人学号：' + data.qingjias[i].xuehao + '</h4>';
+                                html += '<h4 style="font-size:18px;">申请人姓名：' + data.qingjias[i].xueshengxingming + '</h4>';
+                                if (data.qingjias[i].qingjialeibie == "1") {
+                                    html += '<h4 style="font-size:18px;">请假类别：事假</h4>';
+                                } else {
+                                    html += '<h4 style="font-size:18px;">请假类别：病假</h4>';
+                                }
+                                if (data.qingjias[i].zhuangtai == "1") {
+                                    html += '<h4 style="font-size:18px;">状态：待处理</h4>';
+                                } else if (data.qingjias[i].zhuangtai == "4") {
+                                    html += '<h4 style="font-size:18px;">状态：待销假</h4>';
+                                }
+                                html += '<h4 style="font-size:18px;">开始时间：' + data.qingjias[i].qingjiakaishishijian + '</h4><h4 style="font-size:18px;">结束时间：' + data.qingjias[i].qingjiajieshushijian + '</h4>';
+                                html += '<h4 style="font-size:18px;">请假天数：' + data.qingjias[i].tianshu + '</h4><h4 style="font-size:18px;">申请时间：' + data.qingjias[i].shenqingshijian + '</h4></div>';
+                                html += '<div class="aui-list-item-inner" style="width:20%;"><div style="text-align:right;"><input type="button" class="aui-btn aui-btn-info"  value="详情" onclick="xiangqing(\'' + data.qingjias[i].qingjiaid +
+                                    '\')"></div></div>';
+                                html += '</div>';
+                            }
+                        }
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                    $('#xianshi').append(html);
+                    api.hideProgress();
+                },
+                error: function() {
+                    alert("超时");
+                    api.hideProgress();
+                }
+            });
+        } else {
+            if (cou == 0) {
+                html = $("#xianshi").html();
+                if (zong == 1) {
+                    html += '<h4 style="text-align:center;position:fixed;bottom:0px;height:15px;width:100%;z-index:-10;font-size:12px;">已到最底端，没有更多数据</h4>';
+                } else {
+                    html += '<h4 style="text-align:center;bottom:0px;height:10px;width:100%;">已到最底端，没有更多数据</h4>';
+                }
+                $('#xianshi').html(html);
+                cou = cou + 1;
+            }
+        }
+    }
+
+    function xiangqing(id) {
+        api.openWin({
+            name: 'jiatiaochuli_fdy',
+            url: 'jiatiaochuli_fdy.html',
+            pageParam: {
+                id: id
+            },
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+
+    function fanhui1() {
+        api.closeWin({
+            name: 'jiatiaochuli_fdy'
+        });
+        window.location.reload();
+    }
+</script>
+
+</html>

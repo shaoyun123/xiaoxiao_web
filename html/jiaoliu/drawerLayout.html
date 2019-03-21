@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>jiaoliu</title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			#main {
+				background-color: #ccc;
+				position: fixed;
+				/*top: 36px;*/
+				bottom: 61px;
+				/*overflow: scroll;*/
+				width: 100%;
+			}
+			.aui-list-item.wechat-top {
+				background-color: #f3f3f7;
+			}
+			.aui-list .wechat-avatar {
+				width: 3rem;
+			}
+			.wechat-avatar .aui-row-padded {
+				background-color: #dddee0;
+				padding: 0.1 rem;
+				border-radius: 0.2 rem;
+				margin-left: -0.05 rem;
+				margin-right: -0.05 rem;
+			}
+			.wechat-avatar, .wechat-avatar > img {
+				border-radius: 0.4 rem;
+			}
+			@media screen and (-webkit-min-device-pixel-ratio: 1.5) {
+				.aui-list {
+					border: none;
+					background-size: 100% 0px;
+				}
+			}
+			.menus {
+				padding-left: 1rem;
+				padding-right: 1rem;
+				background: #FFFFFF;
+				margin-bottom: 0.5 rem;
+			}
+			.aui-tab-item {
+				color: #555;
+				font-size: 0.8 rem;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;">
+			<div class="" style="color:black;font-size:20px;" id="title"></div>
+		</header>
+		<div class="aui-content aui-margin-b-15" id="keChengZu">
+			<ul class="aui-list aui-media-list" id="keChengZuMainUi">
+				<!-- <li class="aui-list-item aui-list-item-middle">
+				<div class="aui-media-list-item-inner">
+				<div class="aui-list-item-media wechat-avatar">
+				<img src="../../res/tx0.jpg" />
+				</div>
+				<div class="aui-list-item-inner">
+				<div class="aui-list-item-text">
+				<div class="aui-list-item-title">
+				川哥哥
+				</div>
+				</div>
+				</div>
+				</div>
+				</li>
+				<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-media-list-item-inner">
+				<div class="aui-list-item-media wechat-avatar">
+				<img src="../../res/tx1.jpg" />
+				</div>
+				<div class="aui-list-item-inner">
+				<div class="aui-list-item-text">
+				<div class="aui-list-item-title">
+				李宇春
+				</div>
+				</div>
+				</div>
+				</div>
+				</li>
+				<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-media-list-item-inner">
+				<div class="aui-list-item-media wechat-avatar">
+				<img src="../../res/tx2.jpg" />
+				</div>
+				<div class="aui-list-item-inner">
+				<div class="aui-list-item-text">
+				<div class="aui-list-item-title">
+				潘玮柏
+				</div>
+				</div>
+				</div>
+				</div>
+				</li>
+				<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-media-list-item-inner">
+				<div class="aui-list-item-media wechat-avatar">
+				<img src="../../res/tx3.jpg" />
+				</div>
+				<div class="aui-list-item-inner">
+				<div class="aui-list-item-text">
+				<div class="aui-list-item-title">
+				周杰伦
+				</div>
+				</div>
+				</div>
+				</div>
+				</li>
+				<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-media-list-item-inner">
+				<div class="aui-list-item-media wechat-avatar">
+				<img src="../../res/tx4.jpg" />
+				</div>
+				<div class="aui-list-item-inner">
+				<div class="aui-list-item-text">
+				<div class="aui-list-item-title">
+				<div class="aui-list-item-input">
+				张杰
+				<input id="chexiao" type="checkbox" checked="true" class="aui-switch"/>
+				</div>
+				</div>
+				</div>
+				</div>
+				</div>
+				</li>
+				<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-media-list-item-inner">
+				<div class="aui-list-item-media wechat-avatar">
+				<img src="../../res/tx9.jpg" />
+				</div>
+				<div class="aui-list-item-inner">
+				<div class="aui-list-item-text">
+				<div class="aui-list-item-title">
+				鹿晗
+				</div>
+				</div>
+				</div>
+				</div>
+				</li> -->
+			</ul>
+		</div>
+	</body>
+	</body> <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/aui-tab.js" ></script>
+	<script type="text/javascript">
+		//var main = $api.byId('main');
+		//var mkeyTime = new Date().getTime();
+		var pageNum;
+		var pageSize;
+		var hashNextPage;
+		function initPage() {
+			pageNum = 0;
+			pageSize = 20;
+			hashNextPage = true;
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		function getMapObject(rongId, pingBiZhangHu, id, leiXing) {
+			//			alert(rongId);
+			//			alert(pingBiZhangHu);
+			//			alert(id);
+			//			alert(leiXing);
+			var pingBiXinXi = {};
+			if (!id) {
+				id = '';
+			}
+			if (id == '') {
+				pingBiXinXi.id = id;
+				pingBiXinXi.rongId = api.pageParam.id;
+				pingBiXinXi.rongZhangHao = $api.getStorage('id');
+				pingBiXinXi.leiXing = '1';
+			} else {
+				pingBiXinXi.id = id;
+				pingBiXinXi.rongId = rongId;
+				pingBiXinXi.leiXing = leiXing;
+			}
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_UpdatePingBiXinXi", //如果地址访问不到会请求出错，请填写自己的接口地址
+				data : {
+					pingBiXinXi : $api.jsonToStr(pingBiXinXi)
+				},
+				dataType : 'json',
+				cache : false,
+				crossDomain : true,
+				timeout : 5000,
+				success : function(data) {
+					if (data.retInfo == 'fail') {
+					} else {
+						var miandarao = jQuery('#miandarao').is(':checked');
+						var text = "";
+						var rong = api.require('rongCloud2');
+						var conversationType = "PRIVATE";
+						var notificationStatus = '';
+						if (api.pageParam.type == 1) {
+							conversationType = "GROUP";
+						}
+						if (miandarao) {
+							text = '已经设置为免打扰模式！';
+							notificationStatus = 'DO_NOT_DISTURB';
+						} else {
+							notificationStatus = 'NOTIFY';
+							text = '已经取消免打扰模式！';
+						}
+						// 之前调用 init 和 connect 的代码省略
+						rong.setConversationNotificationStatus({
+							conversationType : conversationType,
+							targetId : api.pageParam.id,
+							notificationStatus : notificationStatus
+						}, function(ret, err) {
+//							alert($api.jsonToStr(ret));
+							if (ret.status == 'success') {
+								//								alert($api.jsonToStr(ret));
+								//								api.toast({
+								//									msg : ret.result.code
+								//								});
+							} else {
+								//								api.toast({
+								//									msg : err.code
+								//								});
+							}
+						})
+						api.toast({
+							msg : text
+						});
+					}
+					var jsfun = 'initRongYun();';
+					api.execScript({
+						name : 'index',
+						script : jsfun
+					});
+				},
+				error : function() {
+					alert("超时！！");
+					api.hideProgress();
+				}
+			});
+		}
+
+		function miandarao() {
+			var rongXinXi = api.pageParam.id + "1";
+			var jsfun = 'getPingBiValueToBlack("' + rongXinXi + '","getMapObject","drawerLayout");';
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+		}
+
+		function pingbi(obj, id, mingcheng, xuexiaox_xuehao) {
+			var pingbi = jQuery(obj).is(':checked');
+			var pingBiXinXi = {};
+			if (!id) {
+				id = '';
+			}
+			pingBiXinXi.id = id;
+			pingBiXinXi.pingBiZhangHu = xuexiaox_xuehao;
+			pingBiXinXi.rongZhangHao = $api.getStorage('id');
+			pingBiXinXi.rongId = api.pageParam.id;
+			pingBiXinXi.leiXing = '2';
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_UpdatePingBiXinXi", //如果地址访问不到会请求出错，请填写自己的接口地址
+				data : {
+					pingBiXinXi : $api.jsonToStr(pingBiXinXi)
+				},
+				dataType : 'json',
+				cache : false,
+				crossDomain : true,
+				timeout : 5000,
+				success : function(data) {
+					if (data.retInfo == 'fail') {
+					} else {
+						var html = '';
+						var text = "";
+						id = data.dataId;
+						if (data.dataId && data.dataId != '') {
+							html = mingcheng + '<input onclick="pingbi(this,\'' + id + '\',\'' + mingcheng + '\',\'' + xuexiaox_xuehao + '\')"  type="checkbox" checked="true" class="aui-switch"/>';
+							notificationStatus = 'DO_NOT_DISTURB';
+							text = '已经屏蔽【' + mingcheng + '】';
+						} else {
+							html = mingcheng + '<input onclick="pingbi(this,\'' + id + '\',\'' + mingcheng + '\',\'' + xuexiaox_xuehao + '\')"  type="checkbox"  class="aui-switch"/>';
+							notificationStatus = 'NOTIFY';
+							text = '已经取消屏蔽【' + mingcheng + '】';
+						}
+						jQuery(obj).parent().html(html);
+						api.toast({
+							msg : text
+						});
+					}
+					var jsfun = 'initRongYun();';
+					api.execScript({
+						name : 'index',
+						script : jsfun
+					});
+				},
+				error : function() {
+					alert("超时！！");
+					api.hideProgress();
+				}
+			});
+		}
+
+		function setTitle(rongId, pingBiZhangHu, id, leiXing) {
+			if (!id) {
+				id = '';
+			}
+			var html = "组员";
+			if (id == '') {
+				html += '<input onclick="miandarao()" id="miandarao" type="checkbox" style="top: 8px;" class="aui-switch"/>'
+			} else {
+				html += '<input onclick="miandarao()" id="miandarao" type="checkbox" checked="true" style="top: 8px;" class="aui-switch"/>'
+			}
+			$('#title').html(html);
+		}
+
+		apiready = function() {
+//		alert(1);
+			loadData();
+			initPage();
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 1000,
+				}
+			}, function(ret, err) {
+				if (hashNextPage) {
+					//					searchData(searchStatus);
+				}
+			});
+			api.hideProgress();
+			$api.fixStatusBar($api.dom('.aui-bar-nav'));
+			//$api.css($api.dom("#keChengZu"), 'display:block');
+			var jiaoLiuParam = $api.jsonToStr($api.getStorage('loginDataInfo'));
+			if (!jiaoLiuParam || jiaoLiuParam == null || jiaoLiuParam == '') {
+				alert("已登出");
+				api.hideProgress();
+				var jsfun = 'logout();';
+				api.execScript({
+					name : 'index',
+					script : jsfun
+				});
+				return;
+			}
+			var rongXinXi = api.pageParam.id + "1";
+//			$.ajax({
+//				type : "POST",
+//				url : $api.getStorage('serverUrl') + "app_getpingbilist", //如果地址访问不到会请求出错，请填写自己的接口地址
+//				data : {
+//					jiaoLiuParam : jiaoLiuParam,
+//					zuId : api.pageParam.id
+//				},
+//				dataType : 'json',
+//				cache : false,
+//				crossDomain : true,
+//				success : function(data) {
+//					if(data){
+//						if(data.pingbilist != null){
+//						var datas = eval(data.pingbilist);
+//							for (var i = 0; i < datas.length; i++) {
+//							 	var obj=datas[i];
+//							 	if(obj.leiXing == '1'){
+//							 		rongXinXi = api.pageParam.id + "1";
+//							 	}else{
+//							 		rongXinXi = api.pageParam.id + obj.pingBiZhangHu;
+//							 	}
+//							 	
+//							}
+//						}
+//					}
+//				
+//				},
+//				error : function() {
+//					alert("超时！！");
+//					api.hideProgress();
+//				}
+//			});
+			
+			
+			var jsfun = 'getPingBiValueToBlack("' + rongXinXi + '","setTitle","drawerLayout");';
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+//			alert(api.pageParam.id);
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_HuoQuMouGeZuChengYuan", //如果地址访问不到会请求出错，请填写自己的接口地址
+				data : {
+					jiaoLiuParam : jiaoLiuParam,
+					zuId : api.pageParam.id
+				},
+				dataType : 'json',
+				cache : false,
+				crossDomain : true,
+				success : function(data) {
+					var html = "";
+					if (data.retInfo == "fail") {
+					} else {
+						var datas = data.yongHuList;
+						var obj;
+//						alert($api.jsonToStr(datas));
+						if (datas && datas.length > 0) {
+							var checked;
+							for (var i = 0; i < datas.length; i++) {
+								obj = datas[i];
+								checked = '';
+								if (obj.dianHua=="1") {
+									checked = 'checked="checked"';
+								}
+								html += '<li class="aui-list-item aui-list-item-middle">';
+								html += '<div class="aui-media-list-item-inner">';
+								html += '<div class="aui-list-item-media wechat-avatar">';
+								html += '<img src="../../res/qq.png" />';
+								html += '</div>';
+								html += '<div class="aui-list-item-inner">';
+								html += '<div class="aui-list-item-text">';
+								html += '<div class="aui-list-item-title">';
+								html += '<div class="aui-list-item-input">';
+								html += obj.xingMing + '<input onclick="pingbi(this,\'' + obj.id + '\',\'' + obj.xingMing + '\',\'' + obj.xuexiao_xuehao + '\')"  type="checkbox" ' + checked + ' class="aui-switch"/>';
+								html += '</div>';
+								html += '</div>';
+								html += '</div>';
+								html += '</div>';
+								html += '</div>';
+								html += '</li>';
+							}
+						}
+					}
+					$('#keChengZuMainUi').html(html);
+				},
+				error : function() {
+					alert("超时！！");
+					api.hideProgress();
+				}
+			});
+			//						var rongQunData = $api.getStorage('rongQunData');
+			//						var obj;
+			//						var html = '';
+			//						if (rongQunData) {
+			//							for (var i = 0; i < rongQunData.length; i++) {
+			//								obj = rongQunData[i];
+			//								//					html += '<li class="aui-list-item aui-list-item-middle">';
+			//								//					html += '<div class="aui-media-list-item-inner">';
+			//								//					html += '<div class="aui-list-item-media wechat-avatar">';
+			//								//					html += '<img src="../../res/qun3.jpg" />';
+			//								//					html += '</div>';
+			//								//					html += '<div class="aui-list-item-inner">';
+			//								//					html += '<div class="aui-list-item-text">';
+			//								//					html += '<div class="aui-list-item-title"><div class="aui-list-item-input">';
+			//								//					html += obj.mingCheng;+' 是否禁言:<input id="chexiao" name="jinyan" checked="false" type="checkbox" class="aui-switch"/>'
+			//								//					html += '</div></div>';
+			//								//					html += '</div>';
+			//								//					//html += '<div class="aui-list-item-text aui-font-size-12 aui-text-danger">';
+			//								//					//html += '[11人] 最新代码分享...';
+			//								//					//html += '</div>';
+			//								//					html += '</div>';
+			//								//					html += '</div>';
+			//								//					html += '</li>';
+			//								html += '<li class="aui-list-item aui-list-item-middle">';
+			//								html += '<div class="aui-media-list-item-inner">';
+			//								html += '<div class="aui-list-item-media wechat-avatar">';
+			//								html += '<img src="../../res/tx4.jpg" />';
+			//								html += '</div>';
+			//								html += '<div class="aui-list-item-inner">';
+			//								html += '<div class="aui-list-item-text">';
+			//								html += '<div class="aui-list-item-title">';
+			//								html += '<div class="aui-list-item-input">';
+			//								html += obj.mingCheng + '<input onclick="pingbi(' + obj + ')"  type="checkbox" checked="true" class="aui-switch"/>';
+			//								html += '</div>';
+			//								html += '</div>';
+			//								html += '</div>';
+			//								html += '</div>';
+			//								html += '</div>';
+			//								html += '</li>';
+			//							}
+			//						}
+			//						//alert(html);
+			//						$('#keChengZuMainUi').html(html);
+			//			chushi();
+			//						api.addEventListener({
+			//							name : 'keyback'
+			//						}, function(ret, err) {
+			//							//如果当前时间减去标志时间大于2秒，说明是第一次点击返回键，反之为2秒内点了2次，则退出。
+			//							if ((new Date().getTime() - mkeyTime) > 2000) {
+			//								mkeyTime = new Date().getTime();
+			//								api.toast({
+			//									msg : '再按一次退出程序',
+			//									duration : 2000,
+			//									location : 'bottom'
+			//								});
+			//							} else {
+			//								api.closeWidget();
+			//							}
+			//						});
+		}
+	
+	
+	
+	</script>
+</html>

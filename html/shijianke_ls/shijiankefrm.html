@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			.container {
+				height: 50px;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				overflow: hidden;
+			}
+			.nav {
+				height: 100%;
+				overflow-x: scroll;
+				overflow-y: hidden;
+				background: rgb(240,240,240);
+			}
+			#con {
+				width: 370px;
+				height: 100%;
+				display: flex;
+				align-items: center;
+			}
+			#con > div {
+				text-align: center;
+				font-size: 18px;
+				width: 130px;
+				list-style: none;
+			}
+			.container ::-webkit-scrollbar {
+				display: none;
+			}
+			.aui-list .aui-list-item-media {
+				width: 4rem;
+			}
+			.items {
+				color: red;
+			}
+			a {
+				margin-right: 10px;
+				color: #0062CC;
+			}
+			#opacity {
+			    opacity: 0.8;
+			    background:#424242;
+			    display: none;
+			    position: absolute;
+			    left:0;
+			    top:0;
+			    width:100%;
+			    height:100%;
+			}
+		</style>
+	</head>
+	<body>
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;margin-top: 20px;padding: 0;"  id="topbar">
+			<a class="aui-pull-left  border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+			<div  class="aui-title border-b "  id="title" name="richeng" style="font-size:20px;color:gray;">
+				实践课
+			</div>
+		</header>
+		<div class="container">
+			<nav class="nav">
+				<ul id="con">
+					<div class="aui-tab-item aui-active items"  onclick="showData(this,2)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						已结束
+					</div>
+					<div class="aui-tab-item items"  onclick="showData(this,1)"  style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						进行中
+					</div>
+					<div class="aui-tab-item items" onclick="showData(this,0)" id="jiri" style="font-size:16px;color:#696969;background:  rgb(240,240,240) ;">
+						未开始
+					</div>
+				</ul>
+			</nav>
+		</div>
+		<div class="aui-content" id="menu_mun">
+			<ul class="aui-list aui-media-list" id="sjk"></ul>
+		</div>
+		<!--<div id="shezhi" style="position: absolute;margin-top:-200px;margin-left:30%;background: #fff;display: none">
+		
+		<div style="border:1px solid #000;height:200px;width:200px;padding:10px;border-radius:5px;">
+		按大组评分：<input type="radio" name="radio" value="按大组评分" />
+		<br />所有小组一块评分：<input type="radio" name="radio" value="所有小组一块评分" />
+		<br />老师评分占比：<input style="border:1px solid #ccc;width:70%;" />%
+		<button onclick="tijiao();" class="aui-btn aui-btn-info" style="left:10%;margin:10px;">提交</button>
+		<button onclick="guanbi();" class="aui-btn aui-btn-info" style="left:10%;margin:10px;">关闭</button>
+		</div>
+		
+		</div>
+		<div id="opacity"></div>-->
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin();
+		}
+
+		var searchStatus = 2;
+		function showData(obj, val) {
+			if (searchStatus != val) {
+				searchStatus = val;
+				$('.items').each(function() {
+					$(this).removeClass('aui-active');
+				});
+				$(obj).addClass('aui-active');
+				chushi(searchStatus);
+			}
+		}
+
+		apiready = function() {
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				$api.rmStorage('loginpages');
+			});
+			chushi(searchStatus);
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					chushi(searchStatus);
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0,
+				}
+			}, function(ret, err) {
+				goback();
+			});
+		};
+		function chushi(val) {    // 获取所有考评，有未开始，进行中和已结束
+			var data = api.pageParam.data;
+//				alert($api.jsonToStr(data));
+			var kechengmingcheng = api.pageParam.kechengmingcheng;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var yonghuid = dataInfo.id;
+			var renkelaoshiid = api.pageParam.renkelaoshiid;
+//			alert(renkelaoshiid);
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var code = yonghuid;
+			var url = '';
+			var html = '';
+			for (var i = 0; i < data.kaoPing.length; i++) {
+				if (val == 0 && data.kaoPing[i].zhuangTai == 0) {   // 未开始
+					html += '<ul style="background:#fff;">';
+					html += '<li style="height:70px;border-bottom:1px solid #ccc;font-size:20px;padding-left:20px;">';
+					html += '<span>' + data.kaoPing[i].kaoPingMingCheng + '</span><span style="float:right;padding-right:20px;">' + data.kaoPing[i].kaiShiShiJian + '</span>';
+					if(renkelaoshiid == yonghuid){
+					html += '<br><span style="padding-top:15px;color:gray;font-size:14px;">' + kechengmingcheng + '</span><span style="padding-top:15px;float:right;color:blue;font-size:14px;padding-right:20px;" onclick="kaishi(' + data.kaoPing[i].ID + ',' + data.kaoPing[i].keChengID + ')">立即开始</span>';					
+					}else{
+					html += '<br><span style="padding-top:15px;color:gray;font-size:14px;">' + kechengmingcheng + '</span>';
+					}
+					html += '</li>';
+					html += '</ul>';
+				} else if (val == 1 && data.kaoPing[i].zhuangTai == 1) {// 进行中
+					html += '<ul style="background:#fff;">';
+					html += '<li style="height:70px;border-bottom:1px solid #ccc;font-size:20px;padding-left:20px;" onclick="jinxingzhong(' + i + ');">';
+					html += '<span>' + data.kaoPing[i].kaoPingMingCheng + '</span>';
+					html += '<br><span style="padding-top:15px;color:gray;font-size:14px;">' + kechengmingcheng + '</span>';
+					html += '</li>';
+					html += '</ul>';
+				} else if (val == 2 && data.kaoPing[i].zhuangTai == 4) {// 已结束
+					html += '<ul style="background:#fff;">';
+					html += '<li style="height:70px;border-bottom:1px solid #ccc;font-size:20px;padding-left:20px;">';
+					html += '<span  onclick="yijieshu(' + i + ');">';
+					html += '<span>' + data.kaoPing[i].kaoPingMingCheng + '</span>';
+					html += '<br><span style="padding-top:15px;color:gray;font-size:14px;">' + kechengmingcheng + '</span>';
+					// 	判断是否已经设置打分类型，如果已经设置直接显示，没有设置可以设置后显示			
+					if (data.kaoPing[i].pingfenshezhi == '' || data.kaoPing[i].pingfenshezhi == '') {
+						html += '&nbsp&nbsp&nbsp&nbsp<span id="pingfenfangshi" style="padding-top:15px;color:gray;font-size:14px;">&nbsp&nbsp&nbsp&nbsp</span>';
+					} else {
+						if (data.kaoPing[i].pingfenshezhi == 0) {// 按小组打分
+							html += '&nbsp&nbsp&nbsp&nbsp<span style="padding-top:15px;color:gray;font-size:14px;">&nbsp&nbsp&nbsp&nbsp按小组打分</span>';
+						} else {
+							html += '&nbsp&nbsp&nbsp&nbsp<span style="padding-top:15px;color:gray;font-size:14px;">&nbsp&nbsp&nbsp&nbsp按大组打分</span>';
+						}
+					}					
+					html += '&nbsp&nbsp&nbsp&nbsp<span id="pingfenfangshi" style="padding-top:15px;color:gray;font-size:14px;">&nbsp&nbsp&nbsp&nbsp</span>';
+					html += '</span>';
+						if(renkelaoshiid == yonghuid){
+							if(data.kaoPing[i].pingfenstatus == 'weipingfen'){ // 如果没有评分则可以设置，如果已经打过分，则不能再进行设置 	
+								html += '<span style="padding-top:45px;float:right;color:blue;font-size:14px;padding-right:20px;" onclick="shezhi(' + i + ');">设置</span>';				
+							}else{
+								html += '<span style="padding-top:45px;float:right;color:#ccc;font-size:14px;padding-right:20px;">设置</span>';
+							}
+						html += '<span style="padding-top:45px;float:right;color:blue;font-size:14px;padding-right:40px;" onclick="pingfen(' + i + ');">评分</span>';
+						}else{
+						}
+					html += '</li>';
+					html += '</ul>';
+				}
+			}
+			$("#sjk").html(html);
+		}
+		
+//		function guanbi() {
+//			$("#shezhi").css("display","none");
+//			$("#opacity").css("display","none");
+//		}
+		
+
+		function shezhi(i) {
+//		$("#shezhi").css("display","block");
+//		$("#opacity").css("display","block");
+//		var html = '';
+//		html += '<div style="border:1px solid #000;height:200px;width:200px;padding:10px;border-radius:5px;">';
+//		html += '按大组评分：<input type="radio" name="radio" value="按大组评分" />';
+//		html += '<br />所有小组一块评分：<input type="radio" name="radio" value="所有小组一块评分" />';
+//		html += '<br />老师评分占比：<input style="border:1px solid #ccc;width:70%;" />%';
+//		html += '<button onclick="tijiao();" class="aui-btn aui-btn-info" style="left:10%;margin:10px;">提交</button>';
+//		html += '<button onclick="guanbi();" class="aui-btn aui-btn-info" style="left:10%;margin:10px;">关闭</button>';
+//		html += '</div>';
+//		$("#shezhi").html(html);			
+			var fendazu = api.pageParam.fendazu;
+			var fenxiaozu = api.pageParam.fenxiaozu;
+			if (fendazu == 1) {   // 分大组情况，分大组才能选择是按大组评分还是按小组评分，如果不分大组，只能按照小组评分
+				api.confirm({
+					title : '提醒',
+					msg : '    请老师选择合适的评分方式',
+					buttons : ['按大组评分', '所有小组一块评分']
+				}, function(ret, err) {
+					var index = ret.buttonIndex;
+					if (index == 1) {
+						api.confirm({
+							title : '确定要按大组评分？',
+							buttons : ['确定', '取消']
+						}, function(ret, err) {
+							var index = ret.buttonIndex;
+							if (index == 1) {
+								shezhis(i, 1); // 第二个参数“1”代表按大组评分								
+							} else if (index == 2) {
+								shezhi(i);   // 返回上一步，调用自己
+							}
+						})
+					} else if (index == 2) {
+						api.confirm({
+							title : '确定要所有小组一块评分？',
+							buttons : ['确定', '取消']
+						}, function(ret, err) {
+							var index = ret.buttonIndex;
+							if (index == 1) {
+								shezhis(i, 0); // 第二个参数“0”代表按小组评分
+							} else if (index == 2) {
+								shezhi(i);	// 返回上一步，调用自己
+							}
+						})
+					}
+				})
+			} else {// 不分大组
+				api.confirm({
+					title : '提醒',
+					msg : '    该考评没有分大组，所以只能所有小组一块评分',
+					buttons : ['确定', '取消']
+				}, function(ret, err) {
+					var index = ret.buttonIndex;
+					if (index == 2) {
+					} else if (index == 1) {
+						shezhis(i, 0); // 第二个参数“0”代表按小组评分
+					}
+				})
+			}
+		}
+
+		function pingfen(i) {
+			var data = api.pageParam.data;
+			if (data.kaoPing[i].pingfenshezhi == null || data.kaoPing[i].pingfenshezhi == '') {
+				alert("请先设置评分方式!");
+			} else {
+				if (data.kaoPing[i].pingfenshezhi == 0) {  // 按小组打分
+					dafen(i);
+				} else if (data.kaoPing[i].pingfenshezhi == 1) {
+					dazudafen(i);
+				}
+			}
+		}
+
+		function shezhis(i, j) {
+			var data = api.pageParam.data;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var yonghuid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_pingfenshezhi",
+				data : {
+					yonghuid : yonghuid,
+					status : status,
+					token : token,
+					kaopingid : data.kaoPing[i].ID,
+					pingfenshezhi : j,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					if (data.status == 'success') {
+						if (j == 0) {
+							$("#pingfenfangshi").text("按小组评分");
+						} else if (j == 1) {
+							$("#pingfenfangshi").text("按大组评分");
+						}
+						alert("设置成功");
+						// 刷新一下！！！
+						var jsfun = 'xuanze(2)';
+						api.execScript({
+							name : 'shijianke_ls',
+							script : jsfun
+						});
+					} else {
+						alert("设置失败");
+					}
+				},
+				error : function() {
+					console.log("app_pingfenshezhi");
+				}
+			});
+		}
+
+		function dafen(i) {// 考评完成后，老师打分，老师评分跟学生评分操作相互独立，
+			var data = api.pageParam.data;
+			var dazuid;
+			var fendazu = api.pageParam.fendazu;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var fendazu = api.pageParam.fendazu;
+			var pingfenshezhi = data.kaoPing[i].pingfenshezhi;
+			var kaopingid = data.kaoPing[i].ID;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_getpingfenxinxi",
+				data : {
+					yonghuid : studentid,
+					dazuid : dazuid,
+					status : status,
+					token : token,
+					kaopingid : kaopingid,
+					kechengid : data.kaoPing[i].keChengID,
+					pingfenshezhi : pingfenshezhi,
+					fendazu : fendazu,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					//	alert($api.jsonToStr(data));
+					api.openWin({
+						name : 'dafen',
+						url : "dafen.html",
+						reload : true,
+						allowEdit : true,
+						pageParam : {
+							data : data,
+							pingfenshezhi : pingfenshezhi,
+							kaopingid : kaopingid,
+							dazuid : dazuid,
+							fendazu : fendazu,
+						}
+					});
+				},
+				error : function() {
+					console.log("app_getpingfenxinxi");
+				}
+			});
+		}
+
+		function dazudafen(i) {
+			var fendazu = api.pageParam.fendazu;
+			var fenxiaozu = api.pageParam.fenxiaozu;
+			var fuzerenid = api.pageParam.fuzerenid;
+			var fuzeren = api.pageParam.fuzeren;
+			var data = api.pageParam.data;
+			if (fendazu == 1) {
+				api.openWin({
+					name : 'dazudafen',
+					url : "dazudafen.html",
+					reload : true,
+					allowEdit : true,
+					pageParam : {
+						data : data.kaoPing[i],
+						dazu : data.dazu,
+						fendazu : fendazu,
+						fenxiaozu : fenxiaozu,
+						fuzeren : fuzeren,
+					}
+				});
+			}
+		}
+
+		function kaishi(kaopingid, kechengid) {// 老师强制开始考评，把考评抽签的状态由0-1
+			var kechengmingcheng = api.pageParam.kechengmingcheng;
+			api.confirm({
+				title : '是否立即开始',
+				buttons : ['确定', '取消']
+			}, function(ret, err) {
+				var index = ret.buttonIndex;
+				if (index == 2) {
+				} else if (index == 1) {
+					api.confirm({
+						title : '再次确认是否要立即开始考评',
+						buttons : ['确定', '取消']
+					}, function(ret, err) {
+						var index = ret.buttonIndex;
+						if (index == 2) {
+						} else if (index == 1) {
+							var dataInfo = $api.getStorage('loginDataInfo');
+							var status = dataInfo.status;
+							var yonghuid = dataInfo.id;
+							var token = $api.getStorage("logintoken");
+							$.ajax({
+								type : "POST",
+								url : $api.getStorage('serverUrl') + "app_inforcestart",
+								data : {
+									yonghuid : yonghuid,
+									status : status,
+									token : token,
+									kaopingid : kaopingid,
+									shijiankechengid : kechengid,
+								},
+								dataType : 'json',
+								cache : false,
+								success : function(data) {
+									var i =　api.pageParam.i;        // 整理代码格式有问题？？？
+									if (data.status == 'success') {
+										alert('设置成功');
+										var jsfun = 'guodu(' + i + ')';
+										api.execScript({
+											name : 'shijiankewin',
+											frameName : 'shijiankefrms',
+											script : jsfun
+										});
+									}
+									if (data.status == 'started') {
+										alert('已经有正在进行的考评！！！');
+									}
+								},
+								error : function() {
+									console.log("app_inforcestart");
+								}
+							});
+						}
+					});
+				}
+			});
+		}
+
+		function jinxingzhong(i) {
+			var data = api.pageParam.data;
+			var fendazu = api.pageParam.fendazu;
+//			alert(fendazu);
+			var fenxiaozu = api.pageParam.fenxiaozu;
+			if (fendazu == 1) {  //分大组
+				api.openWin({
+					name : 'jxzdazu',
+					url : "jxzdazu.html",
+					reload : true,
+					allowEdit : true,
+					pageParam : {
+						data : data.kaoPing[i],
+						dazu : data.dazu,
+						i : i,
+						fendazu : api.pageParam.fendazu,
+						fenxiaozu : api.pageParam.fenxiaozu,
+					}
+				});
+			} else {
+				api.openWin({
+					name : 'jinxingzhong',
+					url : "jinxingzhong.html",
+					reload : true,
+					allowEdit : true,
+					pageParam : {
+						data : data.kaoPing[i],
+						fendazu : api.pageParam.fendazu,
+						fenxiaozu : api.pageParam.fenxiaozu,
+						fuzerenid : api.pageParam.fuzerenid,
+						fuzeren : api.pageParam.fuzeren,
+					}
+				});
+			}
+		}
+
+		function yijieshu(i) {
+			var fendazu = api.pageParam.fendazu;
+			var fenxiaozu = api.pageParam.fenxiaozu;
+			var fuzerenid = api.pageParam.fuzerenid;
+			var fuzeren = api.pageParam.fuzeren;
+			var data = api.pageParam.data;
+			if (fendazu == 1) {
+				api.openWin({
+					name : 'yijieshu',
+					url : "yijieshu.html",
+					reload : true,
+					allowEdit : true,
+					pageParam : {
+						data : data.kaoPing[i],
+						dazu : data.dazu,
+						fendazu : fendazu,
+						fenxiaozu : fenxiaozu,
+						fuzeren : fuzeren,
+					}
+				});
+			} else {
+				xiaozu(i);
+			}
+		}
+
+		function xiaozu(i) {   // 不分大组的时候，直接显示小组
+			var dazuid;
+			var data = api.pageParam.data.kaoPing[i];
+			var kaopingid = data.ID;
+			var kechengid = data.keChengID;
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var fendazu = $api.getStorage("fendazu");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_score",
+				data : {
+					xueshengid : studentid,
+					status : status,
+					token : token,
+					kaopingid : kaopingid,
+					kechengid : kechengid,
+					dazuid : dazuid,
+					fendazu : fendazu,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					api.openWin({
+						name : 'xiaozudefen',
+						url : "xiaozudefen.html",
+						reload : true,
+						allowEdit : true,
+						pageParam : {
+							data : data,
+						}
+					});
+				},
+				error : function() {
+					console.log("app_score");
+				}
+			});
+		}
+	</script>
+</html>

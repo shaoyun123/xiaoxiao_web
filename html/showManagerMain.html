@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>richeng</title>
+		<link rel="stylesheet" type="text/css" href="../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link href="../script/fullcalendar/fullcalendar.min.css" rel="stylesheet" />
+		<link href="../script/fullcalendar/fullcalendar.print.min.css" rel="stylesheet" media="print" />
+		<script src="../script/fullcalendar/moment.min.js"></script>
+		<script src="../script/fullcalendar/jquery.min.js"></script>
+		<script src="../script/fullcalendar/fullcalendar.min.js"></script>
+		<script src="../script/fullcalendar/locale-all.js"></script>
+		<style>
+		</style>
+	</head>
+	<body id="bodys" style="background-color: #e7e7ef;">
+		<div id="appContent" class="aui-content"></div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		var dataJson;
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			loadData();
+			var number = api.pageParam.number;
+			if (number == 1) {
+				dataJson = api.pageParam.dataJson;
+				if (dataJson && dataJson.dataId && dataJson.dataType) {
+					$('#appContent').html('暂无数据');
+				}
+			} else {
+			}
+			api.hideProgress();
+		};
+	</script>
+</html>

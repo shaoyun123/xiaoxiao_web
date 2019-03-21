@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+	</head>
+	<style>
+		header {
+			background-color: #f2f2f2;
+		}
+	</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<div id="wrap" class="flex-wrap flex-vertical container">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;margin: 0;padding: 0;"  id="topbar">
+				<a class="aui-pull-left  border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+				<div  class="aui-title border-b "  id="title" name="richeng" style="font-size:20px;color:gray;">
+					详情
+				</div>
+			</header>
+			<div id="con" class="flex-con"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'xiangqing'
+			});
+		}
+
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+			var data = api.pageParam.data;
+//			alert($api.jsonToStr(data));
+			var chengyuan = '';
+			var html = '';
+			html += '<div class="aui-content aui-margin-b-15" style="background:#fff;">';
+			html += '<div class="aui-list">';
+			html += '<li class="aui-list-item" style="top:10px;font-size:20px;">';
+			for (var j = 0; j < data.chengyuan.length; j++) {
+				chengyuan += data.chengyuan[j].xingming + ',';
+			}
+			html += data.xueXiZuMing + '&nbsp&nbsp&nbsp&nbsp' + chengyuan;
+			html += '</li>';
+			html += '<div class="aui-list-item-inner">';
+			html += '<li class="aui-list-item-title">' + data.fayanren;
+			html += '</li>';
+			html += '<li class="aui-list-item-right" style="z-index:9999;">';
+			var zhaopian = data.kaopingjieguo.zhaoPian;
+			var srcimg = $api.getStorage('serverUrl') + 'app_getPict?id=' + zhaopian + '&xiaozuid=' + data.ID;
+			html += '<img class="zhaopian" width="120" src="' + srcimg + '" onerror="imgError(this);"  onclick="Server(\'' + srcimg + '\')">';
+			html += '</li>';
+			html += '</div>';
+			html += '</div>';
+			html += '<div>本组得分情况：</div>';
+			html += '<div class="" style="height:auto;padding:20px;background:#fff;border-bottom:1px solid #ccc;font-size:16px;color:gray;">';
+			for (var j = 0; j < data.defenliebiao.length; j++) {
+				html += data.defenliebiao[j].dafenxiaozuming + '_' + data.defenliebiao[j].defen + ',&nbsp&nbsp&nbsp&nbsp';
+			}
+			html += '</div>';
+			html += '<div>本组打分情况：</div>';
+			html += '<div class="" style="height:auto;padding:20px;background:#fff;border-bottom:1px solid #ccc;font-size:16px;color:gray;">';
+			for (var j = 0; j < data.dafen.length; j++) {
+				html += data.dafen[j].beidafenxiaozuming + '_' + data.dafen[j].dafen + ',&nbsp&nbsp&nbsp&nbsp';
+			}
+			html += '</div>';
+			html += '<table style="width:100%;">';
+			html += '<tr><td width="100">总分：' + data.kaopingjieguo.zongFen + '</td><td width="100">得分：' + data.kaopingjieguo.quMaxAndMin + '</td></tr><br>';
+			html += '<tr><td width="100">得分平均分：' + data.kaopingjieguo.pingJunFen + '</td><td width="100">扣分平均分：' + data.kaopingjieguo.zongKouFen + '</td></tr>';
+			html += '<tr><td width="100">归一得分：' + data.kaopingjieguo.zuiZhongDeFen + '</td><td width="100">最终排名：' + data.kaopingjieguo.mingCi + '</td></tr>';
+			html += '</table>';
+			html += '</div>';
+			$('#con').html(html);
+		};
+		function Server(obj) {
+			api.openFrame({
+				name : 'imgshow',
+				url : "../imageShow.html",
+				rect : {
+					x : 0,
+					y : 0,
+					w : 'auto',
+					h : 'auto'
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				pageParam : {
+					url : obj
+				},
+				allowEdit : true,
+				reload : true
+			});
+		}
+
+		function imgError(obj) {
+			if (obj) {
+				obj.src = "../../image/123.png";
+				obj.onerror = null;
+			} else {
+				var img = event.srcElement;
+				img.src = "../../image/123.png";
+				img.onerror = null;
+			}
+		}
+	</script>
+</html>

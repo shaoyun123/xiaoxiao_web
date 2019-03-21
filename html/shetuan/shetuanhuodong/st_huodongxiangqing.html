@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>st_huodongxiangqing</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../script/bootstrap-switch.min.js"></script>
+    <style>
+        body {}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav" style="background-color: white;padding-top:25px;" id="topbar">
+        <a class="aui-pull-left aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-left" style="color:gray;"></span>
+        </a>
+        <ul id="tittt" style="font-size:20px;">
+        </ul>
+    </header>
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+          <li class="aui-list-header" style="font-size:20px;">社团活动</li>
+            <nav>
+                <ul id="xianshi">
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'st_huodongxiangqing',
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+        var mingcheng = api.pageParam.mingcheng;
+        html = "";
+        html += '<div id="ming" class="aui-title" style="width:auto;">' + mingcheng + '</div>';
+        $('#tittt').html(html);
+        loadData();
+        chushi();
+    };
+
+    function chushi(){
+        var huodongid = api.pageParam.huodongid;
+        $.ajax({
+          type: "POST",
+          url: $api.getStorage('serverUrl')+"app_SheTuanHuoDongXiangXi",
+          data: {
+              huodongid: huodongid,
+          },
+          dataType: 'json',
+          cache: false,
+          timeout: 5000,
+          success: function(data){
+            var data=eval(data);
+            html = "";
+            if(data){
+              if(data.huodongid!=null&&data.huodongid!=""){
+                html += '<div class="aui-card-list" style="width:100%;"><div class="aui-card-list-header" style="text-align:center;height:30px;"><h4 style="font-size:24px;font-weight:bold;width:100%;" align="center">'+data.huodongmingcheng+'</h4></div><div class="aui-card-list-header" style="height:30px;"><h4 style="font-size:15px;width:100%;" align="right">发布时间:'+data.fabushijian+'</h4></div>';
+                html += '<div class="aui-card-list-content-padded" style="border-top:0.5px solid #ccc;">';
+                html += '<div style="margin-left:1px;"><h4 style="font-size:20px;font-weight:bold;">活动介绍:</h4></div>';
+                html += '<div><p style="font-size:18px;text-indent:25px;">'+data.huodongxiangqing+'</p></div>';
+                html += '<div style="margin-left:1px;"><h4 style="font-size:20px;font-weight:bold;">活动时间:</h4></div>';
+                html += '<div><p style="font-size:18px;text-indent:25px;">'+data.huodongshijian+'</p></div>';
+                html += '<div style="margin-left:1px;"><h4 style="font-size:20px;font-weight:bold;">活动地点:</h4></div>';
+                html += '<div><p style="font-size:18px;text-indent:25px;">'+data.huodongdidian+'</p></div>';
+                /*
+                if (data.huodongliucheng != null) {
+                    html += '<div style="margin-left:1px;"><h4 style="font-size:20px;font-weight:bold;">活动流程:</h4></div>';
+                    html += '<div><p style="font-size:18px;text-indent:25px;">' + data.huodongliucheng + '</p></div>';
+                }
+                if(data.huodongjilu!=null){
+                  html += '<div style="margin-left:1px;"><h4 style="font-size:20px;font-weight:bold;">活动记录:</h4></div>';
+                  html += '<div><p style="font-size:18px;text-indent:25px;">' + data.huodongjilu + '</p></div>';
+                }
+                */
+                html += '</div></div>';
+              }
+            }
+            $('#xianshi').html(html);
+            api.hideProgress();
+          },
+          error: function(){
+            api.hideProgress();
+            alert("超时！");
+          }
+        });
+    }
+</script>
+
+</html>

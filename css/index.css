@@ -1,0 +1,79 @@
+  /*轮播*/
+  body {
+        background:#F0F0F2;
+    }
+    .bg-dark {
+        background: #333333 !important;
+    }
+    .aui-slide-node img {
+        width: auto;
+        height: 100%;
+    }
+    .list{padding:10px;}
+    .shaixuan{
+	width: 40px;
+	height: 40px;
+	background-color: #fff;
+	border:1px solid #ddd;
+	margin-top:5px;
+	position: relative;
+}
+.border{border:1px solid #ddd;}
+   .shaixuan a{
+   position:absolute;
+   top:20px;
+   left:6px;
+     color: #999;
+     font-size: 0.7em;
+   }
+   .aui-searchbar-wrap { background-color:#F5F5F5; }
+   .color-bg{ background-color:#F5F5F5;}
+   .aui-icon-search{color:#000 !important;}
+   .fenlei{ padding:3px 0 0 3px;}
+   .aui-list-view-cell:last-child{border:none;}
+   .aui-searchbar-cancel{ cursor: pointer;}
+   .aui-grid-nine:after,.aui-grid-nine li:after{border:none !important;}
+   .shangpin{ background-color: #fff; overflow: hidden;}
+   .shangpin div{width:50%; background-color: #fff; padding:0 2px;}
+   .shangpin dl{ overflow: hidden;}
+   .shangpin img{width:100%;}
+   .aui-grid-nine li{padding:0;}
+   .price{color: #f00;}
+   .shangp-tu{color:#f00;}
+   /*遮罩*/
+  .aui-mask {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    z-index: 8;
+    visibility: hidden;
+    -webkit-transition-duration: 300ms;
+          	transition-duration: 300ms;
+}
+.aui-mask.aui-mask-in {
+	visibility: visible;
+  	opacity: 1;
+}
+//弹出页面
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

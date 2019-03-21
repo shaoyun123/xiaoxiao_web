@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>fabuchaqin</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<script type="text/javascript" src="../../script/WdatePicker.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav" style="padding-top:25px;background-color: white;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left  border-b   aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="font-size: 20px;color: gray;"></span> </a>
+			<div class="aui-title border-b" style="font-size: 20px;color: gray;">
+				发布查寝要求
+			</div>
+		</header>
+		<form id="frm" name="frm" style="padding-top:70px;">
+			<div class="aui-content aui-margin-b-15">
+				<ul class="aui-list aui-list-in">
+					<nav>
+						<ul id="shenqingUl">
+							<div id="shenqing"></div>
+						</ul>
+					</nav>
+				</ul>
+			</div>
+		</form>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//   关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'fabuchaqin',
+			});
+		};
+		apiready = function() {
+			searchData();
+		}
+		function searchData() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var code = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			html = '';
+			html += '<input type="hidden" name="CODE" value="' + code + '">';
+			html += '<input type="hidden" name="token" value="' + token + '">';
+			html += '<input type="hidden" name="status" value="' + status + '">';
+			html += '<li class="aui-list-item">';
+			html += '<div class="aui-list-item-inner"><div class="aui-list-item-label">重复：</div>&nbsp;&nbsp;&nbsp;<div class="aui-list-item-input"><select id="pl" name="pl" style="width: 150px" onchange="s(this.value)">';
+			html += '<option value="0">单次</option>';
+			html += '<option value="1">每天</option>';
+			html += '<option value="2">每周</option>';
+			html += '<option value="3">每月</option>';
+			html += '</select></div></div></li>';
+			html += '<li class="aui-list-item control-group" id="selectoncetime"><div class="aui-list-item-inner"><div class="aui-list-item-label">日期：</div>&nbsp;&nbsp;&nbsp;&nbsp;<div class="aui-list-item-input"><input type="date" style="line-height:30px;height:30px;margin-top:6px;" id ="oncetime" name ="oncetime" ></div></div></li>';
+			html += '<li class="aui-list-item control-group" id="selecteveryday" style="display: none;"><div class="aui-list-item-inner"><div class="aui-list-item-label">开始日期：</div>&nbsp;&nbsp;&nbsp;&nbsp;<div class="aui-list-item-input"><input type="date" style="line-height:30px;height:30px;margin-top:6px;" id ="starttime" name ="starttime" ></div></div></li>';
+			html += '<li class="aui-list-item control-group" id="selecteverydayend" style="display: none;"><div class="aui-list-item-inner"><div class="aui-list-item-label">结束日期：</div>&nbsp;&nbsp;&nbsp;&nbsp;<div class="aui-list-item-input"><input type="date" style="line-height:30px;height:30px;margin-top:6px;" id ="endtime" name ="endtime" ></div></div></li>';
+			html += '<li class="aui-list-item" id="selectweek" style="display: none;"><div class="aui-list-item-inner"><div class="aui-list-item-label">周次：</div>&nbsp;&nbsp;&nbsp;<div class="aui-list-item-input"><select id="week" name="week" style="width: 150px">';
+			html += '<option value="1">周一</option>';
+			html += '<option value="2">周二</option>';
+			html += '<option value="3">周三</option>';
+			html += '<option value="4">周四</option>';
+			html += '<option value="5">周五</option>';
+			html += '<option value="6">周六</option>';
+			html += '<option value="7">周日</option>';
+			html += '</select></div></div></li>';
+			html += '<li class="aui-list-item" id="selectsingleday" style="display: none;"><div class="aui-list-item-inner"><div class="aui-list-item-label">周次：</div>&nbsp;&nbsp;&nbsp;<div class="aui-list-item-input"><select id="day" name="day" style="width: 150px">';
+			for (var i = 1; i < 32; i++) {
+				html += '<option value="' + i + '">' + i + '日</option>';
+			}
+			html += '</select></div></div></li>';
+			html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">开始时间：</div>&nbsp;&nbsp;&nbsp;&nbsp;<div class="aui-list-item-input"><input type="time" style="line-height:30px;height:30px;margin-top:6px;" id ="kaishishijian" name ="kaishishijian" ></div></div></li>';
+			html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">截止时间：</div>&nbsp;&nbsp;&nbsp;&nbsp;<div class="aui-list-item-input"><input type="time" style="line-height:30px;height:30px;margin-top:6px;" id ="jiezhishijian" name ="jiezhishijian" ></div></div></li>';
+			html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">要求：</div>';
+			html += '<div class="aui-list-item-input"><textarea v-model="cureInfo.Symptom" placeholder="请输入查寝要求..." id="yaoqiu" name="yaoqiu" oninput="autoTextAreaHeight(this)" ></textarea></div></div></li>';
+			html += '<li class="aui-list-item"><div class="aui-btn aui-btn-info" style="text-align:center;height:80%;margin:auto;" ><input type="button" value="提交" onclick="tijiao()"></div></li>';
+			$('#shenqing').html(html);
+			var ele = document.getElementById("yaoqiu");
+			autoTextAreaHeight(ele);
+		};
+		function autoTextAreaHeight(o) {
+			o.style.height = o.scrollTop + o.scrollHeight + "px";
+		}
+
+		function tab(date1, date2) {
+			var oDate1 = new Date(date1);
+			var oDate2 = new Date(date2);
+			if (oDate1.getTime() > oDate2.getTime()) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+
+		function tijiao() {
+			if ($("#pl").val() == "") {
+				alert("请选择查寝安排类别：");
+				return false;
+			}
+			if ($("#pl").val() == "0") {
+				if ($("#oncetime").val() == "") {
+					alert("请选择日期：");
+					return false;
+				}
+			}
+			if ($("#pl").val() == "1") {
+				if ($("#starttime").val() == "") {
+					alert("请填写开始日期")
+					$("#starttime").focus();
+					return false;
+				}
+				if ($("#endtime").val() == "") {
+					alert("请填写结束日期")
+					$("#endtime").focus();
+					return false;
+				}
+				if (!tab($("#starttime").val(), $("#endtime").val())) {
+					alert("请重新确认开始结束日期");
+					return false;
+				}
+			}
+			if ($("#yaoqiu").val() == "") {
+				alert("请填写查寝要求")
+				$("#yaoqiu").focus();
+				return false;
+			}
+			if ($("#kaishishijian").val() == "") {
+				alert("请填写开始时间")
+				$("#kaishishijian").focus();
+				return false;
+			}
+			if ($("#jiezhishijian").val() == "") {
+				alert("请填写截止时间")
+				$("#jiezhishijian").focus();
+				return false;
+			}
+			if (!tab($("#kaishishijian").val(), $("#jiezhishijian").val())) {
+				alert("请重新确认开始截止时间");
+				return false;
+			}
+			var formData = new FormData($("#frm")[0]);
+			$.ajax({
+				url : $api.getStorage('serverUrl') + "app_savechaqinanpai",
+				type : "get",
+				data : $('#frm').serialize(),
+				dataType : "json",
+				cache : false,
+				async : false,
+				success : function(data) {
+					if (data) {
+						if (data.retInfo == "success") {
+							alert("提交成功！");
+						} else {
+							alert("提交失败！");
+						}
+						var jsfun = 'chaqinlist();';
+						var jsName = 'chaqin';
+						api.execScript({
+							name : jsName,
+							script : jsfun
+						});
+						window.location.reload();
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function(data) {
+					alert("error");
+				}
+			});
+		}
+
+		function s(e) {
+			if (e == "1") {
+				document.getElementById("selectweek").style.display = "none";
+				document.getElementById("selectsingleday").style.display = "none";
+				document.getElementById("selectoncetime").style.display = "none";
+				document.getElementById("selecteveryday").style.display = "";
+				document.getElementById("selecteverydayend").style.display = "";
+			} else if (e == "2") {
+				document.getElementById("selectweek").style.display = "";
+				document.getElementById("selectsingleday").style.display = "none";
+				document.getElementById("selectoncetime").style.display = "none";
+				document.getElementById("selecteveryday").style.display = "none";
+				document.getElementById("selecteverydayend").style.display = "none";
+			} else if (e == "3") {
+				document.getElementById("selectweek").style.display = "none";
+				document.getElementById("selectsingleday").style.display = "";
+				document.getElementById("selectoncetime").style.display = "none";
+				document.getElementById("selecteveryday").style.display = "none";
+				document.getElementById("selecteverydayend").style.display = "none";
+			} else {
+				document.getElementById("selectweek").style.display = "none";
+				document.getElementById("selectsingleday").style.display = "none";
+				document.getElementById("selectoncetime").style.display = "";
+				document.getElementById("selecteveryday").style.display = "none";
+				document.getElementById("selecteverydayend").style.display = "none";
+			}
+		}
+	</script>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>s_shenhebaoming</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../script/bootstrap-switch.min.js"></script>
+    <style>
+		header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            社团报名
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;">详细信息</li>
+            <nav>
+                <ul id="caozuo">
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 's_shenhebaoming'
+        });
+
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+      loadData();
+      var dataInfo = $api.getStorage('loginDataInfo');
+      var person = api.pageParam.renyuan;
+      var xueshengid = dataInfo.id;
+      var data=person.split(",");
+      html ="";
+      html += '<div class="aui-list-item"><div style="width:100%;font-size:18px;"><h4 style="font-size:18px;color:#09c6d0;">姓名：'+data[0]+'</h4>';
+      if(data[1]=="true"){
+        html += '<h4 style="font-size:18px;">性别：男</h4>';
+      }
+      else {
+        html += '<h4 style="font-size:18px;">性别：女</h4>';
+      }
+      html += '<h4 style="font-size:18px;">出生日期：'+data[2]+'</h4><h4 style="font-size:18px;">联系电话：'+data[3]+'</h4>';
+      if(data[4]!=null){
+        html += '<h4 style="font-size:18px;">报名部门：'+data[4]+'</h4>';
+      }
+      else {
+        html += '<h4 style="font-size:18px;">报名部门：</h4>';
+      }
+      html += '<h4 style="font-size:18px;">爱好特长：'+data[5]+'</h4><h4 style="font-size:18px;">自我介绍：'+data[6]+'</h4>';
+      html += '</div>';
+      html += '</div>';
+      if(data[8]=="0"){
+        html +=
+            '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:60%;"></div>';
+        html +=
+            '<div class="aui-list-item-inner" style="margin-right:15px;width:40%;"><div class="aui-btn aui-btn-info" ><input type="button" value="同意" onclick="tongyi(\''+data[7]+'\')"></div>';
+        html += '<div class="aui-btn aui-btn-info" ><input type="button" value="拒绝" onclick="jujue(\''+data[7]+'\')"></div></div></div>';
+      }
+      $('#caozuo').html(html);
+      api.hideProgress();
+    };
+    function tongyi(id){
+    	var dataInfo = $api.getStorage('loginDataInfo');
+      var xueshengid=dataInfo.id;
+      $.ajax({
+        type: "POST",
+        url: $api.getStorage('serverUrl')+"app_ST_AcceptBaoMing",
+        data: {
+            naxinid: id,
+            xueshengid: xueshengid,
+        },
+        dataType: 'text',
+        cache: false,
+        timeout: 5000,
+        success: function(data){
+          if(data=="success"){
+            alert("同意成功");
+            var jsfun = 'fanhui13();';
+            api.execScript({
+                name: 's_chakanbaomingxinxi',
+                script: jsfun
+            });
+          }
+          else if (data=="fail") {
+            alert("同意失败");
+            var jsfun = 'fanhui13();';
+            api.execScript({
+                name: 's_chakanbaomingxinxi',
+                script: jsfun
+            });
+          }
+          else {
+			alert("已登出");
+			api.hideProgress();
+			var jsfun = 'logout();';
+			api.execScript({
+			    name: 'index',
+			    script: jsfun
+			});
+          }
+        },
+        error: function(){
+          alert("超时");
+        }
+      });
+    }
+    function jujue(id){
+    	var dataInfo = $api.getStorage('loginDataInfo');
+      var xueshengid=dataInfo.id;
+      $.ajax({
+        type: "POST",
+        url: $api.getStorage('serverUrl')+"app_ST_DenyBaoMing",
+        data: {
+            naxinid: id,
+            xueshengid: xueshengid,
+        },
+        dataType: 'text',
+        cache: false,
+        timeout: 5000,
+        success: function(data){
+          if(data=="success"){
+            alert("拒绝成功");
+            var jsfun = 'fanhui13();';
+            api.execScript({
+                name: 's_chakanbaomingxinxi',
+                script: jsfun
+            });
+          }
+          else if (data=="fail") {
+            alert("拒绝失败");
+            var jsfun = 'fanhui13();';
+            api.execScript({
+                name: 's_chakanbaomingxinxi',
+                script: jsfun
+            });
+          }
+          else {
+				alert("已登出");
+				api.hideProgress();
+				var jsfun = 'logout();';
+				api.execScript({
+				    name: 'index',
+				    script: jsfun
+				});
+          }
+        },
+        error: function(){
+          alert("超时");
+        }
+      });
+    }
+</script>
+
+</html>

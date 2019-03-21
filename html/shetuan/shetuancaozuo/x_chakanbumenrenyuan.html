@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>x_chakanbumenrenyuan</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../script/bootstrap-switch.min.js"></script>
+    <style>
+		header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray;">
+            我的社团
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">部门人员信息</li>
+            <nav style="padding-top:40px;">
+                <ul id="caozuo">
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        var jsfun = 'fanhui11();';
+        api.execScript({
+            name: 'shetuancaozuo',
+            script: jsfun
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var zuzhixinxiid = api.pageParam.xinxiid;
+        var xueshengid = dataInfo.id;
+        loadData();
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_XS_ChaKanBuMenRenYuan",
+            data: {
+                zuzhixinxiid: zuzhixinxiid,
+                xueshengid: xueshengid,
+            },
+            dataType: 'json',
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                html = "";
+                var data = eval(data);
+                if (data) {
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            html += '';
+                            html += '<li class="aui-list-item"><div style="width:72%;"><h4 style="font-size:18px;">学号：' + data[i].xuehao + '</h4><h4 style="font-size:18px;">姓名：' + data[i].xingming + '</h4>';
+                            html += '<h4 style="font-size:18px;">学院：' + data[i].xueyuan + '</h4><h4 style="font-size:18px;">班级：' + data[i].banji + '</h4>';
+                            if (data[i].shoujihao != null) {
+                                html += '<h4 style="font-size:18px;">手机号:' + data[i].shoujihao + '</h4>';
+                            } else {
+                                html += '<h4 style="font-size:18px;">手机号:</h4>';
+                            }
+                            if (data[i].bumen != null) {
+                                html += '<h4 style="font-size:18px;">部门：' + data[i].bumen + '</h4><h4 style="font-size:18px;">职位：' + data[i].zhiwu + '</h4>';
+                            } else {
+                                html += '<h4 style="font-size:18px;">部门：</h4><h4 style="font-size:18px;">职位：' + data[i].zhiwu + '</h4>';
+                            }
+                            html += '</div>';
+                            html += '</li>';
+                        }
+                        $('#caozuo').html(html);
+                        api.hideProgress();
+                    } else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+						    name: 'index',
+						    script: jsfun
+						});
+                    }
+                } else {
+					alert("已登出");
+					api.hideProgress();
+					var jsfun = 'logout();';
+					api.execScript({
+					    name: 'index',
+					    script: jsfun
+					});
+                }
+            },
+            error: function() {
+                alert("超时");
+                api.hideProgress();
+            }
+        });
+        api.addEventListener({
+            name: 'keyback'
+        }, function(ret, err) {
+            var jsfun = 'fanhui11();';
+            api.execScript({
+                name: 'shetuancaozuo',
+                script: jsfun
+            });
+        });
+    };
+</script>
+
+</html>

@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>login</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<script type="text/javascript" src="../script/main.js"></script>
+		<style>
+			.aui-content ul li {
+				margin: 15px !important;
+				border: 1px solid #ddd;
+			}
+			.aui-list:before, .aui-list:after {
+				height: 0px;
+			}
+			a {
+				display: block;
+				color: #0062CC;
+				float: right;
+				margin-right: 20%;
+			}
+		</style>
+		<script type="text/javascript" src="../script/api.js"></script>
+		<script type="text/javascript">
+			var mkeyTime = new Date().getTime();
+			var isLogin = false;
+			function loadData() {
+				api.showProgress({
+					title : '努力加载中...',
+					text : '先喝杯茶...',
+					modal : false
+				});
+			}
+
+			//			function setUrl() {
+			//				$.ajax({
+			//					type : "POST",
+			//
+			//					url : "http://www.5ic.net.cn/xiaoyuan/app_getServerUrl", //如果地址访问不到会请求出错，请填写自己的接口地址
+			////					url : "http://192.168.0.104:8082/xiaoxiao_new/app_getServerUrl",
+			////										url : "http://192.168.0.249:8059/xiaoxiao_new/app_getServerUrl",
+			//
+			//					data : {
+			//					},
+			//					dataType : 'json',
+			//					cache : false, // 缓存
+			//					crossDomain : true, // 跨域
+			//					timeout : 1000,
+			//					success : function(data) {
+			//						if (data.retInfo != '') {
+			//
+			//									$api.setStorage('serverUrl', data.retInfo);
+			////							$api.setStorage('serverUrl', 'http://192.168.0.104:8082/xiaoxiao_new/');
+			////														$api.setStorage('serverUrl', 'http://192.168.0.249:8059/xiaoxiao_new/');
+			//
+			//						} else {
+			//
+			//									$api.setStorage('serverUrl', 'http://www.5ic.net.cn/xiaoyuan/');
+			////							$api.setStorage('serverUrl', 'http://192.168.0.104:8082/xiaoxiao_new/');
+			////														$api.setStorage('serverUrl', 'http://192.168.0.249:8059/xiaoxiao_new/');
+			//
+			//						}
+			//					},
+			//					error : function() {
+			//
+			//								$api.setStorage('serverUrl', 'http://www.5ic.net.cn/xiaoyuan/');
+			////						$api.setStorage('serverUrl', 'http://192.168.0.104:8082/xiaoxiao_new/');
+			////												$api.setStorage('serverUrl', 'http://192.168.0.249:8059/xiaoxiao_new/');
+			//
+			//					}
+			//				});
+			//				//				alert($api.getStorage('serverUrl'));
+			//			}
+			function setUrl() {
+//				var defaultUrl = "http://www.5ic.net.cn/xiaoyuan/";
+//				var defaultWsUrl = "ws://www.5ic.net.cn/xiaoyuan/";
+//				var defaultUrl = "http://122.207.68.137:8890/xiaoyuan/";
+//				var defaultWsUrl = "ws://122.207.68.137:8890/xiaoyuan/";
+			    var defaultUrl = "http://192.168.0.173:8083/xiaoxiao_new/";
+				var defaultWsUrl = "ws://192.168.0.173:8083/xiaoxiao_new/";
+//				var defaultUrl = "http://192.168.0.249:8059/xiaoxiao_new/";
+//				var defaultWsUrl = "ws://192.168.0.249:8059/xiaoxiao_new/";
+				$.ajax({
+					type : "POST",
+					url : defaultUrl + "app_getServerInfo", //如果地址访问不到会请求出错，请填写自己的接口地址
+					data : {},
+					dataType : 'json',
+					cache : false, // 缓存
+					crossDomain : true, // 跨域
+					async : false,
+					timeout : 3000,
+					success : function(data) {
+						//	alert("111" + $api.jsonToStr(data));
+						var serverip = data.serverip;
+						var serverAppName = data.serverAppName;
+						var serverPort = data.serverPort;
+						var checkMethod = data.checkMethod;
+						if (serverip == null || serverip == "") {
+							api.hideProgress();
+							$api.setStorage('serverIpNum', '0');
+							$api.setStorage('wsUrl', defaultWsUrl);
+							$api.setStorage('serverUrl', defaultUrl);
+						} else {
+							var serverips = serverip.split(",");
+							var serverAppNames = serverAppName.split(",");
+							var serverPorts = serverPort.split(",");
+							var tempIp = "";
+							var datas = "";
+							var portStr = "";
+							for (var i = 0; i < serverips.length; i++) {
+								tempIp = serverips[i];
+								if (serverPorts[i] == '80' || serverPorts[i] == 80) {
+									portStr = "";
+								} else {
+									portStr = ":" + serverPorts[i];
+								}
+								//								var img = new Image();
+								//								var start = new Date().getTime();
+								//								img.src = "http://" + tempIp + portStr + "/" + serverAppNames[i] + "/static/favicon.ico?t=" + start;
+								//								img.onload = function() {
+								//									if (datas == "") {
+								//										datas = i;
+								//									} else {
+								//										datas += "," + i;
+								//									}
+								//								}
+								$.ajax({
+									type : "POST",
+									url : "http://" + tempIp + portStr + "/" + serverAppNames[i] + "/" + checkMethod, //如果地址访问不到会请求出错，请填写自己的接口地址
+									data : {},
+									dataType : 'json',
+									cache : false, // 缓存
+									crossDomain : true, // 跨域
+									async : false, // 同步
+									timeout : 3000,
+									success : function(data) {
+										if (datas == "") {
+											datas = i;
+										} else {
+											datas += "," + i;
+										}
+									},
+								});
+							}
+							if (datas != "") {
+								$.ajax({
+									type : "POST",
+									url : defaultUrl + "app_getConnectUrl", //如果地址访问不到会请求出错，请填写自己的接口地址
+									data : {
+										data : datas
+									},
+									dataType : 'json',
+									cache : false, // 缓存
+									crossDomain : true, // 跨域
+									async : false,
+									timeout : 3000,
+									success : function(data) {
+										var num = data.num;
+										var serverIp = data.serverIp;
+										var serverAppName = data.serverAppName;
+										var serverPort = data.serverPort;
+										var tempPortStr = "";
+										if (serverPort == '80' || serverPort == 80) {
+											tempPortStr = "";
+										} else {
+											tempPortStr = ":" + serverPort;
+										}
+										api.hideProgress();
+										//alert("http://" + serverIp + tempPortStr+"/" + serverAppName + "/");
+										$api.setStorage('serverIpNum', data.num);
+										$api.setStorage('wsUrl', "ws://" + serverIp + tempPortStr + "/" + serverAppName + "/");
+										$api.setStorage('serverUrl', "http://" + serverIp + tempPortStr + "/" + serverAppName + "/");
+									},
+									error : function() {
+										api.hideProgress();
+										$api.setStorage('serverIpNum', '0');
+										$api.setStorage('wsUrl', defaultWsUrl);
+										$api.setStorage('serverUrl', defaultUrl);
+									}
+								});
+							} else {
+								api.hideProgress();
+								$api.setStorage('serverIpNum', '0');
+								$api.setStorage('wsUrl', defaultWsUrl);
+								$api.setStorage('serverUrl', defaultUrl);
+							}
+						}
+					},
+				});
+			}
+
+			apiready = function() {
+				loadData();
+				setUrl();
+				api.openFrame({
+					name : 'logout_kaoshi',
+					url : "http://122.207.68.137:18090/accounts/logout",
+					rect : {
+						x : 0,
+						y : 0,
+						w : 0,
+						h : 0
+					},
+					bounces : false,
+					bgColor : 'rgba(0,0,0,0.6)',
+					allowEdit : true,
+				});
+				var ben = api.appVersion;
+				var text = '当前版本为：' + ben;
+				$("#ben").text(text);
+				var ajpush = api.require('ajpush');
+				if (ajpush) {
+					ajpush.stopPush(function(ret) {
+						if (ret && ret.status) {
+							//success
+						}
+					});
+					ajpush.removeListener();
+				}
+				var header = document.querySelector('#header');
+				$api.fixStatusBar(header);
+				var deviceId = api.deviceId;
+				jQuery("#deviceId").val(deviceId);
+				api.addEventListener({
+					name : 'keyback'
+				}, function(ret, err) {
+					//如果当前时间减去标志时间大于2秒，说明是第一次点击返回键，反之为2秒内点了2次，则退出。
+					if ((new Date().getTime() - mkeyTime) > 2000) {
+						mkeyTime = new Date().getTime();
+						api.toast({
+							msg : '再按一次退出程序',
+							duration : 2000,
+							location : 'bottom'
+						});
+					} else {
+						$api.clearStorage();
+						api.closeWidget();
+					}
+				});
+				var dataInfo = $api.getStorage('loginDataInfo');
+				if (dataInfo != null && dataInfo.yongHuMing != null && dataInfo.yongHuMing != "" && dataInfo.miMaMD5 != null && dataInfo.miMaMD5 != "") {
+					$api.setStorage('addMessager_rc', 'richeng');
+					jQuery('#signin-username').val(dataInfo.yongHuMing);
+					jQuery('#signin-password').val(dataInfo.miMaMD5);
+					loading();
+				}
+				api.closeWin({
+					name : 'logout_kaoshi'
+				});
+			};
+			function toPage(val) {
+				var dataInfo = $api.getStorage('loginDataInfo');
+				var status = dataInfo.status;
+				//				alert(status);
+				if (status == "xuesheng") {
+					isLogOut = false;
+					api.openWin({
+						slidBackEnabled : false,
+						name : 'index',
+						url : "index.html",
+						reload : true,
+						allowEdit : true
+					});
+				}
+				if (status == "fudaoyuan") {
+					isLogOut = false;
+					api.openWin({
+						slidBackEnabled : false,
+						name : 'index',
+						url : "index.html",
+						reload : true,
+						allowEdit : true
+					});
+				}
+				if (status == "jiaoshi") {
+					isLogOut = false;
+					api.openWin({
+						slidBackEnabled : false,
+						name : 'index',
+						url : "index.html",
+						reload : true,
+						allowEdit : true
+					});
+				}
+				if (status == "laoshi") {
+					isLogOut = false;
+					api.openWin({
+						slidBackEnabled : false,
+						name : 'index',
+						url : "laoshi_index.html",
+						reload : true,
+						allowEdit : true
+					});
+				}
+			}
+
+			function downloadApk() {
+				var fs = api.require('fs');
+				fs.remove({
+					path : 'fs://xiaoyuan.apk'
+				}, function(ret, err) {
+					loadData();
+					api.download({
+						url : $api.getStorage('serverUrl') + 'static/xuaoyuan.apk', //
+						report : true,
+						cache : false,
+						allowResume : true,
+						savePath : 'fs://xiaoyuan.apk'
+					}, function(ret, err) {
+						//alert($api.jsonToStr(ret))
+						if (ret.statusCode && ret.statusCode != '') {
+							alert(ret.msg);
+							api.hideProgress();
+							return;
+						}
+						if (ret && 0 == ret.state) {/* 下载进度 */
+							api.toast({
+								msg : "正在下载应用" + ret.percent + "%..."
+							});
+						}
+						if (ret && 1 == ret.state) {/* 下载完成 */
+							var savePath = ret.savePath;
+							api.installApp({
+								appUri : savePath
+							});
+							api.hideProgress();
+						}
+					});
+				});
+			}
+
+			function checkUpdate() {
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_BanBen", //如果地址访问不到会请求出错，请填写自己的接口地址
+					data : {
+						appType : api.systemType
+					},
+					dataType : 'json',
+					cache : false,
+					crossDomain : true,
+					timeout : 5000,
+					success : function(data) {
+						if (data.retInfo == '') {
+							var newBanBen = data.data;
+							var newss = newBanBen.banBen.split(".");
+							while (newss.length < 3) {
+								newss[newss.length] = 0;
+							}
+							var news = '';
+							for (var i = 0; i < newss.length; i++) {
+								news += newss[i];
+							}
+							var newbanbenshu = parseInt(news) * 1;
+							var jiuBanBen = api.appVersion;
+							var jiuss = jiuBanBen.split(".");
+							var jius = '';
+							for (var i = 0; i < jiuss.length; i++) {
+								jius += jiuss[i];
+							}
+							var jiubanbenshu = parseInt(jius) * 1;
+							if (newBanBen) {
+								var mam = api.require('mam');
+								if (newBanBen.banBen != api.appVersion && newbanbenshu > jiubanbenshu) {
+									if (newBanBen.qiangZhi == 0) {
+										api.confirm({
+											title : '更新提醒',
+											msg : '当前有新的版本需要更新，新的版本号：' + newBanBen.banBen,
+											buttons : ['确定', '取消']
+										}, function(ret, err) {
+											if (ret.buttonIndex == 1) {
+												//alert('更新');
+												if (newBanBen.leiXing == 0) {
+													alert('请打开360助手搜索校校进行更新!');
+												} else if (newBanBen.leiXing == 1) {
+													if (api.systemType == "android") {
+														downloadApk();
+													}
+													if (api.systemType == "ios") {
+														api.toast({
+															duration : 5000,
+															msg : "请去苹果商店进行更新!"
+														});
+													}
+												} else if (newBanBen.leiXing == 2) {
+													api.openWin({
+														name : 'downLoadApk',
+														url : "downloadapk.html",
+														reload : true,
+														allowEdit : true
+													});
+												}
+											} else {
+												checkUser();
+												api.hideProgress();
+												return;
+											}
+										});
+									} else if (newBanBen.qiangZhi == 1) {
+										api.confirm({
+											title : '更新提醒',
+											msg : '当前有新的版本需要更新，新的版本号：' + newBanBen.banBen,
+											buttons : ['确定', '取消']
+										}, function(ret, err) {
+											if (ret.buttonIndex == 1) {
+												//alert('更新');
+												if (newBanBen.leiXing == 0) {
+													alert('请打开360助手搜索校校进行更新!');
+												} else if (newBanBen.leiXing == 1) {
+													if (api.systemType == "android") {
+														downloadApk();
+													}
+													if (api.systemType == "ios") {
+														api.toast({
+															duration : 5000,
+															msg : "请去苹果商店进行更新!"
+														});
+													}
+												} else if (newBanBen.leiXing == 2) {
+													api.openWin({
+														name : 'downLoadApk',
+														url : "downloadapk.html",
+														reload : true,
+														allowEdit : true
+													});
+												}
+											} else {
+											}
+										});
+									}
+								} else {
+									isLogin = true;
+								}
+								if (isLogin) {
+									checkUser();
+									api.hideProgress();
+								}
+							} else {
+								checkUser();
+								api.hideProgress();
+							}
+						} else {
+							checkUser();
+						}
+					},
+					error : function() {
+						alert("超时！！");
+						api.hideProgress();
+					}
+				});
+			}
+
+			//保存用户名和密码
+			function saveUserInfo() {
+			}
+
+			//			var checkUpdateStauts = true;
+			var checkUpdateStauts = false;
+			function loading() {
+				if (!$api.getStorage('serverUrl')) {
+					setUrl();
+				}
+				//				loadData();
+				var username = document.getElementById("signin-username").value;
+				var password = document.getElementById("signin-password").value;
+				if (username == "") {
+					alert("用户名不能为空");
+					api.hideProgress();
+					return false;
+				}
+				if (password == "") {
+					alert("密码不能为空");
+					api.hideProgress();
+					return false;
+				}
+				if (username == "2013040004" && password == "000000") {
+					//	isLogOut = false;
+					api.openWin({
+						slidBackEnabled : false,
+						name : 'index',
+						url : "../html2/index.html",
+						reload : true,
+						allowEdit : true
+					});
+					return false;
+				}
+				var result = "";
+				var code = username + ',zytech,' + password;
+				saveUserInfo();
+				//				alert($api.getStorage('serverUrl'));
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_tologin", // 如果地址访问不到会请求出错，请填写自己的接口地址
+					data : {
+						CODE : code
+					},
+					dataType : 'json',
+					cache : false,
+					crossDomain : true,
+					timeout : 5000,
+					success : function(data) {
+						if (data.retInfo == "fail") {
+							alert("用户名或密码错误！");
+							api.hideProgress();
+							return;
+						} else {
+							var dataInfo = data.data;
+							$api.setStorage('logintoken', data.retInfo);
+							$api.setStorage('loginDataInfo', dataInfo);
+							$api.setStorage('loginxueqiid', data.xueqiid);
+							isLogOut = false;
+							$api.setStorage('addMessager_rc', 'richeng');
+							if (dataInfo.status == "xuesheng") {
+								$api.setStorage('loginUserInfo', data);
+							} else if (dataInfo.status == "laoshi") {
+							}
+							if (checkUpdateStauts) {
+								checkUpdate();
+							} else {
+								checkUser();
+								//toPage();
+							}
+							api.hideProgress();
+						}
+					},
+					error : function() {
+						//alert($api.jsonToStr(XMLHttpRequest)+"----"+textStatus);
+						alert("超时！！");
+						api.hideProgress();
+					}
+				});
+			}
+
+			function checkUser() {
+				var dataInfo = $api.getStorage('loginDataInfo');
+				var temp = '000000';
+				var tempStr = '尊敬的' + dataInfo.xingMing + '老师：';
+				var status = dataInfo.status;
+				if (status == "xuesheng") {
+					temp = dataInfo.xueHao;
+					tempStr = dataInfo.xingMing + '同学：';
+				}
+				var tempCon = "";
+				var password = dataInfo.miMaMD5;
+				if (temp == password) {
+					tempCon += '        您当前使用的密码是系统给定的原始密码，安全等级比较低，建议您立即修改密码。';
+					tempCon += '\n        如果您以后再修改密码，请点击下方的“下次再说”按钮。如果您修改密码，请点击下方的“修改密码”按钮。';
+					api.confirm({
+						title : tempStr,
+						msg : tempCon,
+						buttons : ['帮助', '修改密码', '下次再说']
+					}, function(ret, err) {
+						if (ret.buttonIndex == 2) {
+							api.openWin({
+								name : 'newpage-win',
+								url : "newpage-win.html",
+								reload : true,
+								allowEdit : true
+							});
+							return;
+						} else if (ret.buttonIndex == 1) {
+							api.openWin({
+								name : 'bangzhu',
+								url : "bangzhu-win.html",
+								reload : true,
+								allowEdit : true,
+							});
+							return;
+						} else {
+							if (dataInfo.youXiang == "") {
+								tempCon = '        您的账号还未进行绑定邮箱。';
+								tempCon += '绑定邮箱后，才能使用通过邮箱取回密码功能，是否绑定？';
+								api.confirm({
+									title : tempStr,
+									msg : tempCon,
+									buttons : ['帮助', '绑定邮箱', '下次再说']
+								}, function(ret, err) {
+									if (ret.buttonIndex == 2) {
+										api.openWin({
+											name : 'youxian2-win',
+											url : "youxian2-win.html",
+											reload : true,
+											allowEdit : true
+										});
+										return;
+									} else if (ret.buttonIndex == 1) {
+										api.openWin({
+											name : 'bangzhu',
+											url : "bangzhu-win.html",
+											reload : true,
+											allowEdit : true,
+										});
+										return;
+									} else {
+										toPage();
+									}
+								});
+							} else if (dataInfo.checkCodeFor != "") {
+								tempCon = '        您修改了邮箱，但还没有验证该邮箱，验证通过后才能使用通过邮箱取回密码功能。';
+								tempCon += '\n        您的验证码是：' + dataInfo.checkCodeFor;
+								tempCon += '\n请用您登记的邮箱：' + dataInfo.youXiang;
+								tempCon += '\n发送该验证码给：' + dataInfo.fasongyouxiang + '邮箱！';
+								tempCon += '\n			如果您之前登记的邮箱有误，请点击下方的“修改邮箱”按钮，设置一个新的邮箱。';
+								tempCon += '\n        我们收到您的验证码后，会自动验证您的邮箱。我们的邮箱设置了自动回复功能，如果您收到了自动回复邮件，表明我们已经收到了您的验证码。';
+								api.confirm({
+									title : tempStr,
+									msg : tempCon,
+									buttons : ['帮助', '修改邮箱', '下次再说']
+								}, function(ret, err) {
+									if (ret.buttonIndex == 2) {
+										api.openWin({
+											name : 'youxian2-win',
+											url : "youxian2-win.html",
+											reload : true,
+											allowEdit : true,
+											pageParam : {
+												name : 1
+											}
+										});
+										return;
+									} else if (ret.buttonIndex == 1) {
+										api.openWin({
+											name : 'bangzhu',
+											url : "bangzhu-win.html",
+											reload : true,
+											allowEdit : true,
+										});
+										return;
+									} else {
+										toPage();
+									}
+								});
+							} else {
+								toPage();
+							}
+						}
+					});
+				} else if (dataInfo.youXiang == "") {
+					tempCon = '        您的账号还未进行绑定邮箱。';
+					tempCon += '绑定邮箱后，才能使用通过邮箱取回密码功能，是否绑定？';
+					api.confirm({
+						title : tempStr,
+						msg : tempCon,
+						buttons : ['帮助', '绑定邮箱', '下次再说']
+					}, function(ret, err) {
+						if (ret.buttonIndex == 2) {
+							api.openWin({
+								name : 'youxian2-win',
+								url : "youxian2-win.html",
+								reload : true,
+								allowEdit : true
+							});
+							return;
+						} else if (ret.buttonIndex == 1) {
+							api.openWin({
+								name : 'bangzhu',
+								url : "bangzhu-win.html",
+								reload : true,
+								allowEdit : true,
+							});
+							return;
+						} else {
+							toPage();
+						}
+					});
+				} else if (dataInfo.checkCodeFor != "") {
+					tempCon = '        您修改了邮箱，但还没有验证该邮箱，验证通过后才能使用通过邮箱取回密码功能。';
+					tempCon += '\n        您的验证码是：' + dataInfo.checkCodeFor;
+					tempCon += '\n请用您登记的邮箱：' + dataInfo.youXiang;
+					tempCon += '\n发送该验证码给：' + dataInfo.fasongyouxiang + '邮箱！';
+					tempCon += '\n			如果您之前登记的邮箱有误，请点击下方的“修改邮箱”按钮，设置一个新的邮箱。';
+					tempCon += '\n        我们收到您的验证码后，会自动验证您的邮箱。我们的邮箱设置了自动回复功能，如果您收到了自动回复邮件，表明我们已经收到了您的验证码。';
+					api.confirm({
+						title : tempStr,
+						msg : tempCon,
+						buttons : ['帮助', '修改邮箱', '下次再说']
+					}, function(ret, err) {
+						if (ret.buttonIndex == 2) {
+							api.openWin({
+								name : 'youxian2-win',
+								url : "youxian2-win.html",
+								reload : true,
+								allowEdit : true,
+								pageParam : {
+									name : 1
+								}
+							});
+							return;
+						} else if (ret.buttonIndex == 1) {
+							api.openWin({
+								name : 'bangzhu',
+								url : "bangzhu-win.html",
+								reload : true,
+								allowEdit : true,
+							});
+							return;
+						} else {
+							toPage();
+						}
+					});
+				} else {
+					toPage();
+				}
+			}
+
+			function refreshWin() {
+				isLogOut = true;
+				api.closeToWin({
+					name : 'root'
+				});
+				window.location.reload();
+			}
+
+			function wjpwd() {
+				api.openWin({
+					name : 'youxian-win',
+					url : "youxian-win.html",
+					reload : true,
+					allowEdit : true
+				});
+			}
+
+			function bz() {
+				api.openWin({
+					name : 'bangzhu',
+					url : "bangzhu-win.html",
+					reload : true,
+					allowEdit : true,
+				});
+			}
+		</script>
+	</head>
+	<body style="background-color: white;">
+		<header id="topbar" style="background-color: white;padding-top:25px;">
+			<div class="content" style="dispaly:block;margin:0 auto;width:100%;text-align:center;margin-top:25px;">
+				<img src="../image/denglu.png" style="transform:scale(1.5)">
+			</div>
+		</header>
+		<form action="" id="formid" name="myform">
+			<div class="aui-content aui-margin-b-15">
+				<ul class="aui-list aui-form-list">
+					<li class="aui-list-item">
+						<div class="aui-list-item-inner">
+							<div class="aui-list-item-label-icon">
+								<i class="aui-iconfont aui-icon-mobile"></i>
+							</div>
+							<div class="aui-list-item-input">
+								<input type="text" placeholder="请输入用户名" value="" name="yonghuVo.sdengluming" id="signin-username">
+							</div>
+						</div>
+					</li>
+					<li class="aui-list-item">
+						<div class="aui-list-item-inner">
+							<div class="aui-list-item-label-icon">
+								<i class="aui-iconfont aui-icon-lock"></i>
+							</div>
+							<div class="aui-list-item-input">
+								<input type="password" placeholder="请输入密码" value="" name="yonghuVo.sdenglumima" id="signin-password">
+							</div>
+						</div>
+					</li>
+					<input type="hidden" name="radio" id="radio" value="xuesheng">
+					<li class="">
+						<input type="hidden" name="userClient" value="1" />
+						<input type="hidden" id="deviceId" name="deviceId" value="" />
+						<div class="aui-btn aui-btn-block" onclick="loading()" style="background-color:#09c6d2;">
+							登录
+						</div>
+					</li>
+					<a href="#" onclick="wjpwd()" style="margin-left:50px;">忘记密码?</a>
+					<a href="#" onclick="bz()">帮助</a>
+				</ul>
+			</div>
+		</form>
+		<h3 id="ben" style="width: 200px;height: 50px;margin-top: 40%;margin-left: 20%;text-align: center;line-height: 50px;"></h3>
+	</body>
+</html>

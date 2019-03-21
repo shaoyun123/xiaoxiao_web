@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>st_guodu_huodongxianshi</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../script/bootstrap-switch.min.js"></script>
+    <style>
+        body {}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header id="topbar" class="aui-bar aui-bar-nav" style="background-color: white;padding-top:25px;position:fixed;top:0;width:100%;z-index:999;">
+        <a class="aui-pull-left aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-left" style="color:gray;"></span>
+        </a>
+        <ul id="tittt" style="font-size:20px;">
+        </ul>
+    </header>
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript">
+    function goback() {
+        $api.rmStorage('loginpages');
+        api.closeWin({
+            name: 'st_guodu_huodongxianshi',
+        });
+
+    }
+    apiready = function() {
+      var mingcheng = api.pageParam.mingcheng;
+      var shetuanid = api.pageParam.shetuanid;
+      html = "";
+      html += '<div id="ming" class="aui-title" style="width:auto;">' + mingcheng + '</div>';
+      $('#tittt').html(html);
+      var header = $api.byId('topbar');
+      $api.fixStatusBar(header);
+      var headerH = $api.offset(header).h;
+      //frame的高度为当前window高度减去header和footer的高度
+      var frameH = api.winHeight - headerH;
+      api.openFrame({
+          name: 'st_huodongxianshi',
+          url: 'st_huodongxianshi.html',
+          rect: {
+              x: 0,
+              y: headerH,
+              w: api.winWidth,
+              h: frameH
+          },
+          pageParam: {
+            mingcheng: mingcheng,
+            shetuanid: shetuanid,
+          },
+          bounces: true,
+          bgColor: 'rgba(0,0,0,0)',
+          vScrollBarEnabled: true,
+          hScrollBarEnabled: true,
+		  allowEdit:true,
+      });
+    };
+</script>
+
+</html>

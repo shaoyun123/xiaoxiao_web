@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<!--交流顶部-->
+		<title>jiaoliu</title>
+		<link rel="stylesheet" type="text/css" href="../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			#main {
+				background-color: #ccc;
+				position: fixed;
+				/*top: 36px;*/
+				bottom: 61px;
+				/*overflow: scroll;*/
+				width: 100%;
+			}
+			.aui-list-item.wechat-top {
+				background-color: #f3f3f7;
+			}
+			.aui-list .wechat-avatar {
+				width: 3rem;
+			}
+			.wechat-avatar .aui-row-padded {
+				background-color: #dddee0;
+				padding: 0.1 rem;
+				border-radius: 0.2 rem;
+				margin-left: -0.05 rem;
+				margin-right: -0.05 rem;
+			}
+			.wechat-avatar, .wechat-avatar > img {
+				border-radius: 0.4 rem;
+			}
+			.aui-list {
+				border-top: none;
+			}
+			/*@media screen and (-webkit-min-device-pixel-ratio: 1.5) {
+			 .aui-list {
+			 border: none;
+			 background-size: 100% 0px;
+			 }
+			 }*/
+			.menus {
+				padding-left: 1rem;
+				padding-right: 1rem;
+				background: #FFFFFF;
+				margin-bottom: 0.5 rem;
+			}
+			.aui-tab-item {
+				color: #555;
+				font-size: 0.8 rem;
+			}
+			#qunzu, #keChengZu {
+				display: none;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<div class="menus">
+			<div class="aui-tab" id="tab">
+				<div class="aui-tab-item aui-active" id="kcz">
+					课程组
+				</div>
+				<div class="aui-tab-item" id="banji">
+					班  级
+				</div>
+			</div>
+		</div>
+		<div class="aui-content aui-margin-b-15" id="keChengZu" style="display: none;padding: 5px;height: 100%;overflow-x: hidden;overflow-y: scroll;">
+			<ul class="aui-list aui-media-list" id="keChengZuMainUi" style="height: 100%;">
+				<!--<li>1</li>
+				<li>1</li>
+				<li>1</li>-->
+			</ul>
+		</div>
+		<div class="aui-content aui-margin-b-15" id="qunzu" style="display: none;">
+			<ul class="aui-list aui-media-list" id="qunZuMainUi">
+				<!--<li>1</li>
+				<li>1</li>
+				<li>1</li>-->
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/aui-tab.js" ></script>
+	<script type="text/javascript">
+		//var main = $api.byId('main');
+		//var mkeyTime = new Date().getTime();
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+		openwhich(1);
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			var tab = new auiTab({
+				element : document.getElementById("tab"),
+			}, function(ret) {
+				if (ret.index == 1) {
+					$api.css($api.dom("#keChengZu"), 'display:block');
+					$api.css($api.dom('#qunzu'), 'display: none');
+				} else if (ret.index == 2) {
+					$api.css($api.dom("#qunzu"), 'display:block');
+					$api.css($api.dom('#keChengZu'), 'display: none');
+				}
+				openwhich(ret.index);
+			});
+			if (status == "fudaoyuan") {//fdy显示班级				
+				$("#kcz").hide();
+				$('.aui-tab-item').click();
+			} 
+			if (status == "laoshi") {//老师显示课程				
+				$("#banji").hide();
+			}
+		}
+		var count = '';
+		function openwhich(id) {
+			var rongQunData = $api.getStorage('rongBanQunData');
+			if (id == 1) {
+				rongQunData = $api.getStorage('rongQunData');
+			}
+//						alert(id);
+			var obj;
+			var html = '';
+			if (rongQunData) {
+				var rong = api.require('rongCloud2');
+				for (var i = 0; i < rongQunData.length; i++) {
+					count = '';
+					obj = rongQunData[i];
+					// 之前调用 init 和 connect 的代码省略
+					getcount(rong, obj.id);
+//						alert(obj.id);
+					html += '<li class="aui-list-item aui-list-item-middle" onclick="qun(\'' + obj.id + '\',\'' + obj.mingCheng + '\',\'../../res/wx.png\',\'' + obj.rongCount + '\')">';
+					html += '<div class="aui-media-list-item-inner">';
+					html += '<div class="aui-list-item-media wechat-avatar">';
+					html += '<img src="../res/wx.png" />';
+					html += '</div>';
+					html += '<div class="aui-list-item-inner">';
+					html += '<div class="aui-list-item-text">';
+					html += '<div class="aui-list-item-title">';
+					html += obj.mingCheng;
+					html += '</div>';
+					//					alert(count);
+					html += '<div style="display:none;background:red;position:absolute;left:90%;width:20px;height:20px;border-radius:10px;border:1px solid red;color:#fff;text-align:center;" id="div' + obj.id + '">' + count + '</div>';
+					html += '</div>';
+					html += '</div>';
+					html += '</div>';
+					if (id == 1) {
+						html += '<div calss="aui-list-item" style="font-size:14px;display:inline;color:gray;width:100%;height:20px;">'
+						html += '<div style="display:inline;">' + obj.xuenian + '~' + (obj.xuenian + 1) + '第' + obj.xueqi + '学期</div>'
+						html += '<div style="display:inline;width:50%;float:right;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">'
+						for (var j = 0; j < obj.banjimingcheng.length; j++) {
+							html += obj.banjimingcheng[j] + ',';
+						}
+						html += '</div>';
+						html += '</div>';
+					}
+					html += '</li>';
+				}
+				if (id == 1) {
+					$api.fixStatusBar($api.dom('.aui-bar-nav'));
+					$api.css($api.dom("#keChengZu"), 'display:block');
+					$('#keChengZuMainUi').html(html);
+				}
+				if (id == 2) {
+					$api.fixStatusBar($api.dom('.aui-bar-nav'));
+					$api.css($api.dom("#qunzu"), 'display:block');
+					//	html += '</li>';
+					$('#qunZuMainUi').html(html);
+				}
+			}
+		}
+
+		function getcount(rong, id) {
+			var count = '';
+			rong.getUnreadCount({
+				conversationType : 'GROUP',
+				targetId : id
+			}, function(ret, err) {
+				if (ret.status == 'success') {
+					count = ret.result;
+					if (count * 1 == 0 || count * 1 == -1) {
+						//  $('#div'+id).remove();
+						$('#div' + id).css('display', 'none');
+					} else if (count * 1 > 99) {
+						count == '...';
+						$('#div' + id).css('display', 'block');
+						$('#div' + id).html(count);
+					} else {
+						$('#div' + id).css('display', 'block');
+						$('#div' + id).html(count);
+					}
+				}
+			});
+		}
+
+		function clearMessage(id) {
+			var rong = api.require('rongCloud2');
+			// 之前调用 init 和 connect 的代码省略
+			rong.clearMessagesUnreadStatus({
+				conversationType : 'GROUP',
+				targetId : id
+			}, function(ret, err) {
+				//				api.toast({
+				//					msg : ret.status
+				//				});
+			})
+		}
+
+		function li(id, zh, tx) {
+			api.openWin({
+				reload : true,
+				name : 'chat',
+				url : "../html/jiaoliu/win_chat.html",
+				vScrollBarEnabled : false,
+				pageParam : {
+					id : id,
+					zh : zh,
+					tx : tx,
+					type : 0
+				},
+				allowEdit : true
+			});
+		}
+
+		function qun(id, zh, tx, rongCount) {
+			clearMessage(id);
+			api.openSlidLayout({
+				type : 'ffff',
+				leftEdge : 100,
+				fixedPane : {
+					//					slidBackEnabled:false,
+					//					slidBackEnabled:false,
+					//					scrollEnabled: false,
+					name : 'drawerLayout',
+					url : "../html/jiaoliu/drawerLayout.html",
+					reload : true,
+					pageParam : {
+						id : id,
+						zh : zh,
+						type : 1
+					},
+					reload : true,
+				},
+				slidPane : {
+					name : 'chat',
+					url : '../html/jiaoliu/win_chat.html',
+					vScrollBarEnabled : false,
+					pageParam : {
+						id : id,
+						zh : zh,
+						tx : tx,
+						type : 1
+					},
+					allowEdit : true,
+					reload : true,
+				}
+			}, function(ret) {
+			});
+		}
+
+		function shuaxin() {
+			window.location.reload();
+		}
+
+		function chushi() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var status = dataInfo.status;
+			//			alert(status);
+			if (status == "xuesheng") {
+				var id = dataInfo.id;
+				var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+				var banjiid = dataInfo.banJiID;
+				var token = $api.getStorage("logintoken");
+				var code = id + ',zytech,' + status;
+				loadData();
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_BanJiQun",
+					data : {
+						banjiid : banjiid,
+						token : token,
+						CODE : code,
+					},
+					dataType : 'json',
+					cache : false,
+					crossDomain : true,
+					success : function(data) {
+						html = "";
+						var data = eval(data);
+						if (data) {
+							if (data.banjiid != null && data.banjiid != "") {
+								html += '<li class="aui-list-item aui-list-item-middle" onclick="banjiqun(\'' + data.banjimingcheng + '\',\'' + data.banjiid + '\')">';
+								html += '<div class="aui-media-list-item-inner">';
+								html += '<div class="aui-list-item-media wechat-avatar">';
+								html += '<img src="../res/wx.png" />';
+								html += '</div>';
+								html += '<div class="aui-list-item-inner">';
+								html += '<div class="aui-list-item-text">';
+								html += '<div class="aui-list-item-title">';
+								html += data.banjimingcheng;
+								html += '</div>';
+								html += '</div>';
+								html += '</div>';
+								html += '</div>';
+								html += '</li>';
+								//								html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:60px;"><font style="font-size:20px;width:100%;" onclick="banjiqun(\'' + data.banjimingcheng + '\',\'' + data.banjiid + '\')">' + data.banjimingcheng + '</font></div></div>';
+								$('#qunZuMainUi').html(html);
+								api.hideProgress();
+							} else {
+								alert("已登出");
+								api.hideProgress();
+								var jsfun = 'logout();';
+								api.execScript({
+									name : 'index',
+									script : jsfun
+								});
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("超时");
+						api.hideProgress();
+					}
+				});
+			} else if (status == "fudaoyuan") {
+				var id = dataInfo.id;
+				var yuanxiid = $dataInfo.yuanXiID
+				var token = $api.getStorage("logintoken");
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_BanJiQun_fdy",
+					data : {
+						id : id,
+						status : status,
+						token : token,
+					},
+					dataType : 'json',
+					cache : false,
+					crossDomain : true,
+					timeout : 5000,
+					success : function(data) {
+						html = "";
+						var data = eval(data);
+						if (data) {
+							if (data.length > 0) {
+								for (var i = 0; i < data.length; i++) {
+									html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;height:60px;"><font style="font-size:20px;width:100%;" onclick="banjiqun(\'' + data[i].banjimingcheng + '\',\'' + data[i].banjiid + '\')">' + data[i].banjimingcheng + '</font></div></div>';
+								}
+								//								$('#xiangxi').html(html);
+								$('#qunZuMainUi').html(html);
+								api.hideProgress();
+							} else {
+								alert("已登出");
+								api.hideProgress();
+								var jsfun = 'logout();';
+								api.execScript({
+									name : 'index',
+									script : jsfun
+								});
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("超时");
+						api.hideProgress();
+					}
+				});
+			} else if (status == "jiaoshi") {
+			}
+		}
+
+		function banjiqun(mingzi, banjiid) {
+			var winHeight = api.winHeight - 40;
+			api.openWin({
+				name : 'guodu',
+				url : 'jiaoliu/guodu.html',
+				pageParam : {
+					name : mingzi,
+					banjiid : banjiid,
+				},
+				reload : true,
+				allowEdit : true
+			});
+			/*
+			 api.openWin({
+			 name: 'banjijiaoliu',
+			 url: 'jiaoliu/banjijiaoliu.html',
+			 pageParam: {
+			 name: mingzi
+			 },
+			 reload: true,
+			 });
+			 */
+		}
+
+		function fanhui() {
+			api.closeWin({
+				name : 'banjiliaotian'
+			});
+			window.location.reload();
+		}
+	</script>
+</html>

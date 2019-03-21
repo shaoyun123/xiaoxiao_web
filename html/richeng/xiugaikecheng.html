@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>xiugaikecheng</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			.form-control {
+				display: block;
+				width: 100%;
+				height: 34px;
+				padding: 6px 12px;
+				font-size: 14px;
+				line-height: 1.42857143;
+				color: #555;
+				background-color: #fff;
+				background-image: none;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+				-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+				transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+			}
+			.form-control:focus {
+				border-color: #66afe9;
+				outline: 0;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+				box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
+			}
+			select {
+				-webkit-appearance: menulist;
+				box-sizing: border-box;
+				align-items: center;
+				white-space: pre;
+				-webkit-rtl-ordering: logical;
+				color: black;
+				background-color: white;
+				cursor: default;
+				border-width: 1px;
+				border-style: solid;
+				border-color: initial;
+				border-image: initial;
+			}
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				我的课程
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-header" style="font-size:18px;">
+					修改课程
+				</li>
+				<form id="biao" name="biao" method="post" class="form-horizontal" style="margin-bottom: 10px" role="form" data-toggle="validation" novalidate="novalidate">
+					<div class="aui-content aui-margin-b-15">
+						<ul class="aui-list aui-list-in">
+							<nav>
+								<ul id="shenqingUl">
+									<div id="xiangxi"></div>
+								</ul>
+							</nav>
+						</ul>
+					</div>
+				</form>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'xiugaikecheng',
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var id = api.pageParam.id;
+			var qufen = api.pageParam.qufen;
+			var xueshengid = dataInfo.id;
+			var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+			var xingming = dataInfo.xingMing;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			loadData();
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_TiaoTingKeCheng",
+				data : {
+					id : id,
+					xueshengid : xueshengid,
+					xuexiaoXuehao : xuexiaoXuehao,
+					status : status,
+					token : token,
+					qufen : qufen,
+				},
+				dataType : 'json',
+				cache : false,
+				//timeout: 5000,
+				success : function(data) {
+					html = "";
+					var data = eval(data);
+					if (data) {
+						if (data.xiaoqus != null && data.xiaoqus != "") {
+							html += '<input type="hidden" readonly value="" name="shijians" id="shijians">';
+							html += '<input type="hidden" readonly value="' + qufen + '" name="qufen" id="qufen">';
+							html += '<input type="hidden" readonly value="' + data.kecheng.id + '" name="id" id="id">';
+							html += '<input type="hidden" readonly value="' + xueshengid + '" name="xueshengid" id="xueshengid">';
+							html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+							html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+							html += '<input type="hidden" readonly value="' + xingming + '" name="xingming" id="xingming">';
+							html += '<input type="hidden" readonly value="' + xuexiaoXuehao + '" name="xuexiaoXuehao" id="xuexiaoXuehao">';
+							html += '<input type="hidden" readonly value="' + id + '" name="yuanxinxi" id="">';
+							html += '<input type="hidden" readonly value="' + data.riqi + '" name="yuanriqis" id="">';
+							html += '<input type="hidden" readonly value="' + data.kecheng.banJiMingCheng + '" name="yuanriqi" id="">';
+							html += '<input type="hidden" readonly value="' + data.kecheng.shangkejiaoshi + '" name="yuanjiaoshi" id="">';
+							html += '<li class="aui-list-item" style=""><div class="aui-list-item-inner"><div class="aui-list-item-label">课程名称：</div>';
+							html += '<div class="aui-list-item-input"><input readonly id="kechengmingcheng" name="kechengmingcheng" type="text" style="border:0.5px solid gray;font-size:14px;width:180px;margin-left:20px;" value="' + data.kecheng.kechengmingcheng + '"/></div></div></li>';
+							html += '<li class="aui-list-item" style=""><div class="aui-list-item-inner"><div class="aui-list-item-label">任课教师：</div>';
+							html += '<div class="aui-list-item-input"><input readonly id="renkejiaoshi" name="renkejiaoshi" type="text" style="border:0.5px solid gray;font-size:14px;width:180px;margin-left:20px;" value="' + data.kecheng.renkejiaoshi + '"/></div></div><li>';
+							html += '<li class="aui-list-item" style=""><div class="aui-list-item-inner"><div class="aui-list-item-label">校区：</div>';
+							html += '<div class="aui-list-item-input" style="height:40px;width:80%;"><select id="xiaoqu" name="xiaoqu" style="float: left;width: 50%;height: -8px;" class="form-control chosen-select success"  onchange="show_jiaoshi(\'' + data.kecheng.shangkejiaoshi + '\')"><option value="">--请选择--</option>';
+							for (var i = 0; i < data.xiaoqus.length; i++) {
+								html += '<option value="' + data.xiaoqus[i].xiaoquid + '">' + data.xiaoqus[i].mingcheng + '</option>';
+							}
+							html += '</select></div></div></li>';
+							html += '<li class="aui-list-item" style=""><div class="aui-list-item-inner"><div class="aui-list-item-label">教室：</div>';
+							html += '<div class="aui-list-item-input" style="height:40px;width:80%;"><select id="shangkejiaoshi" class="form-control chosen-select success" style="float: left;width: 50%;height: -8px;" name="shangkejiaoshi"></select></div></div></li>';
+							if (data.kecheng.leixing != 3) {
+								html += '<li class="aui-list-item" style=""><div class="aui-list-item-inner" style="width:100%;"><div class="aui-list-item-label" style="width:18%;">上课周：</div>';
+								html += '<div class="aui-list-item-input" style="height:40px;width:82%;"><span style="float: left;">第</span><select id="kaishizhou" name="kaishizhou" class="form-control chosen-select success" style="float: left;width: 28%;">';
+								for (var j = 1; j <= data.weeknum; j++) {
+									if (j == data.kecheng.kaishizhou) {
+										html += '<option value="' + j + '" selected="selected">' + j + '</option>';
+									} else {
+										html += '<option value="' + j + '">' + j + '</option>';
+									}
+								}
+								html += '</select><span style="float: left;">周—至—第</span><select id="jieshuzhou" name="jieshuzhou" class="form-control chosen-select success" style="float: left;width: 28%;">';
+								for (var j = 1; j <= data.weeknum; j++) {
+									if (j == data.kecheng.jieshuzhou) {
+										html += '<option value="' + j + '" selected="selected">' + j + '</option>';
+									} else {
+										html += '<option value="' + j + '">' + j + '</option>';
+									}
+								}
+								html += '</select><span style="float: left;">周</span></div></div></li>';
+								html += '<li class="aui-list-item" style=""><div class="aui-list-item-inner"><div class="aui-list-item-label" style="width:150px;">单双周：</div><div class="aui-list-item-input">';
+								html += '<select id="danshuangzhou" name="danshuangzhou" class="form-control chosen-select success"  style="width:80px;margin-right:10px;">';
+								html += '<option value="">请选择</option>';
+								html += '<option value="0" >每周</option><option value="1">单周</option><option value="2">双周</option>';
+								html += '</select></div></div></li>';
+								html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;"><div class="aui-list-item-label" style="width:20%;">星期：</div><div class="aui-list-item-input" style="height:40px;width:80%;">';
+								html += '<select id="zhouci" class="form-control chosen-select success" name="zhouci" style="width:80px">';
+								html += '<option value="1">一</option><option value="2">二</option><option value="3">三</option><option value="4">四</option><option value="5">五</option><option value="6">六</option><option value="7">日</option></select></div></div></li>';
+							}
+							if (data.kecheng.leixing == 3) {
+								if (data.qufen == '2') {
+									html += '<li class="aui-list-item" style=""><div class="aui-list-item-inner"><div class="aui-list-item-label" style="width:250px;">修改前上课日期：</div><div class="aui-list-item-input">';
+									html += '<input type="text" readonly value="' + data.kecheng.banJiMingCheng + '">';
+									html += '</div></div></li>';
+									html += '<li class="aui-list-item" style=""><div class="aui-list-item-inner"><div class="aui-list-item-label" style="width:250px;">修改后上课日期：</div><div class="aui-list-item-input">';
+									html += '<input type="date"  id ="shijian" name ="shijian">';
+									html += '</div></div></li>';
+								} else {
+									for (var i = 0; i < data.riqi.length; i++) {
+										html += '<div style="display:none;" class="ab"></div>';
+										html += '<li class="aui-list-item" style=""><div class="aui-list-item-inner"><div class="aui-list-item-label" style="width:250px;">修改前上课日期：</div><div class="aui-list-item-input">';
+										html += '<input type="text" readonly value="' + data.riqi[i] + '" id="first-' + i + '">';
+										html += '</div></div></li>';
+										html += '<li class="aui-list-item" style=""><div class="aui-list-item-inner"><div class="aui-list-item-label" style="width:250px;">修改后上课日期：</div><div class="aui-list-item-input">';
+										html += '<input type="date"  id="second-' + i + '">';
+										html += '</div></div></li>';
+									}
+								}
+							}
+							html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="width:100%;"><div class="aui-list-item-label" style="width:25%;">上课节次：</div><div class="aui-list-item-input" style="width:75%;">';
+							html += '<span style="float: left;">第</span><select id="kaishijieci" name="kaishijieci" class="form-control chosen-select success" style="float: left;width: 28%;">';
+							for (var j = 0; j < data.zongjieci.length; j++) {
+								if (data.zongjieci[j].jieci == data.kecheng.kaishijieci) {
+									html += '<option value="' + data.zongjieci[j].id + '" selected="selected">' + data.zongjieci[j].jieci + '</option>';
+								} else {
+									html += '<option value="' + data.zongjieci[j].id + '">' + data.zongjieci[j].jieci + '</option>';
+								}
+							}
+							html += '</select><span style="float: left;">节—至—第</span><select id="jieshujieci" name="jieshujieci" class="form-control chosen-select success" style="float: left;width: 28%;">';
+							for (var j = 0; j < data.zongjieci.length; j++) {
+								if (data.zongjieci[j].jieci == data.kecheng.jieshujieci) {
+									html += '<option value="' + data.zongjieci[j].id + '" selected="selected">' + data.zongjieci[j].jieci + '</option>';
+								} else {
+									html += '<option value="' + data.zongjieci[j].id + '">' + data.zongjieci[j].jieci + '</option>';
+								}
+							}
+							html += '</select><span style="float: left;">节</span></div></div></li>';
+							html += '<div class="aui-list-item" style="width:100%;"><div class="aui-list-item-inner" style="width:80%;"></div><div class="aui-list-item-inner" style="width:20%;"><input type="button" class="aui-btn aui-btn-info" value="保存" onclick="savexiugai()"></div></div>';
+							$('#xiangxi').html(html);
+							$("#shijian").val(data.kecheng.shangkeriqi);
+							$("#danshuangzhou").val(data.kecheng.keDaiBiao);
+							$("#zhouci").val(data.kecheng.zhouci);
+							$("#xiaoqu").val(data.kecheng.xiaoqu);
+							show_jiaoshi(data.kecheng.shangkejiaoshi);
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("超时");
+					api.hideProgress();
+				}
+			});
+		};
+		function show_jiaoshi(jiaoshi) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xiaoquid = $("#xiaoqu").val();
+			var xueshengid = dataInfo.id;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + 'app_XianShiJiaoShiByTiaoTing',
+				data : {
+					CODE : xiaoquid,
+					status : status,
+					token : token,
+					xueshengid : xueshengid,
+				},
+				dataType : 'json',
+				cache : false,
+				timeout : 5000,
+				async : true,
+				success : function(data) {
+					var data = eval(data);
+					var code = '';
+					if (data) {
+						if (data.length > 0) {
+							for (var i = 0; i < data.length; i++) {
+								code += '<option value="' + data[i].jiaoshiid + '">' + data[i].jiaoshiming + '</option>';
+							}
+						} else {
+							code += '';
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+					$("#shangkejiaoshi").html(code);
+					$("#shangkejiaoshi").val(jiaoshi);
+					api.hideProgress();
+				},
+				error : function() {
+					alert("超时!")
+					api.hideProgress();
+				}
+			});
+		}
+
+		function show(obj) {//选择其他时，弹出其他说明
+			document.getElementById("other").style.display = (obj.value == 1) ? "" : "none";
+		}
+
+		function savexiugai() {
+			if ($("#kecheng").val() == "") {
+				alert("请输入课程名称！");
+				return false;
+			}
+			if ($("#xiaoqu").val() == "") {
+				alert("请选择校区！");
+				return false;
+			}
+			if ($("#shangkejiaoshi").val() == "") {
+				alert("请选择教室！");
+				return false;
+			}
+			if ($("#danshuangzhou").val() == "") {
+				alert("请选择单双周！");
+				return false;
+			}
+			if ($("#qufen").val() == '1') {
+				// 将时间值取出，赋给shijians,以逗号区分
+				var num = $("div .ab").length;
+				var one = '';
+				for (var i = 0; i < num; i++) {
+					var a = $("#first-" + i).val();
+					var b = $("#second-" + i).val();
+					one += a + "," + b + ";";
+				}
+				$("#shijians").val(one);
+			}
+			var formData = new FormData($("#biao")[0]);
+			$.ajax({
+				url : $api.getStorage('serverUrl') + "app_SaveXiuGaiKeCheng",
+				type : "post",
+				data : formData,
+				processData : false,
+				contentType : false,
+				cache : false,
+				timeout : 5000,
+				success : function(data) {
+					if (data) {
+						var jsname = "";
+						if ($("#qufen").val() == '1') {
+							jsname = 'wodekechengtitle';
+						} else {
+							jsname = 'historykecheng_title';
+						}
+						var jsfun = 'xiugaifanhui();';
+						api.execScript({
+							name : jsname,
+							script : jsfun
+						});
+						if (data == "success") {
+							alert("修改成功");
+						} else if (data == "fail") {
+							alert("修改失败");
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("超时！");
+				}
+			});
+		}
+	</script>
+</html>

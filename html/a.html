@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			ul li {
+				height: 50px;
+				border-bottom: 1px solid #CCCCCC;
+				line-height: 50px;
+				padding-left: 20px;
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<ul id="con" style="background: #fff;width:100%;height:100%;">
+				<li id="dl">
+					登录问题
+				</li>
+				<div id="dls" style="background: #F0F8FF;display: none;">
+					<li id="chaoshi">
+						登录超时
+					</li>
+					<li id="chucuo">
+						登录出错
+					</li>
+					<li>
+						账号密码不正确
+					</li>
+				</div>
+				<li id="yx">
+					绑定邮箱
+				</li>
+				<div id="yxs" style="background: #F0F8FF;display: none;">
+					<li id="">
+						1
+					</li>
+					<li>
+						2
+					</li>
+					<li>
+						3
+					</li>
+				</div>
+				<li id="xg">
+					修改密码
+				</li>
+				<div id="xgs" style="background: #F0F8FF;display: none;">
+					<li id="">
+						1
+					</li>
+					<li>
+						2
+					</li>
+					<li>
+						3
+					</li>
+				</div>
+				<li id="qt">
+					其他相关问题
+				</li>
+				<div id="qts" style="background: #F0F8FF;display: none;">
+					<li id="">
+						1
+					</li>
+					<li>
+						2
+					</li>
+					<li>
+						3
+					</li>
+				</div>
+			</ul>
+			<ul>
+				<li id="chaoshis" style="display: none;height:auto;">
+					超时问题：</br>123132432
+				</li>
+				<li id="chucuos" style="display: none;height:auto;">
+					登录出错：</br>12313243阿诗丹顿2
+				</li>
+			</ul>
+			 
+			<button id="fh" class="aui-btn aui-btn-info" style="display: none;left: 42%;">
+				返回
+			</button>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'a'
+			});
+		}
+
+		apiready = function() {
+		};
+		$("#qt").click(function() {
+			$("#qts").slideToggle();
+		})
+		$("#dl").click(function() {
+			$("#dls").slideToggle();
+		})
+		$("#yx").click(function() {
+			$("#yxs").slideToggle();
+		})
+		$("#xg").click(function() {
+			$("#xgs").slideToggle();
+		})
+		$("#chaoshi").click(function() {
+			$("#con").hide();
+			$("#chaoshis").show();
+			$("#fh").show();
+		})
+		$("#chucuo").click(function() {
+			$("#con").hide();
+			$("#chucuos").show();
+			$("#fh").show();
+		})
+		$("#fh").click(function() {
+			$("#con").show();
+			$("#fh").hide();
+			$("#chaoshis").hide();
+			$("#chucuos").hide();
+		})
+	</script>
+</html>

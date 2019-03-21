@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>shouye_richeng</title>
+		<link rel="stylesheet" type="text/css" href=" ../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				我的事件
+			</div>
+		</header>
+		<div style="background: #fff;">
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;margin-top: 80px;">
+				<div>
+					发起人：实验室
+				</div>
+				<div>
+					内容：学习
+				</div>
+				<div>
+					回执情况：已回执
+				</div>
+				<div style="font-size: 14px;color: gray;">
+					<span> 2018-08-23 &nbsp;&nbsp;&nbsp;&nbsp;11:30</span>
+				</div>
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				<div>
+					发起人：实验室
+				</div>
+				<div>
+					内容：学习
+				</div>
+				<div>
+					回执情况：已回执
+				</div>
+				<div style="font-size: 14px;color: gray;">
+					<span> 2018-08-23 &nbsp;&nbsp;&nbsp;&nbsp;11:30</span>
+				</div>
+			</div>
+			<div style="border-bottom: 1px solid #ccc;padding: 8px;">
+				<div>
+					发起人：实验室
+				</div>
+				<div>
+					内容：学习
+				</div>
+				<div style="font-size: 14px;color: gray;">
+					<span> 2018-08-23 &nbsp;&nbsp;&nbsp;&nbsp;11:30</span>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.execScript({
+				name : 'richeng',
+			});
+			api.closeWin();
+		}
+	</script>
+</html>

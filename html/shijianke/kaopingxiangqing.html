@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/c ss" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+	</head>
+	<body>
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+			<a class="aui-pull-left border-b  aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b " style="font-size:20px;color:gray;">
+				考评详情
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15" style="padding-top:70px;">
+			<section class="aui-grid aui-margin-b-15">
+				<div class="aui-row" id="menu_mun"></div>
+			</section>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'kaopingxiangqing'
+			});
+			var jsfun = "youtixing();";
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+		}
+
+		apiready = function() {
+			api.setStatusBarStyle({
+				style : 'dark',
+				color : '#6ab494'
+			});
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+			var data = api.pageParam.data;
+			var i = api.pageParam.i;
+			var chengyuan = '';
+//						alert($api.jsonToStr(data));
+			var html = '';
+			html += '<div class="aui-content aui-margin-b-15">';
+			html += '<div class="aui-list">';
+			html += '<li class="aui-list-item" style="top:10px;font-size:20px;">';
+			for (var j = 0; j < data[i].chengyuan.length; j++) {
+				chengyuan += data[i].chengyuan[j].xingming + ',';
+			}
+			html += data[i].xueXiZuMing + '&nbsp&nbsp&nbsp&nbsp' + chengyuan;
+			html += '</li>';
+			html += '<div class="aui-list-item-inner">';
+			html += '<li class="aui-list-item-title">' + data[i].fayanren;
+			html += '</li>';
+			html += '<li class="aui-list-item-right" style="z-index:9999;">';
+			var zhaopian = data[i].zhaoPian;
+			var srcimg = $api.getStorage('serverUrl') + 'app_getPict?id=' + zhaopian + '&xiaozuid=' + data[i].ID;
+			//  + '&kaopingid=' + newdata.ID
+			html += '<img class="zhaopian" width="120" src="' + srcimg + '" onerror="imgError(this);"  onclick="Server(\'' + srcimg + '\')">';
+			html += '</li>';
+			html += '</div>';
+			html += '</div>';
+			html += '<div>本组得分情况：</div>';
+			html += '<div class="" style="height:auto;padding:20px;background:#fff;border-bottom:1px solid #ccc;font-size:16px;color:gray;">';
+			if(data[i].defenliebiao == undefined){
+				data[i].defenliebiao = '';
+			}
+			html += data[i].defenliebiao;
+//			html += '<p style="color:#000;">学生评分：</p>' + data[i].defenliebiao;
+//			html += '<p style="color:#000;">老师评分：</p>' + 20;
+			html += '</div>';
+			html += '<div>本组打分情况：</div>';
+			html += '<div class="" style="height:auto;padding:20px;background:#fff;border-bottom:1px solid #ccc;font-size:16px;color:gray;">';
+			if(data[i].dafen == undefined){
+				data[i].dafen = '';
+			}
+			html += data[i].dafen;
+			html += '</div>';
+			html += '<table style="width:100%;">';
+			html += '<tr><td width="100">总分：' + data[i].zongdefen + '</td><td width="100">得分：' + data[i].quMaxAndMin + '</td></tr><br>';
+			html += '<tr><td width="100">得分平均分：' + data[i].average + '</td><td width="100">扣分平均分：' + data[i].zongkoufen + '</td></tr>';
+			html += '<tr><td width="100">归一得分：' + data[i].finalscore + '</td><td width="100">最终排名：' + data[i].mingci + '</td></tr>';
+			html += '</table>';
+			html += '</div>';
+			$('#menu_mun').html(html);
+		};
+		function Server(obj) {
+			api.openFrame({
+				name : 'imgshow',
+				url : "../imageShow.html",
+				rect : {
+					x : 0,
+					y : 0,
+					w : 'auto',
+					h : 'auto'
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				pageParam : {
+					url : obj
+				},
+				allowEdit : true,
+				reload : true
+			});
+		}
+
+		function imgError(obj) {
+			if (obj) {
+				obj.src = "../../image/123.png";
+				obj.onerror = null;
+			} else {
+				var img = event.srcElement;
+				img.src = "../../image/123.png";
+				img.onerror = null;
+			}
+		}
+	</script>
+</html>
+
+
+
+
+
+
+

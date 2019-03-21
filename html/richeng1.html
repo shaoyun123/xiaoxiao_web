@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>richeng</title>
+		<!---->
+		<link rel="stylesheet" type="text/css" href="../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link href="../script/fullcalendar/fullcalendar.min.css" rel="stylesheet" />
+		<link href="../script/fullcalendar/fullcalendar.print.min.css" rel="stylesheet" media="print" />
+		<script src="../script/fullcalendar/moment.min.js"></script>
+		<script src="../script/fullcalendar/jquery.min.js"></script>
+		<script src="../script/fullcalendar/fullcalendar.min.js"></script>
+		<script src="../script/fullcalendar/locale-all.js"></script>
+		<style>
+		</style>
+	</head>
+	<body id="bodys" style="background-color: #e7e7ef;">
+		<div id="appContent" class="aui-content" style="overflow: hidden;background-color: #e7e7ef;">
+			<div class="aui-card-list" id='calendarHtml' style="overflow: hidden;"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/aui-popup.js"></script>
+	<script type="text/javascript">
+		var thisDate = new Date();
+		var h;
+		var wodericheng;
+		function goback() {
+			api.closeWin({
+				name : 'wodericheng'
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		function searchDtaes() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xueshengid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_alertbeiwanglu",
+				data : {
+					xueshengid : xueshengid,
+					token : token,
+					status : status,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					//					alert($api.jsonToStr(data));
+					//					var tempStr = "内容";
+					//					var tempCon="";
+					if (data.beiWLs.length > 0) {
+						var str = "";
+						str += "今日需要反馈的事件如下：" + '\n';
+						for (var i = 0; i < data.beiWLs.length; i++) {
+							str += "内容：" + data.beiWLs[i].neirong + "\n时间：" + data.beiWLs[i].shijian + '\n';
+						}
+//						alert(str);
+						//						api.confirm({
+						//							msg : tempCon,
+						//							buttons : ['立即反馈', '下次再说']
+						//						}, function(ret, err) {
+						////							if(ret.buttonIndex == 0){
+						////
+						////							}else if(ret.buttonIndex == 1){
+						////								api.openWin({
+						////								name : 'richeng_to_beiwang_title',
+						////								url : "./common/richeng_to_beiwang_title.html",
+						////								reload : true,
+						////								allowEdit : true
+						////							});
+						////							return;
+						////
+						////							}
+						//
+						//						});
+					}
+				},
+				eror : function() {
+					alert("读取失败啦！");
+				}
+			});
+		}			
+
+		apiready = function() {
+			api.lockSlidPane();
+			loadData();      // 
+			var dataInfo = $api.getStorage('loginDataInfo');
+			$api.setStorage('addMessager_rc', 'richeng');
+			h = api.frameHeight;
+			wodericheng = api.pageParam.wodericheng;
+			if (wodericheng && wodericheng == 'wodericheng') {
+				$api.setStorage('addMessager_rc', 'wodericheng');
+				$('#back').show();
+				$('#appFooter').hide();
+				$('#appTitle').html('我的日程');
+				$('#calendar').height(h);
+				$('#appContent').height(h);
+				//h = h-80;
+			} else {
+				$api.setStorage('addMessager_rc', 'richeng');
+				$('#calendar').height(h);
+				$('#appContent').height(h);
+				//h  = h - 80;
+			}
+			$(document).ready(function() {
+				if (status == "xuesheng") {
+					searchDtaes();
+				}
+				var status = dataInfo.status;
+				if (status == "xuesheng") {
+					$("#calendarHtml").load("calendarHtml.html?t=" + new Date().getTime());
+				}else if(status == "laoshi") {
+					$("#calendarHtml").load("calendarHtml.html?t=" + new Date().getTime());
+				}
+				 else {
+					api.hideProgress();
+				}
+			});
+		};
+		function fanhuichongzai() {
+			loadData();
+			//alert("kkk");
+			$("#calendarHtml").html('');
+			$("#calendarHtml").load("calendarHtml.html?t=" + new Date().getTime());
+		}
+
+		var popup = new auiPopup();
+		function addMessager(type) {
+			var popup = new auiPopup();
+			popup.hide(document.getElementById("top-right"));
+			if (wodericheng && wodericheng == 'wodericheng') {
+				$api.setStorage('addMessager_rc', 'wodericheng');
+			}
+			if (type == '1') {
+				api.openWin({
+					name : 'zizhu_jiake1',
+					url : "../html/richeng/zizhu_jiake1.html",
+					reload : true,
+					allowEdit : true
+				});
+			} else if (type == '2') {
+				api.openWin({
+					name : 'tianjiaricheng',
+					url : "../html/richeng/tianjiaricheng.html",
+					reload : true,
+					allowEdit : true
+				});
+			} else if (type == '3') {
+				api.openWin({
+					name : 'bianjibeiwang',
+					url : "../html/richeng/bianjibeiwang.html",
+					pageParam : {
+						tai : '2',
+						num : '2',
+					},
+					reload : true,
+					allowEdit : true
+				});
+			}
+		}
+
+		function showImg() {
+			api.openFrame({
+				name : 'imgshow',
+				url : "./imageShow.html",
+				rect : {
+					x : 0,
+					y : 0,
+					w : 'auto',
+					h : 'auto'
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				pageParam : {
+					url : 'http://f.hiphotos.baidu.com/image/pic/item/c75c10385343fbf2f7da8133bc7eca8065388f2f.jpg'
+				},
+				allowEdit : true,
+			});
+		}
+
+		function paizhao() {
+			api.getPicture({
+				sourceType : 'camera',
+				encodingType : 'jpg',
+				mediaValue : 'pic',
+				destinationType : 'base64',
+				allowEdit : true,
+				quality : 20,
+				//targetWidth : 100,
+				//targetHeight : 100,
+				saveToPhotoAlbum : false
+			}, function(ret, err) {
+				if (ret) {
+					if (ret.base64Data !== "") {
+						var dataInfo = $api.getStorage('loginDataInfo');
+						var status = dataInfo.status;
+						var token = $api.getStorage("logintoken");
+						var xueshengid = dataInfo.id;
+						var anpaiid = $('#anpaiid').val();
+						$.ajax({
+							type : "POST",
+							url : $api.getStorage('serverUrl') + "app_UpdateImgerBase64",
+							data : {
+								base64Str : ret.base64Data,
+								xueshengid : xueshengid,
+								status : status,
+								token : token,
+								anpaiid : anpaiid,
+							},
+							dataType : 'json',
+							cache : false,
+							success : function(data) {
+								if (data) {
+									if (data.msg == "OK") {
+										//$('#nowPhoto1').attr('src', ret.base64Data);
+										alert("上传成功");
+									} else {
+										alert("上传失败");
+									}
+								} else {
+									alert("已登出");
+									api.hideProgress();
+									var jsfun = 'logout();';
+									api.execScript({
+										name : 'index',
+										script : jsfun
+									});
+								}
+							},
+							error : function() {
+								alert("错误001");
+							}
+						});
+					}
+				} else {
+					api.alert({
+						msg : '图片获取失败,请重新拍照!'
+					});
+				}
+			});
+		}
+	</script>
+</html>

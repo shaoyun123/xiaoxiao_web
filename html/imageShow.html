@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/api.css" />
+		<style>
+			html, body {
+				height: 100%;
+				background: transparent;
+			}
+			.content {
+				background: transparent;
+				position: absolute;
+				display: -webkit-box;
+				-webkit-box-pack: center;
+				-webkit-box-align: center;
+				height: 100%;
+				width: 100%;
+			}
+			.content img {
+				width: 100%;
+			}
+		</style>
+		<script>
+		function imgError(obj) {
+			
+		}
+		</script>
+	</head>
+	<body>
+		<div class="content" onclick="closeThis()">
+			<img src="" style="display: none;" id="show" onerror="imgError(this)" />
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+	
+	<script type="text/javascript">
+		function closeThis(){
+			$("#show").attr('onerror',null);
+			$("#show").attr('src','');
+			api.closeFrame()
+		}
+		apiready = function() {
+			$("#show").hide();
+			var img = $api.byId("show");
+			var url = api.pageParam.url;
+			img.src = url;	
+			$("#show").show();
+		};
+		function imgError(obj) {
+			if (!obj) {
+				obj = event.srcElement;
+			}
+			if(obj.src != ''){
+				obj.src = "../image/123.png";
+				obj.onerror = null;
+			}
+		}
+		
+	</script>
+	<script type="text/javascript" src="../script/hammer.js"></script>
+	<script type="text/javascript" src="../script/hammerPluin.js"></script>
+</html>

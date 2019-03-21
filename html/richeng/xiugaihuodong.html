@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>xiugaihuodong</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/animate.min.css">
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			.auiitem {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				color: #212121;
+				background-color: #ffffff;
+				position: relative;
+				min-height: 2.2 rem;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				display: -webkit-box;
+				display: -webkit-flex;
+				display: flex;
+				-webkit-box-pack: justify;
+				-webkit-justify-content: space-between;
+				justify-content: space-between;
+			}
+			.white_content {
+				display: none;
+				position: absolute;
+				top: 10%;
+				width: 100%;
+				height: 90%;
+				border: 2px solid lightblue;
+				background-color: white;
+				z-index: 1002;
+				overflow: auto;
+			}
+			.kexuan {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 92%;
+				border: 3px solid gray;
+				background-color: white;
+				z-index: 1002;
+				overflow: auto;
+			}
+			.rightbottom1 {
+				position: absolute;
+				bottom: 0;
+				right: 0;
+			}
+			.rightbottom2 {
+				position: absolute;
+				bottom: 0;
+				right: 40px;
+			}
+			.kexuanren {
+				position: absolute;
+				top: 30px;
+				display: none;
+			}
+			.auibtn {
+				position: relative;
+				display: inline-block;
+				font-size: 0.7 rem;
+				font-weight: 200;
+				font-family: inherit;
+				text-decoration: none;
+				text-align: center;
+				margin: 0;
+				background: #e0e0e0;
+				padding: 0.25 rem 0.6 rem;
+				border-radius: 0.2 rem;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				white-space: nowrap;
+				vertical-align: middle;
+				cursor: pointer;
+				touch-action: manipulation;
+				-webkit-user-select: none;
+				user-select: none;
+			}
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+			.mask {
+				width: 100%;
+				height: 100%;
+				opacity: 0.4;
+				filter: alpha(opacity = 40);
+				background-color: black;
+				top: 0;
+				left: 0;
+				position: absolute;
+				display: none;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<!--<div class="mask" style="z-index: 10;">-->
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" id="gs1" style="display: block;" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<a class="aui-pull-left border-b aui-btn" id="gs2" style="display: none;"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				我的活动
+			</div>
+			<div class="mask" style="z-index: 10;"></div>
+		</header>
+		<!--</div>-->
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-header" style="font-size:20px;">
+					修改活动
+				</li>
+				<form id="xiugairicheng" name="xiugairicheng">
+					<input type="hidden" id="huodongid" name="huodongid" value="">
+					<input type="hidden" value="" name="xingming" id="xingming">
+					<input type="hidden" readonly value="" name="token" id="token">
+					<input type="hidden" readonly value="" name="status" id="status">
+					<input type="hidden" readonly value="" name="xuexiaoXuehao" id="xuexiaoXuehao">
+					<li class="aui-list-item" style="">
+						<div class="aui-list-item-inner">
+							<div class="aui-list-item-label">
+								活动名称：
+							</div>
+							<div class="aui-list-item-input">
+								<input type="text" style="border:1px solid #e5e5e5;border-color:#969696;width:240px;margin-right:20px;" value="" id="huodongmingcheng" name="huodongmingcheng">
+							</div>
+						</div>
+					</li>
+					<li class="aui-list-item" style="">
+						<div class="aui-list-item-inner">
+							<div class="aui-list-item-label">
+								活动地点：
+							</div>
+							<div class="aui-list-item-input">
+								<input type="text" style="border:1px solid #e5e5e5;border-color:#969696;width:240px;margin-right:20px;" value="" id="huodongdidian" name="huodongdidian">
+							</div>
+						</div>
+					</li>
+					<li class="aui-list-item" style="">
+						<div class="aui-list-item-inner">
+							<div class="aui-list-item-label">
+								活动说明：
+							</div>
+							<div class="aui-list-item-input">
+								<input type="text" style="border:1px solid #e5e5e5;border-color:#969696;width:240px;margin-right:20px;" value="" id="huodongbeizhu" name="huodongbeizhu">
+							</div>
+						</div>
+					</li>
+					<li class="auiitem">
+						<div class="aui-list-item-inner" style="height:60px;font-size:16px;margin-left: 13px;">
+							<nobr style="width:100px;">
+								参与人：
+							</nobr>
+							<input type="button" class="aui-btn" value="编辑" style="margin-right:200px;" id="button1" onclick="ShowDiv('MyDiv')" />
+							<input id="canyuren" name="canyuren" type="hidden" />
+						</div>
+					</li>
+					<div class="mask" style="z-index: 10;"></div>
+					<!--弹出框-->
+					<div id="MyDiv" class="white_content" style="border-radius: 10px;overflow-x:hidden;z-index:100;">
+						<ul id="myTab" class="nav nav-tabs" style="width: 100%;">
+							<li style="width:50%;text-align: center;">
+								<a id="tongban" onclick="show('tongbandiv','shetuandiv')" data-toggle="tab">
+								<div onclick='chgColor(this)'>
+									同班同学
+								</div></a>
+							</li>
+							<li style="width:50%;text-align: center;">
+								<a id="shetuan" onclick="show('shetuandiv','tongbandiv')" data-toggle="tab">
+								<div onclick='chgColor(this)'>
+									社团同学
+								</div></a>
+							</li>
+						</ul>
+						<div id="myTabContent" class="tab-content">
+							<div class="tab-pane kexuanren" id="tongbandiv">
+								<ul id="tongbantianjia"></ul>
+							</div>
+							<div class="tab-pane kexuanren" id="shetuandiv">
+								<ul id="shetuantianjia"></ul>
+							</div>
+						</div>
+						<div id="move" style="cursor:pointer;position: relative;top:79%;left:40%;">
+							<span id="close" style="font-size: 16px;" class="aui-btn-info aui-btn">确认</span>
+						</div>
+					</div>
+					<li class="aui-list-item" style="">
+						<div class="aui-list-item-inner">
+							<div class="aui-list-item-label">
+								活动日期：
+							</div>
+							<div class="aui-list-item-input">
+								<input type="date" id="huodongriqi" style="border:1px solid #e5e5e5;border-color:#969696;width:240px;margin-right:20px;" name="huodongriqi" value="">
+							</div>
+						</div>
+					</li>
+					<li class="aui-list-item" style="">
+						<div class="aui-list-item-inner">
+							<div class="aui-list-item-label">
+								开始时间：
+							</div>
+							<div class="aui-list-item-input">
+								<input id="kaishishijian" name="kaishishijian" style="border:1px solid #e5e5e5;border-color:#969696;width:240px;margin-right:20px;" type="time" value="" />
+							</div>
+						</div>
+					</li>
+					<li class="aui-list-item" style="">
+						<div class="aui-list-item-inner">
+							<div class="aui-list-item-label">
+								结束时间：
+							</div>
+							<div class="aui-list-item-input">
+								<input id="jieshushijian" name="jieshushijian" style="border:1px solid #e5e5e5;border-color:#969696;width:240px;margin-right:20px;" type="time" value="" />
+							</div>
+						</div>
+					</li>
+					<li class="auiitem">
+						<div class="aui-list-item-inner" style="height:60px;font-size:18px;">
+							<label style="width:100px;"></label>
+							<input type="button" class="aui-btn aui-btn-info" style="margin-right:20px;" id="button" name="button" value="保存" onclick="savexiugaihuodong()">
+						</div>
+					</li>
+				</form>
+			</ul>
+			<div class="mask" style="z-index: 10;"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'xiugaihuodong',
+			});
+		}
+
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var huodongid = api.pageParam.huodongid;
+			var num = api.appParam.num;
+			var studentid = dataInfo.id;
+			var xingming = dataInfo.xingMing;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+			$("#xuexiaoXuehao").val(xuexiaoXuehao);
+			$("#xingming").val(xingming);
+			$("#status").val(status);
+			$("#token").val(token);
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_XiuGaiHuoDong",
+				data : {
+					CODE : huodongid,
+					status : status,
+					token : token,
+					xueshengid : studentid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+					if (data) {
+						if (data.huodongid != null && data.huodongid != "") {
+							$("#huodongid").val(huodongid);
+							$("#huodongmingcheng").val(data.huodongmingcheng);
+							$("#huodongdidian").val(data.didian);
+							$("#huodongbeizhu").val(data.shuoming);
+							$("#huodongriqi").val(data.riqi);
+							$("#kaishishijian").val(data.kaishishijian);
+							$("#jieshushijian").val(data.jieshushijian);
+							//alert(data.canyuren);
+							$("#canyuren").val(data.canyuren);
+							bianji(data.canyuren);
+						} else {
+							api.hideProgress();
+							alert("该活动可能已消失");
+							function goback() {
+								api.closeWin({
+									name : 'xiugaihuodong',
+								});
+							}
+
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					api.hideProgress();
+					alert("错误AK");
+				}
+			});
+		};
+		function bianji(canyuren) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xueshengid = dataInfo.id;
+			var studentid = dataInfo.id;
+			var xuehao = dataInfo.xueHao;
+			var xingming = dataInfo.xingMing;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			var code = xueshengid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_XianShiTongBan",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+					html += '<thead><tr><th style="width:45%;"><br>学号</th><th style="width:45%;"><br>姓名</th><th style="width:10%;"><br>添加</th></tr></thead>';
+					if (data) {
+						html += '<tbody>';
+						html += '<tr><td onclick="quanxuan()"><input type="checkbox" style="width:18px;height:18px;margin=right:3px;" id="quan" value="" name="quan"><label for="quan" style="font-size:18px;">全选</label></td>/tr>';
+						for (var i = 0; i < data.length; i++) {
+							if (xueshengid != data[i].xueshengid) {
+								html += '<tr>';
+								html += '<td style="width:45%;font-size:19px;">' + data[i].xuehao + '</td><td style="width:45%;font-size:19px;">' + data[i].xingming + '</td>';
+								html += '<td style="width:10%;"><div><input type="checkbox" style="width:18px;height:18px;" id="' + data[i].xueshengid + '" value="' + data[i].xueshengid + '" name="test"></div></td>';
+								html += '</tr>';
+							} else {
+								html += '<input type="hidden" id="ziji" name="ziji" value="' + data[i].xueshengid + '" /><input type="hidden" id="zijixueshengid" name="zijixueshengid" value="' + data[i].xueshengid + '" />';
+							}
+						}
+						html += '</tbody>';
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+					$('#tongbantianjia').html(html);
+					var canyurens = canyuren.split(",");
+					for (var i = 0; i < canyurens.length; i++) {
+						//						var xuesheng = canyurens[i].split(",");
+						if (studentid != canyurens[i] && canyurens != "") {
+							$('#' + canyurens[i]).attr("checked", true);
+							$('#' + canyurens[i]).val(canyurens[i]);
+							//							document.getElementById(canyurens[i]).value = canyurens[i] + ",";
+						}
+					}
+				},
+				error : function() {
+					alert("错误EDE");
+				}
+			});
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_XianShiSheTuan",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					//					alert($api.jsonToStr(data));
+					html = "";
+					html += '<thead><tr><th style="width:30%;"><br>社团</th><th style="width:35%;"><br>学号</th><th style="width:25%;"><br>姓名</th><th style="width:10%;"><br>添加</th></tr></thead>';
+					if (data) {
+						if (data != null && data.length > 0) {
+							html += '<tbody>';
+							for (var i = 0; i < data.length; i++) {
+								if (xueshengid != data[i].xueshengid) {
+									html += '<tr>';
+									html += '<td style="width:30%;font-size:19px;">' + data[i].shetuanmingcheng + '</td><td style="width:35%;font-size:19px;">' + data[i].xuehao + '</td><td style="width:25%;font-size:19px;">' + data[i].xingming + '</td>';
+									html += '<td style="width:10%;"><div><input type="checkbox" style="width:18px;height:18px;" id="' + data[i].xueshengid + '" value="' + '0,' + data[i].xueshengid + ',0;' + '" name="test2"></div></td>';
+									html += '</tr>';
+								}
+							}
+							html += '</tbody>';
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+					$('#shetuantianjia').html(html);
+					api.hideProgress();
+				},
+				error : function() {
+					alert("错误KKW");
+					api.hideProgress();
+				}
+			});
+		}
+
+		var isCheckAll = false;
+		function quanxuan() {
+			if (isCheckAll) {
+				$("input[name='test']").each(function() {
+					this.checked = false;
+				});
+				isCheckAll = false;
+			} else {
+				$("input[name='test']").each(function() {
+					this.checked = true;
+				});
+				isCheckAll = true;
+			}
+		}
+
+		function tab(date1, date2) {
+			var oDate1 = new Date(date1);
+			var oDate2 = new Date(date2);
+			if (oDate1.getTime() > oDate2.getTime()) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+
+		function savexiugaihuodong() {
+			if ($("#huodongmingcheng").val() == "") {
+				alert("请填写活动名称：")
+				$("#huodongmingcheng").focus();
+				return false;
+			}
+			if ($("#huodongdidian").val() == "") {
+				alert("请填写活动地点：")
+				$("#huodongdidian").focus();
+				return false;
+			}
+			if ($("#huodongriqi").val() == "") {
+				alert("请填写活动日期：")
+				$("#huodongriqi").focus();
+				return false;
+			}
+			if ($("#kaishishijian").val() == "") {
+				alert("请填写开始时间：")
+				$("#kaishishijian").focus();
+				return false;
+			}
+			if ($("#jieshushijian").val() == "") {
+				alert("请填写结束时间：")
+				$("#jieshushijian").focus();
+				return false;
+			}
+			if (!tab($("#kaishishijian").val(), $("#jieshushijian").val())) {
+				alert("请重新确认开始结束时间");
+				return false;
+			}
+			var num = api.pageParam.num;
+			var formData = new FormData($("#xiugairicheng")[0]);
+			//			alert($api.jsonToStr(formData));
+			$.ajax({
+				url : $api.getStorage('serverUrl') + "app_SaveUpdateHuoDong",
+				type : "post",
+				data : formData,
+				processData : false,
+				contentType : false,
+				cache : false,
+				success : function(data) {
+					if (data) {
+						if (num == "2") {
+							if (data == "success") {
+								alert("修改成功");
+								var jsfun = 'xiugaifanhui();';
+								api.execScript({
+									name : 'wodericheng',
+									script : jsfun
+								});
+							} else if (data == "timeout") {
+								alert("请重新核对开始结束时间");
+							} else {
+								alert("修改失败");
+								var jsfun = 'xiugaifanhui();';
+								api.execScript({
+									name : 'wodericheng',
+									script : jsfun
+								});
+							}
+						} else if (num == "4") {
+							if (data == "success") {
+								alert("修改成功");
+								var jsfun = 'fanhuihistoryricheng2();';
+								api.execScript({
+									name : 'historyhuodong',
+									frameName : 'historyhuodongMain',
+									script : jsfun
+								});
+							} else if (data == "timeout") {
+								alert("请重新核对开始结束时间");
+							} else {
+								alert("修改失败");
+								var jsfun = 'fanhuihistoryricheng2();';
+								api.execScript({
+									name : 'historyhuodong',
+									frameName : 'historyhuodongMain',
+									script : jsfun
+								});
+							}
+						} else if (num == "5") {
+							if (data == "success") {
+								alert("修改成功");
+								var jsfun = 'fanhuichongzai();';
+								var jsName = 'index';
+								api.execScript({
+									name : jsName,
+									frameName : 'richeng',
+									script : jsfun
+								});
+								var jsfun = 'fanhuitotixingxq();';
+								api.execScript({
+									name : 'tixing',
+									script : jsfun
+								});
+								api.closeWin({
+									name : 'tixingxiangqing'
+								});
+								api.closeWin({
+									name : 'richeng_to_huodong_title'
+								});
+								goback();
+							} else if (data == "timeout") {
+								alert("请重新核对开始结束时间");
+							} else {
+								alert("修改失败");
+								var jsfun = 'fanhuichongzai();';
+								var jsName = 'index';
+								api.execScript({
+									name : jsName,
+									frameName : 'richeng',
+									script : jsfun
+								});
+								var jsfun = 'fanhuitotixingxq();';
+								api.execScript({
+									name : 'tixing',
+									script : jsfun
+								});
+								api.closeWin({
+									name : 'tixingxiangqing'
+								});
+								api.closeWin({
+									name : 'richeng_to_huodong_title'
+								});
+								goback();
+							}
+						} else {
+							if (data == "success") {
+								alert("修改成功");
+								var fromindex = api.pageParam.fromindex;
+								if (fromindex) {
+									var jsfun = 'shuaxinricheng();';
+									var jsName = 'index';
+									api.execScript({
+										name : jsName,
+										script : jsfun
+									});
+								} else {
+									var jsfun = 'fanhuichongzai();';
+									var jsName = $api.getStorage('addMessager_rc');
+									if (jsName && jsName == 'richeng') {
+										api.execScript({
+											name : 'index',
+											frameName : jsName,
+											script : jsfun
+										});
+									} else {
+										api.execScript({
+											name : jsName,
+											frameName : jsName,
+											script : jsfun
+										});
+									}
+								}
+								api.closeWin({
+									name : 'richeng_to_huodong_title'
+								});
+								goback();
+							} else if (data == "timeout") {
+								alert("请重新核对开始结束时间");
+							} else {
+								alert("修改失败");
+								var fromindex = api.pageParam.fromindex;
+								if (fromindex) {
+									var jsfun = 'shuaxinricheng();';
+									var jsName = 'index';
+									api.execScript({
+										name : jsName,
+										script : jsfun
+									});
+								} else {
+									var jsfun = 'fanhuichongzai();';
+									var jsName = $api.getStorage('addMessager_rc');
+									if (jsName && jsName == 'richeng') {
+										api.execScript({
+											name : 'index',
+											frameName : jsName,
+											script : jsfun
+										});
+									} else {
+										api.execScript({
+											name : jsName,
+											frameName : jsName,
+											script : jsfun
+										});
+									}
+								}
+								api.closeWin({
+									name : 'richeng_to_huodong_title'
+								});
+								goback();
+							}
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误AOE");
+				}
+			});
+		}
+
+		//弹出隐藏层
+		function ShowDiv(show_div) {
+			document.getElementById(show_div).style.display = 'block';
+			document.getElementById("gs1").style.display = "none";
+			document.getElementById("gs2").style.display = "block";
+			$(".mask").show();
+			document.body.style.overflow = "hidden";
+			// 不显示滚动条
+			// 取消冒泡
+			var event = event || window.event;
+			if (event && event.stopPropagation) {
+				event.stopPropagation();
+			} else {
+				event.cancelBubble = true;
+			}
+		};
+		$("#close").click(function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xuehao = dataInfo.xueHao;
+			var xingming = dataInfo.xingMing;
+			var xueshengid = dataInfo.id;
+			var s = '';
+			var obj = document.getElementsByName('test');
+			for (var i = 0; i < obj.length; i++) {
+				if (obj[i].checked) {
+					s += obj[i].value + ",";
+					//如果选中，将value添加到变量s中
+				}
+			}
+			s += xueshengid + ",";
+			document.getElementById("canyuren").value = s;
+			document.getElementById("MyDiv").style.display = 'none';
+			document.getElementById("gs1").style.display = "block";
+			document.getElementById("gs2").style.display = "none";
+			$("#MyDiv").hide();
+			$(".mask").hide();
+		})
+		//  显示当前点击的超链接颜色
+		var perDiv = null;
+		function chgColor(_this) {
+			if (perDiv)
+				perDiv.style.color = '';
+			_this.style.color = '#0062CC';
+			perDiv = _this;
+		}
+
+		//显示同班、社团、好友
+		function show(show, close1, close2) {
+			document.getElementById(show).style.display = 'block';
+			document.getElementById(close1).style.display = 'none';
+		};
+	</script>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>shetuanjieshao</title>
+    
+    
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+
+    <script type="text/javascript" src="../../script/jquery.min.js"></script>
+    <script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+    <style>
+        .form-control {
+            display: block;
+            width: 100%;
+            height: 34px;
+            padding: 6px 12px;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+        }
+
+        .form-control:focus {
+            border-color: #66afe9;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
+        }
+        header {
+			background-color: #f2f2f2;
+		}
+		header ul li {
+			height: 50px;
+			line-height: 50px;
+			text-align: center;
+			display: none;
+			color: #323237;
+			position: relative;
+			font-size: 18px;
+		}
+		header ul li.active {
+			display: block;
+		}
+    </style>
+</head>
+
+<body style="background-color: #e7e7ef;">
+    <header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;" id="topbar">
+        <a class="aui-pull-left border-b aui-btn" onclick="goback()">
+            <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span>
+        </a>
+        <div class="aui-title border-b" style="font-size:20px;color:gray">
+            学生社团
+        </div>
+    </header>
+    <div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;padding-top:70px;">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header" style="font-size:20px;position:fixed;width:100%;z-index:5;">社团介绍</li>
+            <form id="stcx" name="stcx" method="post" class="form-horizontal" style="margin-bottom: 1px;padding-top:40px;" role="form" data-toggle="validation" novalidate="novalidate">
+                <nav>
+                    <ul id="shetuanchaxun">
+                    </ul>
+                </nav>
+            </form>
+            <nav>
+                <ul id="shetuandagai">
+
+                </ul>
+            </nav>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    //   关闭页面
+    function goback() {
+        api.closeWin({
+            name: 'shetuanjieshao',
+        });
+    }
+
+    function loadData() {
+        api.showProgress({
+            title: '努力加载中...',
+            text: '先喝杯茶...',
+            modal: false
+        });
+    }
+    apiready = function() {
+        loadData();
+        var dataInfo = $api.getStorage('loginDataInfo');
+        var studentid = dataInfo.id;
+        var xuexiaoxuehao =dataInfo.xuexiao_xuehao;
+        html = "";
+        html += '<li class="aui-list-item" style="padding-top:3px;">';
+        html += '<input type="hidden" readonly value="' + studentid + '" name="studentid" id="studentid">';
+        html += '<input type="hidden" readonly value="' + xuexiaoxuehao + '" name="xuexiaoxuehao" id="xuexiaoxuehao">';
+        html += '<div class="aui-list-item-inner" style="width:25%;"><span style="color:#09c6d0;">社团性质：</span></div>';
+        html += '<div class="aui-list-item-inner" style="width:25%;"><select id="xingzhi" name="xingzhi" class="form-control chosen-select success" aria-required="true" aria-invalid="false">';
+        html += '<option value="" selected="selected">全部</option><option value="shetuan">社团</option><option value="xueshengzuzhi">学生组织</option></select></div>';
+        html += '<div class="aui-list-item-inner" style="width:25%;"><span style="color:#09c6d0;">社团星级：</span></div>';
+        html += '<div class="aui-list-item-inner" style="width:25%;"><select id="xingji" name="xingji" class="form-control chosen-select success" aria-required="true" aria-invalid="false">';
+        html += '<option value="" selected="selected">全部</option><option value="3">3星级</option><option value="4" >4星级</option><option value="5" >5星级</option></select></div>';
+        html += '<li class="aui-list-item" style="text-align:center;padding-top:1px;"><div class="aui-list-item-inner" style="width:25%;"><span style="color:#09c6d0;">社团名称：</span></div>';
+        html += '<div class="aui-list-item-inner" style="width:55%;"><input type="text" style="border:1px solid gray;" id = "mingcheng" name = "mingcheng" value=""></div>';
+        html += '<div class="aui-list-item-inner" style="width:20%;text-align:right;margin-left:15px;"><input type="button" value="查询" class="aui-btn aui-btn-info" onclick="chaxunshetuan()"></div></li>';
+        $('#shetuanchaxun').html(html);
+        xianshishetuan();
+        api.addEventListener({
+            name: 'keyback'
+        }, function(ret, err) {
+            api.closeWin({
+                name: 'shetuanjieshao',
+            });
+        });
+    };
+
+    function xianshishetuan() {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var studentid = dataInfo.id;
+        var xuexiaoxuehao = dataInfo.xuexiao_xuehao;
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_SheTuanJieShao",
+            data: {
+                CODE: xuexiaoxuehao
+            },
+            dataType: 'json',
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                var data = eval(data);
+                html = "";
+                if (data) {
+                    if (data.xueshengzuzhi.length > 0) {
+                        for (var i = 0; i < data.xueshengzuzhi.length; i++) {
+                            html += '<li class="aui-list-item"><div style="width:80%;font-size:18px;">';
+                            html += '<h4 style="font-size:18px;">性质：学生组织</h4><h4 style="color:#09c6d0;font-size:20px;">名称：' + data.xueshengzuzhi[i].mingcheng +
+                                '</h4><h4 style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">主页：' + data.xueshengzuzhi[i].jieshaourl +
+                                '</h4><h4 style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">简介：' + data.xueshengzuzhi[i].jianjie + '</h4>';
+                            html += '<h4 style="font-size:18px;">创建人：' + data.xueshengzuzhi[i].chuangjianren + '</h4><h4 style="font-size:18px;">指导教师：' + data.xueshengzuzhi[i].zhidaojiaoshi + '</h4><h4 style="font-size:18px;">创建时间：' + data.xueshengzuzhi[i].chuangjianshijian + '</h4></div>';
+                            html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="详情" onclick="xueshengzuzhixiangqing(' +
+                                data.xueshengzuzhi[i].xueshengzuzhiid + ')"></div></div>';
+                            html += '</li>';
+                        }
+                    }
+                    if (data.shetuan.length > 0) {
+                        for (var i = 0; i < data.shetuan.length; i++) {
+                            html += '<li class="aui-list-item"><div style="width:80%;font-size:18px;">';
+                            html += '<h4 style="font-size:18px;">性质：社团</h4><h4 style="font-size:20px;color:orange;">名称：' + data.shetuan[i].mingcheng + '</h4><h4 style="font-size:18px;">星级：' + data.shetuan[i].xingji +
+                                '星级</h4><h4 style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">主页：' + data.shetuan[i].shetuanjieshaourl + '</h4>';
+                            html += '<h4 style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">简介：' + data.shetuan[i].shetuanjieshao + '</h4><h4 style="font-size:18px;">创建人：' + data.shetuan[i].chuanjianren +
+                                '</h4><h4 style="font-size:18px;">指导教师：' + data.shetuan[i].zhidaojiaoshi + '</h4><h4 style="font-size:18px;">创建时间：' + data.shetuan[i].chuangjianshijian + '</h4></div>';
+                            html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="详情" onclick="shetuanxiangqing(' + data.shetuan[
+                                i].shetuanid + ')"></div></div>';
+                            html += '</li>';
+                        }
+                    }
+                }
+                $('#shetuandagai').html(html);
+                api.hideProgress();
+            },
+            error: function() {
+                api.hideProgress();
+                alert("错误MCDK");
+            }
+        });
+    }
+
+    function xueshengzuzhixiangqing(id) {
+        api.openWin({
+            name: 'shetuanxiangqing',
+            url: 'shetuanxiangqing.html',
+            pageParam: {
+                xueshengzuzhiid: id,
+                leibie: '1'
+            },
+            reload: true,
+			allowEdit:true
+        });
+    }
+
+    function shetuanxiangqing(id) {
+        api.openWin({
+            name: 'shetuanxiangqing',
+            url: 'shetuanxiangqing.html',
+            pageParam: {
+                shetuanid: id,
+                leibie: '2'
+            },
+            reload: true,
+			allowEdit:true
+        });
+
+    }
+
+    function chaxunshetuan() {
+        loadData();
+        var formData = new FormData($("#stcx")[0]);
+        $.ajax({
+            type: "POST",
+            url: $api.getStorage('serverUrl')+"app_ChaXun_SheTuan",
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 5000,
+            success: function(data) {
+                var data = eval(data);
+                html = "";
+                if (data) {
+                    if (data.xueshengzuzhi.length > 0) {
+                        for (var i = 0; i < data.xueshengzuzhi.length; i++) {
+                            html += '<li class="aui-list-item"><div style="width:80%;font-size:18px;">';
+                            html += '<h4 style="font-size:18px;">性质：学生组织</h4><h4 style="color:#09c6d0;font-size:20px;">名称：' + data.xueshengzuzhi[i].mingcheng + '</h4><h4 style="font-size:18px;">主页：' + data.xueshengzuzhi[i].jieshaourl +
+                                '</h4><h4 style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">简介：' + data.xueshengzuzhi[i].jianjie + '</h4>';
+                            html += '<h4 style="font-size:18px;">创建人：' + data.xueshengzuzhi[i].chuangjianren + '</h4><h4 style="font-size:18px;">指导教师：' + data.xueshengzuzhi[i].zhidaojiaoshi + '</h4><h4 style="font-size:18px;">创建时间：' + data.xueshengzuzhi[i].chuangjianshijian + '</h4></div>';
+                            html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="详情" onclick="xueshengzuzhixiangqing(' +
+                                data.xueshengzuzhi[i].xueshengzuzhiid + ')"></div></div>';
+                            html += '</li>';
+                        }
+                    }
+                    if (data.shetuan.length > 0) {
+                        for (var i = 0; i < data.shetuan.length; i++) {
+                            html += '<li class="aui-list-item"><div style="width:80%;font-size:18px;">';
+                            html += '<h4 style="font-size:18px;">性质：社团</h4><h4 style="font-size:20px;color:orange;">名称：' + data.shetuan[i].mingcheng + '</h4><h4 style="font-size:18px;">星级：' + data.shetuan[i].xingji +
+                                '星级</h4><h4 style="font-size:18px;">主页：' + data.shetuan[i].shetuanjieshaourl + '</h4>';
+                            html += '<h4 style="font-size:18px;white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">简介：' + data.shetuan[i].shetuanjieshao + '</h4><h4 style="font-size:18px;">创建人：' + data.shetuan[i].chuanjianren +
+                                '</h4><h4 style="font-size:18px;">指导教师：' + data.shetuan[i].zhidaojiaoshi + '</h4><h4 style="font-size:18px;">创建时间：' + data.shetuan[i].chuangjianshijian + '</h4></div>';
+                            html += '<div class="aui-list-item-inner" style="width:20%;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" class="btn btn-info" value="详情" onclick="shetuanxiangqing(' + data.shetuan[
+                                i].shetuanid + ')"></div></div>';
+                            html += '</li>';
+                        }
+                    }
+                }
+                $('#shetuandagai').html(html);
+                shuaxinchaxun(data.xingji);
+            },
+            error: function() {
+                api.hideProgress();
+                alert("错误FBGC");
+            }
+        });
+    }
+
+    function shuaxinchaxun(xingji) {
+    	var dataInfo = $api.getStorage('loginDataInfo');
+        var x = $('#xingzhi').val();
+        var y = $('#mingcheng').val();
+        var z = $('#xingji').val();
+        var studentid = dataInfo.id;
+        var xuexiaoxuehao = dataInfo.xuexiao_xuehao;
+        html = "";
+        html += '<li class="aui-list-item" style="padding-top:3px;">';
+        html += '<input type="hidden" readonly value="' + studentid + '" name="studentid" id="studentid">';
+        html += '<input type="hidden" readonly value="' + xuexiaoxuehao + '" name="xuexiaoxuehao" id="xuexiaoxuehao">';
+        html += '<div class="aui-list-item-inner" style="width:25%;"><span style="color:#09c6d0;">社团性质：</span></div>';
+        html += '<div class="aui-list-item-inner" style="width:25%;"><select id="xingzhi" name="xingzhi" class="form-control chosen-select success" aria-required="true" aria-invalid="false">';
+        html += '<option value="" selected="selected">全部</option><option value="shetuan">社团</option><option value="xueshengzuzhi">学生组织</option></select></div>';
+        html += '<div class="aui-list-item-inner" style="width:25%;"><span style="color:#09c6d0;">社团星级：</span></div>';
+        html += '<div class="aui-list-item-inner" style="width:25%;"><select id="xingji" name="xingji" class="form-control chosen-select success" aria-required="true" aria-invalid="false">';
+        html += '<option value="" selected="selected">全部</option><option value="3">3星级</option><option value="4" >4星级</option><option value="5" >5星级</option></select></div>';
+        html += '<li class="aui-list-item" style="text-align:center;padding-top:1px;"><div class="aui-list-item-inner" style="width:25%;"><span style="color:#09c6d0;">社团名称：</span></div>';
+        html += '<div class="aui-list-item-inner" style="width:55%;"><input type="text" style="border:1px solid gray;" id = "mingcheng" name = "mingcheng" value=""></div>';
+        html += '<div class="aui-list-item-inner" style="width:20%;text-align:right;margin-left:15px;"><input type="button" value="查询" class="aui-btn aui-btn-info" onclick="chaxunshetuan()"></div></li>';
+        $('#shetuanchaxun').html(html);
+        //$("#xingji option[value='" + xingji + "']").attr("selected", "selected");
+       // $("#xingzhi option[value='" + x + "']").attr("selected", "selected");
+        $("#xingji").val(xingji);
+        $("#xingzhi").val(x);
+        $("#mingcheng").val(y);
+        api.hideProgress();
+    }
+</script>
+
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>personcontrol</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../script/bootstrap-switch.min.js"></script>
+		<style>			
+			header {
+				background-color: #f2f2f2;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;height:75px;width:100%;z-index:999;" id="topbar">
+			<div style="width:100%;">
+				<div class="aui-title border-b" style="font-size:20px;color:gray;">
+					校校
+				</div>
+			</div>
+		</header>
+		<div style="margin-top: 80px;">
+			<section class="aui-content aui-margin-t-10" id="person">
+				<ul class="aui-list aui-list-in aui-margin-b-15">
+					<li class="aui-list-item">
+						<div class="aui-list-item-label-icon">
+							<i class="aui-iconfont  aui-icon-like aui-text-danger"></i>
+						</div>
+						<div class="aui-list-item-inner aui-list-item-arrow">
+							<div class="aui-list-item-title">
+								欢迎你：xucs
+							</div>
+						</div>
+					</li>
+					<li class="aui-list-item">
+						<div class="aui-list-item-label-icon">
+							<i class="aui-iconfont  aui-icon-flag aui-text-info"></i>
+						</div>
+						<div class="aui-list-item-inner aui-list-item-arrow" onclick="xinxi()">
+							<div class="aui-list-item-title">
+								基本信息
+							</div>
+						</div>
+					</li>				
+					<li class="aui-list-item">
+						<div class="aui-list-item-label-icon">
+							<i class="aui-iconfont aui-icon-gear aui-text-info"></i>
+						</div>
+						<div class="aui-list-item-inner aui-list-item-arrow">
+							<div class="aui-list-item-title">
+								关于我们
+							</div>
+							<div class="aui-list-item-right"></div>
+						</div>
+					</li>
+					<li class="aui-list-item">
+						<div class="aui-list-item-label-icon">
+							<i class="aui-iconfont aui-icon-recovery aui-text-info"></i>
+						</div>
+						<div class="aui-list-item-inner aui-list-item-arrow" onclick="logout()">
+							<div class="aui-list-item-title">
+								退出登录
+							</div>
+							<div class="aui-list-item-right"></div>
+						</div>
+					</li>
+				</ul>
+			</section>
+		</div>
+		<footer  class="border-t  aui-bar aui-bar-tab">
+			<div id="footer" class="border-t aui-bar-tab-item">
+				<div id="appFooter" style="display: inline;">
+					<a href="index.html" style="width:23%;">
+					<div class="aui-bar-tab-item footDiv" name="fixed1" tapmode="hover" style="height:60px;">
+						<i style="font-size:25px;" class="aui-iconfont aui-icon-home"></i>
+						<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label" >
+							首页
+						</div>
+					</div> </a>
+					<a href="diburicheng.html" style="width:23%;">
+					<div class="aui-bar-tab-item footDiv" name="richeng" tapmode="hover" style="height:60px;">
+						<i style="font-size:25px;" class="aui-iconfont aui-icon-calendar"></i>
+						<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label">
+							日程
+						</div>
+					</div> </a>
+					<a href="jiaoliu.html" style="width:23%;">
+					<div class="aui-bar-tab-item footDiv" tapmode="hover"name="jiaoliu" style="height:60px;">
+						<i style="font-size:25px;" class="aui-iconfont aui-icon-comment"></i>
+						<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label">
+							交流
+						</div>
+					</div> </a>
+					<a href="personcontrol.html" style="width:23%;">
+					<div class="aui-bar-tab-item footDiv aui-active" tapmode="hover" name="personcontrol" style="height:60px;">
+						<i style="font-size:25px;" class="aui-iconfont aui-icon-my"></i>
+						<div style="font-size:12px;" class="bottom_btn aui-bar-tab-label">
+							我的
+						</div>
+					</div> </a>
+				</div>
+			</div>
+		</footer>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		var gFrameIndex;
+		var firstHeaderOffsetH;
+		var main = $api.byId('main');
+		var mainPos = $api.offset(main);
+		var footer = $api.byId('footer');
+		var footerPos = $api.offset(footer);
+		var mkeyTime = new Date().getTime();
+		apiready = function() {
+			api.lockSlidPane();
+			gFrameIndex = 3;
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				//如果当前时间减去标志时间大于2秒，说明是第一次点击返回键，反之为2秒内点了2次，则退出。
+				if ((new Date().getTime() - mkeyTime) > 2000) {
+					mkeyTime = new Date().getTime();
+					api.toast({
+						msg : '再按一次退出程序',
+						duration : 2000,
+						location : 'bottom'
+					});
+				} else {
+					api.closeWidget();
+				}
+			});
+			var dataInfo = $api.getStorage('loginDataInfo');
+		};
+		function logout() {
+			$api.clearStorage();
+			if (api) {
+				var ajpush = api.require('ajpush');
+				if (ajpush) {
+					ajpush.stopPush(function(ret) {
+						if (ret && ret.status) {
+						}
+					});
+				}
+			}
+			window.location.href = "../html/login1.html";
+		}
+
+		function xinxi() {
+			api.openWin({
+				name : 'gerenxinxi',
+				url : 'gerenxinxi.html',
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		
+	</script>
+</html>

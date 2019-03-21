@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>新闻</title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+		</style>
+	</head>
+	<body>
+		<ul id="menu_mun" class="aui-list aui-form-list">
+			<nav>
+				<ul id="appContent"></ul>
+			</nav>
+		</ul>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		var pageNum;
+		var pageSize;
+		var hashNextPage;
+		function initPage() {
+			pageNum = 0;
+			pageSize = 20;
+			hashNextPage = true;
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			loadData();
+			initPage();
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					initPage();
+					searchData();
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 1000,
+				}
+			}, function(ret, err) {
+				if (hashNextPage) {
+					searchData();
+				}
+			});
+			api.hideProgress();
+			searchData();
+		};
+		function searchData() {
+			loadData();
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var xuexiao = dataInfo.xuexiao_xuehao;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_newsList",
+				data : {
+					canyurenId : studentid,
+					status : status,
+					token : token,
+					pageNum : pageNum,
+					xuexiao : xuexiao,
+					pageSize : pageSize
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var datas = eval(data.datas);
+					if (data.status == '-1') {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					} else if (data.status == '1') {
+						var obj = null;
+						if (datas.length > 0) {
+							var html = "";
+							for (var i = 0; i < datas.length; i++) {
+								obj = datas[i];
+								temp = obj.dq == '1' ? "已读取" : "未读取";
+								html += '<li class="aui-list-item"><div style="width:80%;font-size:18px;" onclick="chakan(\'' + obj.id + '\',\'' + obj.url + '\',\'' + obj.title + '\')">';
+								html += '<h4 style="font-size:18px;" id="' + obj.id + '">状态：' + temp + '</h4>';
+								html += '<h4 style="font-size:18px;">' + obj.title + '</h4>';
+								html += '</div>';
+								html += '<div style="width:20%;font-size:18px;" onclick="chakan(\'' + obj.id + '\',\'' + obj.url + '\',\'' + obj.title + '\')")"></div>';
+								html += '</li>';
+							}
+							if (pageNum > 0) {
+								$('#appContent').append(html);
+							} else {
+								$('#appContent').html(html);
+							}
+							if (data.length < pageSize) {
+								hashNextPage = false;
+							} else {
+								pageNum++;
+							}
+						} else {
+							hashNextPage = false;
+							if (pageNum == 0) {
+								$('#menu_mun').html('<div class="aui-list-item"><div class="aui-list-item-inner">当前时期没有数据</div></div>');
+							}
+						}
+						api.hideProgress();
+					} else if (data.status == '0') {
+						$('#menu_mun').html('<div class="aui-list-item"><div class="aui-list-item-inner">当前时期没有数据</div></div>');
+					}
+				},
+				error : function() {
+					alert("超时");
+					api.hideProgress();
+				}
+			});
+		}
+
+		function chakan(id, url, title) {
+			$('#' + id).html('状态：已读取');
+			var dataJson = {};
+			dataJson.dataId = id;
+			dataJson.content = url;
+			dataJson.title = title;
+			api.openWin({
+				name : 'showManager',
+				url : "../showManager.html",
+				pageParam : {
+					dataJson : dataJson,
+					num : 1
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+	</script>
+</html>

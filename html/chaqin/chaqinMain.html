@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>查寝</title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<div class="aui-content aui-margin-b-15" style="background-color: #e7e7ef;">
+			<div class="aui-tab" id="tab" style="background:  rgb(240,240,240);">
+				<div class="aui-tab-item aui-active items" id="jiri" onclick="showData(this,'1')">
+					今日查寝
+				</div>
+				<div class="aui-tab-item items" onclick="showData(this,'2')">
+					历史查寝
+				</div>
+			</div>
+			<ul class="aui-list aui-form-list">
+				<nav>
+					<ul id="menu_mun"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		var pageNum;
+		var pageSize;
+		var hashNextPage;
+		function initPage() {
+			pageNum = 0;
+			pageSize = 20;
+			hashNextPage = true;
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		var searchStatus = '1';
+		function showData(obj, val) {
+			if (searchStatus != val) {
+				searchStatus = val;
+				$('.items').each(function() {
+					$(this).removeClass('aui-active');
+				});
+				$(obj).addClass('aui-active');
+				initPage();
+				searchData();
+			}
+		}
+
+		showData($('#jinri'), '1');
+		apiready = function() {
+			loadData();
+			initPage();
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					initPage();
+					searchData();
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 1000,
+				}
+			}, function(ret, err) {
+				if (hashNextPage) {
+					searchData();
+				}
+			});
+			searchData();
+		};
+		function searchData() {
+			loadData();
+			var mydate = new Date();
+			var time = mydate.getFullYear();
+			if (mydate.getMonth() < 10) {
+				time += '-0' + (mydate.getMonth() + 1);
+			} else {
+				time += '-' + (mydate.getMonth() + 1);
+			}
+			if (mydate.getDate() < 10) {
+				time += '-0' + mydate.getDate();
+			} else {
+				time += '-' + mydate.getDate();
+			}
+			if (mydate.getHours() < 10) {
+				time += ' 0' + mydate.getHours();
+			} else {
+				time += ' ' + mydate.getHours();
+			}
+			if (mydate.getMinutes() < 10) {
+				time += ':0' + mydate.getMinutes();
+			} else {
+				time += ':' + mydate.getMinutes();
+			}
+			if (mydate.getSeconds() < 10) {
+				time += ':0' + mydate.getSeconds();
+			} else {
+				time += ':' + mydate.getSeconds()
+			}
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var susheid = dataInfo.suSheID;
+			var studentid = dataInfo.id;
+			var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+			var banjiid = dataInfo.banJiID;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var code = studentid + ',zytech,' + banjiid + ',zytech,' + susheid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_IsHavingChaQin",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+					searchStatus : searchStatus,
+					pageNum : pageNum,
+					pageSize : pageSize
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					if (data) {
+						var obj = null;
+						if (data.length > 0) {
+							var html = "";
+							var temp = "";
+							for (var i = 0; i < data.length; i++) {
+								obj = data[i];
+								var kaishi = obj.riqi + " " + obj.kaishishijian;
+								var jieshu = obj.riqi + " " + obj.jieshushijian;
+								if (searchStatus == '1') {
+									if (time >= kaishi && time <= jieshu) {
+										temp = obj.jieguo == 0 ? "未拍照" : "已拍照";
+										html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;font-size:18px;"><font style="font-size:20px;font-weight:bold;">今日查寝：' + obj.riqi + '</font></div></div>';
+										html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;font-size:18px;"><font style="font-size:18px;">开始时间：' + obj.kaishishijian + '</font></div></div>';
+										html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;font-size:18px;"><font style="font-size:18px;">结束时间：' + obj.jieshushijian + '</font></div></div>';
+										html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;font-size:18px;"><font style="font-size:18px;">拍照要求：' + obj.paizhaoyaoqiu + '</font></div></div>';
+										html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;font-size:18px;"><font style="font-size:18px;">状态:<a style="color:orange;">' + temp + '</a></font></div></div>';
+										html += '<input type="hidden" value="' + obj.riqi + '" name="riqi" id="riqi">';
+										html += '<div class="butt"><div class="aui-btn aui-btn-block" onclick="paizhao(' + obj.anpaiid + ')" style="background-color:#1E90FF;">拍照</div></div>';
+									} else {
+										temp = obj.jieguo == 0 ? "未拍照" : "已拍照";
+										html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;font-size:18px;"><font style="font-size:20px;font-weight:bold;">今日查寝：' + obj.riqi + '</font></div></div>';
+										html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;font-size:18px;"><font style="font-size:18px;">开始时间：' + obj.kaishishijian + '</font></div></div>';
+										html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;font-size:18px;"><font style="font-size:18px;">结束时间：' + obj.jieshushijian + '</font></div></div>';
+										html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;font-size:18px;"><font style="font-size:18px;">拍照要求：' + obj.paizhaoyaoqiu + '</font></div></div>';
+										html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:80%;font-size:18px;"><font style="font-size:18px;">状态:<a style="color:orange;">' + temp + '</a></font></div></div>';
+										html += '<input type="hidden" value="' + obj.riqi + '" name="riqi" id="riqi">';
+										html += '<div class="butt"><div class="aui-btn aui-btn-block" disabled="disabled">拍照</div></div>';
+									}
+								} else {
+									if (time >= kaishi && time <= jieshu) {
+										temp = obj.jieguo == 0 ? "未拍照" : "已拍照";
+										html += '<li class="aui-list-item"><div style="width:80%;font-size:18px;" onclick="chakan(\'' + obj.anpaiid + '\')">';
+										html += '<h4 style="font-size:18px;">日期：' + obj.riqi + '</h4>';
+										html += '<h4 style="font-size:18px;">开始时间：' + obj.kaishishijian + '</h4>';
+										html += '<h4 style="font-size:18px;">结束时间：' + obj.jieshushijian + '</h4>';
+										html += '<h4 style="font-size:18px;">拍照要求：' + obj.paizhaoyaoqiu + '</h4>';
+										html += '<h4 style="font-size:18px;">状态：<a style="color:orange;">' + temp + '</a></h4></div>';
+										html += '<div style="width:20%;font-size:18px;" onclick="chakan(\'' + obj.anpaiid + '\')"></div>';
+										html += '</li>';
+									} else {
+										temp = obj.jieguo == 0 ? "未拍照" : "已拍照";
+										html += '<li class="aui-list-item"><div style="width:80%;font-size:18px;" onclick="chakan(\'' + obj.anpaiid + '\')">';
+										html += '<h4 style="font-size:18px;">日期：' + obj.riqi + '</h4>';
+										html += '<h4 style="font-size:18px;">开始时间：' + obj.kaishishijian + '</h4>';
+										html += '<h4 style="font-size:18px;">结束时间：' + obj.jieshushijian + '</h4>';
+										html += '<h4 style="font-size:18px;">拍照要求：' + obj.paizhaoyaoqiu + '</h4>';
+										html += '<h4 style="font-size:18px;">状态：<a style="color:orange;">' + temp + '</a></h4></div>';
+										html += '<div style="width:20%;font-size:18px;" onclick="chakan(\'' + obj.anpaiid + '\')"></div>';
+										html += '</li>';
+									}
+								}
+							}
+							if (pageNum > 0) {
+								$('#menu_mun').append(html);
+							} else {
+								$('#menu_mun').html(html);
+							}
+							if (data.length < pageSize) {
+								hashNextPage = false;
+							} else {
+								pageNum++;
+							}
+						} else {
+							hashNextPage = false;
+							if (pageNum == 0) {
+								$('#menu_mun').html('<div class="aui-list-item"><div class="aui-list-item-inner">当前时期没有数据</div></div>');
+							}
+						}
+						api.hideProgress();
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("超时");
+					api.hideProgress();
+				}
+			});
+		}
+
+		function paizhao(anpaiid) {
+			api.getPicture({
+				sourceType : 'camera',
+				encodingType : 'jpg',
+				mediaValue : 'pic',
+				destinationType : 'base64',
+				allowEdit : true,
+				quality : 20,
+				saveToPhotoAlbum : false
+			}, function(ret, err) {
+				if (ret) {
+					if (ret.base64Data !== "") {
+						var dataInfo = $api.fetStorage('loginDataInfo');
+						var id = anpaiid;
+						var status = dataInfo.status;
+						var token = $api.getStorage("logintoken");
+						var xueshengid = dataInfo.id;
+						var banjiid = dataInfo.banJiID;
+						var susheid = dataInfo.suSheID;
+						$.ajax({
+							type : "POST",
+							url : $api.getStorage('serverUrl') + "app_UpdateImgerBase64",
+							data : {
+								base64Str : ret.base64Data,
+								xueshengid : xueshengid,
+								status : status,
+								token : token,
+								anpaiid : anpaiid,
+								susheid : susheid,
+								banjiid : banjiid,
+								id : id,
+							},
+							dataType : 'json',
+							cache : false,
+							success : function(data) {
+								if (data) {
+									if (data.msg == "OK") {
+										searchData();
+										alert("上传成功");
+									} else if (data.msg == "fail") {
+										alert("上传失败");
+									} else {
+										alert("当前时间段不能上传");
+									}
+								} else {
+									alert("已登出");
+									api.hideProgress();
+									var jsfun = 'logout();';
+									api.execScript({
+										name : 'index',
+										script : jsfun
+									});
+								}
+							},
+							error : function() {
+								alert("错误001");
+							}
+						});
+					}
+				} else {
+					api.alert({
+						msg : '图片获取失败,请重新拍照!'
+					});
+				}
+			});
+		}
+
+		function chakan(id) {
+			api.openWin({
+				name : 'richeng_to_chaqintitle',
+				url : "../common/richeng_to_chaqintitle.html",
+				pageParam : {
+					id : id,
+				},
+				reload : true,
+				allowEdit : true
+			});
+		}
+
+		function todaychaqin() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var banjiid = dataInfo.banJiID;
+			var code = studentid + ',zytech,' + banjiid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_IsHavingChaQin",
+				data : {
+					CODE : code,
+					status : status,
+					token : token,
+				},
+				dataType : 'text',
+				cache : false,
+				timeout : 5000,
+				success : function(data) {
+					if (data) {
+						if (data == "have") {
+							api.openWin({
+								name : 'todaychaqin',
+								url : 'todaychaqin.html',
+								reload : true,
+								allowEdit : true
+							});
+						} else {
+							alert("今日无查寝");
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("超时");
+				}
+			});
+		}
+	</script>
+</html>

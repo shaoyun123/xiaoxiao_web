@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>底部导航</title>
+		<link rel="stylesheet" type="text/css" href="../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/style1.css"/>
+		<script type="text/javascript" src="../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;">
+				<a class="aui-pull-left aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+				<div  class="aui-title border-b active" style="color:gray;font-size:20px;" id="title" name="richeng">
+					校校
+				</div>
+			</header>
+			<div id="main" class="flex-con"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript">
+		var dataJson;
+		function goback() {
+			var jsfun = 'shuaxin();';
+			api.execScript({
+				name : 'index',
+				script : jsfun
+			});
+			api.closeWin({
+				name : 'tongzhiMain2'
+			});
+		}
+
+		var mkeyTime = new Date().getTime();
+		apiready = function() {
+			var num = api.pageParam.num;
+			if (num == 1) {
+				dataJson = api.pageParam.dataJson;
+				$('#title').html(dataJson.title);
+				$api.fixStatusBar($api.dom('header'));
+				api.setStatusBarStyle({
+					style : 'dark',
+					color : 'gray'
+				});
+				funIniGroup();
+			} else {
+				var title = api.pageParam.title;
+				var url = api.pageParam.url;
+				$('#title').html(title);
+				$api.fixStatusBar($api.dom('header'));
+				api.setStatusBarStyle({
+					style : 'dark',
+					color : 'gray'
+				});
+				funIniGroup();
+			}
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				goback();
+			});
+		}
+		function funIniGroup() {
+			
+			var num = api.pageParam.num;
+			dataJson = api.pageParam.dataJson;
+			if (num == 1) {
+				var dataInfo = $api.getStorage('loginDataInfo');
+				var status = dataInfo.status;
+				var token = $api.getStorage("logintoken");
+				var ids = dataInfo.id;
+				var code = ids + ',zytech,' + status;
+
+				api.openFrame({
+					name : 'showManagerMain',
+					url : dataJson.content+'/app_tongzhibyid?id='+dataJson.dataId+'&dataInfo='+$api.jsonToStr(dataInfo)+'&token='+token,
+//					url : 'http://www.5ic.net.cn/xiaoyuan/static/appdownload.jsp',
+					rect : {
+						x : 0,
+						y : $api.dom('header').offsetHeight,
+						w : api.winWidth,
+						h : $api.dom('#main').offsetHeight
+					},
+					bounces : false,
+					bgColor : 'rgba(0,0,0,0.6)',
+					pageParam : {
+						dataJson : dataJson,
+						number: '1',
+					},
+					allowEdit:true,
+				});
+			} else {
+				var title = api.pageParam.title;
+				var url = api.pageParam.url;
+				api.openFrame({
+					name : 'showManagerMain',
+					url : url,
+					rect : {
+						x : 0,
+						y : $api.dom('header').offsetHeight,
+						w : api.winWidth,
+						h : $api.dom('#main').offsetHeight
+					},
+					bounces : false,
+					bgColor : 'rgba(0,0,0,0.6)',
+					pageParam : {
+						number: '2',
+					},
+					allowEdit:true,
+				});
+			}
+		}
+	</script>
+</html>

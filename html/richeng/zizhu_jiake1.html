@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>zizhu_jiake1</title>
+		<link href='../../css/google1.css' rel='stylesheet' type='text/css'>
+		<link href='../../css/google2.css' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href=" ../../css/bootstrap-switch.min.css">
+		<script type="text/javascript" src="../../script/jquery.min.js"></script>
+		<script type="text/javascript" src="../../script/bootstrap-switch.min.js"></script>
+		<style>
+			.auiitem {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				color: #212121;
+				background-color: #ffffff;
+				position: relative;
+				min-height: 2.2 rem;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				display: -webkit-box;
+				display: -webkit-flex;
+				display: flex;
+				-webkit-box-pack: justify;
+				-webkit-justify-content: space-between;
+				justify-content: space-between;
+			}
+			.form-control {
+				display: block;
+				width: 100%;
+				height: 34px;
+				padding: 6px 12px;
+				font-size: 14px;
+				line-height: 1.42857143;
+				color: #555;
+				background-color: #fff;
+				background-image: none;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+				-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+				-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+				transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+			}
+			.form-control:focus {
+				border-color: #66afe9;
+				outline: 0;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+				box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
+			}
+			.butt {
+				margin-left: 15px !important;
+				margin-right: 15px !important;
+				margin-top: 50px;
+				border: 1px solid #ddd;
+			}
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:20px;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				添加课程
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<form id="biao" name="biao" method="post" class="form-horizontal" style="margin-bottom: 10px" role="form" data-toggle="validation" novalidate="novalidate">
+					<nav>
+						<ul id="xiangxi"></ul>
+					</nav>
+				</form>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'zizhu_jiake1',
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xueshengid = dataInfo.id;
+			var xuexiaoXuehao = dataInfo.xuexiao_xuehao;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			loadData();
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_BackXiaoQuInfo",
+				data : {
+					xueshengid : xueshengid,
+					xuexiaoXuehao : xuexiaoXuehao,
+					status : status,
+					token : token,
+				},
+				dataType : 'json',
+				cache : false,
+				timeout : 5000,
+				success : function(data) {
+					html = "";
+					var data = eval(data);
+					if (data) {
+						html += '<div style="font-size:18px;margin-left:10px;color:#999999;">校区：</div>';
+						html += '<li class="auiitem"><div class="aui-list-item-inner">';
+						html += '<select id="xiaoqu" name="xiaoqu" class="form-control chosen-select success"  style="font-size:18px;" onchange="show_jiaoshi()"><option value="">--请选择--</option>';
+						for (var i = 0; i < data.xiaoqus.length; i++) {
+							html += '<option value="' + data.xiaoqus[i].xiaoquid + '">' + data.xiaoqus[i].mingcheng + '</option>';
+						}
+						html += '</select></div></li>';
+						html += '<div style="font-size:18px;margin-left:10px;color:#999999;">教室：</div>';
+						html += '<li class="auiitem"><div class="aui-list-item-inner"">';
+						html += '<select id="shangkejiaoshi" class="form-control chosen-select success" name="shangkejiaoshi" style="font-size:18px;"><option value="">--请选择--</option></select></div></li>';
+						html += '<div style="font-size:18px;margin-left:10px;color:#999999;">星期：</div>';
+						html += '<li class="auiitem"><div class="aui-list-item-inner"">';
+						html += '<select id="zhouci" class="form-control chosen-select success" name="zhouci" style="font-size:18px;"><option value="1">一</option><option value="2">二</option>';
+						html += '<option value="3">三</option><option value="4">四</option><option value="5">五</option><option value="6">六</option><option value="7">日</option>';
+						html += '</select></div></li>';
+						html += '<div class="butt"><div class="aui-btn aui-btn-block" onclick="next()" style="background-color:#1E90FF;">下一步</div></div>';
+						$('#xiangxi').html(html);
+						api.hideProgress();
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("超时");
+				}
+			});
+		};
+		function show_jiaoshi() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xiaoquid = $("#xiaoqu").val();
+			var xueshengid = dataInfo.id;
+			var status = dataInfo.status;
+			var token = $api.getStorage("logintoken");
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + 'app_XianShiJiaoShiByTiaoTing',
+				data : {
+					CODE : xiaoquid,
+					status : status,
+					token : token,
+					xueshengid : xueshengid,
+				},
+				dataType : 'json',
+				cache : false,
+				timeout : 5000,
+				async : true,
+				success : function(data) {
+					var data = eval(data);
+					var code = '';
+					if (data) {
+						if (data.length > 0) {
+							code += '<option value="">--请选择--</option>';
+							for (var i = 0; i < data.length; i++) {
+								code += '<option value="' + data[i].jiaoshiid + '">' + data[i].jiaoshiming + '</option>';
+							}
+						} else {
+							code += '<option value="">--请选择--</option>';
+						}
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+					$("#shangkejiaoshi").html(code);
+				},
+				error : function() {
+					alert("超时!")
+				}
+			});
+		}
+
+		function next() {
+			if ($("#xiaoqu").val() == "") {
+				alert("请选择校区")
+				$("#xiaoqu").focus();
+				return false;
+			}
+			if ($("#shangkejiaoshi").val() == "") {
+				alert("请选择教室")
+				$("#shangkejiaoshi").focus();
+				return false;
+			}
+			if ($("#zhouci").val() == "") {
+				alert("请选择星期")
+				$("#zhouci").focus();
+				return false;
+			}
+			var fromtjkc = api.pageParam.fromtjkc;
+			var xiaoqu = $("#xiaoqu").val();
+			var xiaoquming = $("#xiaoqu option:selected").text();
+			var jiaoshi = $("#shangkejiaoshi").val();
+			var jiaoshiming = $("#shangkejiaoshi option:selected").text();
+			var zhouci = $("#zhouci").val();
+			if (fromtjkc) {
+				api.openWin({
+					name : 'zizhu_jiake2',
+					url : 'zizhu_jiake2.html',
+					pageParam : {
+						xiaoqu : xiaoqu,
+						jiaoshi : jiaoshi,
+						zhouci : zhouci,
+						xiaoquming : xiaoquming,
+						jiaoshiming : jiaoshiming,
+						fromtjkc : fromtjkc,
+					},
+					reload : true,
+					allowEdit : true
+				});
+			} else {
+				api.openWin({
+					name : 'zizhu_jiake2',
+					url : 'zizhu_jiake2.html',
+					pageParam : {
+						xiaoqu : xiaoqu,
+						jiaoshi : jiaoshi,
+						zhouci : zhouci,
+						xiaoquming : xiaoquming,
+						jiaoshiming : jiaoshiming,
+					},
+					reload : true,
+					allowEdit : true
+				});
+			}
+		}
+	</script>
+</html>

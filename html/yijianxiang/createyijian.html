@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<title>createyijian</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			select {
+				-webkit-appearance: menulist;
+				box-sizing: border-box;
+				align-items: center;
+				white-space: pre;
+				-webkit-rtl-ordering: logical;
+				color: black;
+				background-color: white;
+				cursor: default;
+				border-width: 1px;
+				border-style: solid;
+				border-color: initial;
+				border-image: initial;
+			}
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav aui-bar-light" style="background-color: white;padding-top:25px;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size: 20px;"></span> </a>
+			<div class="aui-title border-b" style="font-size:20px;color:gray;">
+				我的意见
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-form-list">
+				<li class="aui-list-header" style="font-size:20px;">
+					新增意见
+				</li>
+				<nav>
+					<ul id="tianjiayijian"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'createyijian',
+			});
+		}
+
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var banjiid = dataInfo.banJiID;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			html = "";
+			html += '<form id="xinyijian" method="post"  >';
+			html += '<div class="aui-list-item" ><div class="aui-list-item-inner" style="height:60px;font-size:18px;"><font style="width:80px;text-align:center;">意见名称:</font><input type="text" name="mingcheng" id="mingcheng" style="border:1px solid gray;width:240px;margin-right:15px;" /></div></div>';
+			html += '<div class="aui-list-item" ><div class="aui-list-item-inner" style="font-size:18px;"><span style="width:80px;">意见内容:</span><textarea name="neirong" id="neirong" style="border:1px solid gray;width:240px;margin-right:15px;height:150px;"  rows="5" cols="100" value=""></textarea></div></div>';
+			html += '<div class="aui-list-item" ><div class="aui-list-item-inner" style="font-size:18px;height:60px;"><span style="width:80px;">上传图片:</span><input type = "file" style="width:240px;" id = "tupian" name="tupian" value="" multiple="multiple" accept="image/*"></div></div>';
+			html += '<div class="aui-list-item" ><div class="aui-list-item-inner" style="height:60px;"><span style="width:50px;">接收人:</span><select id="jieshouren" name="jieshouren" style="width:100px;"><option value="1">辅导员</option><option value="2">书记</option><option value="3">学生处管理员</option></select></div>';
+			html += '<div class="aui-list-item-inner" style="margin-right:15px;"><span style="width:50px;">标签:</span><select id="biaoqian" name="biaoqian" style="width:100px;"><option value="生活">生活类</option><option value="学习">学习类</option><option value="社团">社团类</option></select></div></div>';
+			html += '<div class="aui-list-item"><div class="aui-list-item-inner"><input type="radio" id="niming" name="isniming"  value="1"><label style="color:#09c6d0" for="nimming">匿名</label><input type="radio" id="gongkai" name="isniming"  checked value="0">';
+			html += '<label style="color:#09c6d0" for="gongkai">公开</label><div class="aui-list-item-right" style="margin-right:15px;"><div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" name="action" value="保存" onclick="savexinyijian()"></div>&emsp;';
+			html += '<div class="aui-btn aui-btn-info" style="text-align:right;"><input type="button" name="action" value="提交" onclick="sub()"></div></div></div></div>';
+			html += '<input type="hidden" readonly value="' + studentid + '" name="studentid" id="studentid">';
+			html += '<input type="hidden" readonly value="' + token + '" name="token" id="token">';
+			html += '<input type="hidden" readonly value="' + status + '" name="status" id="status">';
+			html += '<input type="hidden" readonly value="' + banjiid + '" name="banjiid" id="banjiid">';
+			html += '</form>';
+			$('#tianjiayijian').html(html);
+		};
+		function queren_save() {
+			if (confirm("是否要保存到草稿箱？") == true) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function savexinyijian() {
+			if (queren_save) {
+				var formData = new FormData($("#xinyijian")[0]);
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_SaveToCaoGaoXiang",
+					data : formData,
+					processData : false,
+					contentType : false,
+					cache : false,
+					timeout : 5000,
+					success : function(data) {
+						if (data) {
+							if ( data = "success") {
+								alert("保存成功");
+								window.location.href = 'caogaoxiang.html';
+							} else if (data == "fail") {
+								alert("保存失败");
+								var jsfun = 'fanhuixinzeng();';
+								api.execScript({
+									name : 'wodeyijian',
+									script : jsfun
+								});
+							} else {
+								alert("已登出");
+								api.hideProgress();
+								var jsfun = 'logout();';
+								api.execScript({
+									name : 'index',
+									script : jsfun
+								});
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("错误MP7");
+					}
+				});
+			}
+		}
+
+		function queren_sub() {
+			if ($("#mingcheng").val() == "") {
+				alert("请编辑意见名称！")
+				return false;
+			}
+			if ($("#neirong").val() == "") {
+				alert("请编辑意见内容！");
+				return false;
+			}
+			var obj = document.getElementById("tupian");
+			var length = obj.files.length;
+			for (var i = 0; i < length; i++) {
+				var temp = obj.files[i].name;
+				var postfix = temp.substring(temp.lastIndexOf(".") + 1);
+				if (postfix != "") {
+					if (!(postfix == "jpg" || postfix == "pdf" || postfix == "png")) {
+						alert('文件类型不正确，请选择.jpg或.pdf或.png文件！');
+						$("#tumingcheng").value = "";
+						$("#tumingcheng").focus();
+						return false;
+					}
+				}
+			}
+			if (confirm("提交后将无法撤回！确认提交吗？") == true) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function sub() {
+			if (queren_sub) {
+				var formData = new FormData($("#xinyijian")[0]);
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_SaveToTiJiao",
+					data : formData,
+					processData : false,
+					contentType : false,
+					cache : false,
+					timeout : 5000,
+					success : function(data) {
+						if (data) {
+							if ( data = "success") {
+								alert("新建成功");
+								var jsfun = 'fanhuixinzeng();';
+								api.execScript({
+									name : 'wodeyijian',
+									script : jsfun
+								});
+							} else if (data == "fail") {
+								alert("新建失败");
+								var jsfun = 'fanhuixinzeng();';
+								api.execScript({
+									name : 'wodeyijian',
+									script : jsfun
+								});
+							} else {
+								alert("已登出");
+								api.hideProgress();
+								var jsfun = 'logout();';
+								api.execScript({
+									name : 'index',
+									script : jsfun
+								});
+							}
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("错误MP9");
+					}
+				});
+			}
+		}
+
+		function shangchuan() {
+			var UIMediaScanner = api.require('UIMediaScanner');
+			UIMediaScanner.open({
+				type : 'picture',
+				column : 4,
+				classify : true,
+				max : 4,
+				sort : {
+					key : 'time',
+					order : 'desc'
+				},
+				texts : {
+					stateText : '已选择*项',
+					cancelText : '取消',
+					finishText : '完成'
+				},
+				styles : {
+					bg : '#fff',
+					mark : {
+						icon : '',
+						position : 'bottom_left',
+						size : 20
+					},
+					nav : {
+						bg : '#eee',
+						stateColor : '#000',
+						stateSize : 18,
+						cancelBg : 'rgba(0,0,0,0)',
+						cancelColor : '#000',
+						cancelSize : 18,
+						finishBg : 'rgba(0,0,0,0)',
+						finishColor : '#000',
+						finishSize : 18
+					}
+				},
+				scrollToBottom : {
+					intervalTime : 3,
+					anim : true
+				},
+				exchange : true,
+				rotation : true
+			}, function(ret) {
+				if (ret) {
+					var items = "";
+					var ret = eval(ret);
+					alert(JSON.stringify(ret));
+					for (var i = 0; i < ret.list.length; i++) {
+						if (i != (ret.list.length - 1)) {
+							items += ret.list[i].path + ' ';
+						} else {
+							items += ret.list[i].path;
+						}
+					}
+					document.getElementById("xxx").value = items;
+					alert(document.getElementById("xxx").value);
+				}
+			});
+		}
+	</script>
+</html>

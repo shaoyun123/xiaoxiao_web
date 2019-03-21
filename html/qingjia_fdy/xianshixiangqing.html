@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>xianshixiangqing</title>
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<style>
+			header {
+				background-color: #f2f2f2;
+			}
+			header ul li {
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: none;
+				color: #323237;
+				position: relative;
+				font-size: 18px;
+			}
+			header ul li.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav" style="background-color:  white;padding-top:25px;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+			<div class="aui-title  border-b" style="font-size:20px;color:gray;">
+				假条详情
+			</div>
+		</header>
+		<div class="aui-content aui-margin-b-15">
+			<ul class="aui-list aui-list-in">
+				<nav>
+					<ul id="xiangqing"></ul>
+				</nav>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		//   关闭页面
+		function goback() {
+			api.closeWin({
+				name : 'xianshixiangqing'
+			});
+		};
+		apiready = function() {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xinxiid = api.pageParam.xinxi;
+			var studentid = dataInfo.id;			
+//			alert(studentid);
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			var code = xinxiid;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_JiaTiaoDetails_fdy",
+				data : {
+					id : code,
+					status : status,
+					token : token,
+					yonghuid : studentid,
+				},
+				dataType : 'json',
+				cache : false,
+				success : function(data) {
+					var data = eval(data);
+					html = "";
+//					alert($api.jsonToStr(data));
+					html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="font-size:18px;width:100%;"><label style="width:30%;font-size:18px;">姓名：</label><input type="text" readonly value="' + data.xueshengxingming + '" name="xueshengxingming" id="xueshengxingming"></div></li>';
+					html += '<li class="aui-list-item" style=""><div class="aui-list-item-inner" style="font-size:18px;width:100%;"><label style="width:30%;font-size:18px;">学号：</label><input type="text" readonly value="' + data.xuehao + '" name="xuehao" id="xuehao"></div></li>';
+					html += '<li class="aui-list-item" ><div class="aui-list-item-inner" style="font-size:18px;width:100%;"><label style="width:30%;font-size:18px;">班级：</label><input type="text" readonly value="' + data.banjimingcheng + '"></div></li>';
+					html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">请假类别：</div><div class="aui-list-item-input">';
+					if (data.qingjialeibie == "1") {
+						html += '<input type="text" readonly  value="事假" >';
+					} else {
+						html += '<input type="text" readonly  value="病假" >';
+					}
+					html += '</div></div></li>';
+					html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">请假事由：</div><div class="aui-list-item-input"><input type="text" readonly  value="' + data.qingjiashiyou + '" ></div></div></li>';
+					html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">请假时间：</div><div class="aui-list-item-input">';
+					html += '<span>' + data.qingjiakaishishijian + '~' + data.qingjiajieshushijian + '<br>共：' + data.tianshu + '天</span>';
+					html += '</div></div></li>';
+					//					html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">结束时间：</div><div class="aui-list-item-input"><input type="text" readonly  value="' + data.qingjiajieshushijian + '" ></div></div></li>';
+					if (data.zhuangtai == "1") {
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">状态：</div><div class="aui-list-item-input"><span>待处理</span></div></div></li>';
+					} else if (data.zhuangtai == "2") {
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">状态：</div><div class="aui-list-item-input"><span>已通过</span></div></div></li>';
+					} else if (data.zhuangtai == "3") {
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">状态：</div><div class="aui-list-item-input"><span>被驳回</span></div></div></li>';
+						var neir = '';
+						if (data.tongzhineirong == null) {
+							neir = '无';
+						} else {
+							neir = data.tongzhineirong;
+						}
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">驳回理由：</div><div class="aui-list-item-input"><input type="text" style="color:red;" readonly value="' + neir + '"></div></div></li>';
+					} else if (data.zhuangtai == "4") {
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">状态：</div><div class="aui-list-item-input"><span>待销假</span></div></div></li>';
+					} else if (data.zhuangtai == "5") {
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">状态：</div><div class="aui-list-item-input"><span>已销假</span></div></div></li>';
+					} else if (data.zhuangtai == "6" || data.zhuangtai == "7") {
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">状态：</div><div class="aui-list-item-input"><span>已上报</span></div></div></li>';
+					}
+					if (data.pizhunren != null) {
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">审批人：</div><div class="aui-list-item-input"><span>' + data.pizhunren + '</span></div></div></li>';
+					}
+					html += '<li class="aui-list-item"><div class="aui-list-item-inner"><div class="aui-list-item-label">申请时间：</div><div class="aui-list-item-input"><input type="text" readonly  value="' + data.shenqingshijian + '" ></div></div></li>';
+					if (data.tupian != null) {
+						html += '<div class="aui-list-item"><div class="aui-list-item-inner" style="width:70%;"><div class="aui-row aui-row-padded" >';
+						for (var i = 0; i < data.tupian.length; i++) {
+							var srcimg = $api.getStorage('serverUrl') + 'app_getPic?id=' + data.tupian[i] + '&l=0';
+							html += '<div class="aui-col-xs-4"><img  id="' + i + '"  height="120" width="80" alt="" src="' + srcimg + '" onerror="imgError(this);"  onclick="Server(\'' + i + '\',\'' + srcimg + '\')"></div>';
+						}
+						html += '</div></div></div>';
+					}
+					if (data.zhuangtai == "1" && data.tianshu <= 3) {
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="font-size:18px;width:100%;">';
+						html += '<div class="aui-btn aui-btn-info" style="margin-left:60px;width:100px;"><input type="button" onclick="tongyi(\'' + data.qingjiaid + '\');" value="同意" /></div>';
+						html += '<div class="aui-btn aui-btn-danger" style="margin-right:60px;width:100px;"><input type="button" onclick="jujue(\'' + data.qingjiaid + '\');" value="拒绝" /></div>';
+						html += '</div></li>';
+					} else if (data.zhuangtai == "1" && data.tianshu > 3) {
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="font-size:18px;width:100%;">';
+						html += '<div class="aui-btn aui-btn-info" style="margin-left:60px;width:100px;"><input type="button" onclick="shangbao(\'' + data.qingjiaid + '\');" value="同意并上报" /></div>';
+						html += '<div class="aui-btn aui-btn-danger" style="margin-right:60px;width:100px;"><input type="button" onclick="jujue(\'' + data.qingjiaid + '\');"  value="拒绝" /></div>';
+						html += '</div></li>';
+					} else if (data.zhuangtai == "4") {
+						html += '<li class="aui-list-item"><div class="aui-list-item-inner" style="font-size:18px;width:100%;"><div class="aui-btn aui-btn-info" style="margin-left:100px;width:150px;">';
+						html += '<input type="button" onclick="xiaojia(\'' + data.qingjiaid + '\');"  value="确认到校并销假" />';
+						html += '</div></div></li>';
+					}
+					$('#xiangqing').append(html);
+					api.hideProgress();
+				},
+				error : function() {
+					alert("错误！");
+				}
+			});
+		};
+		function Server(id, imgstr) {
+			api.openFrame({
+				name : 'imgshow',
+				url : "../imageShow.html",
+				rect : {
+					x : 0,
+					y : 0,
+					w : 'auto',
+					h : 'auto'
+				},
+				bounces : false,
+				bgColor : 'rgba(0,0,0,0.6)',
+				pageParam : {
+					url : imgstr
+				},
+				allowEdit : true,
+				reload : true
+			});
+		}
+
+		function imgError(obj) {
+			if (obj) {
+				obj.src = "../../image/123.png";
+				obj.onerror = null;
+			} else {
+				var img = event.srcElement;
+				img.src = "../../image/123.png";
+				img.onerror = null;
+			}
+		}
+
+		function tongyi(qingjiaid) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_AcceptJiaTiao_fdy",
+				data : {
+					id : qingjiaid,
+					token : token,
+					status : status,
+					yonghuid : studentid,
+				},
+				dataType : 'text',
+				cache : false,
+				success : function(data) {
+					if (data) {
+						if (data == "success") {
+							alert("同意成功！");
+						} else {
+							alert("同意失败！");
+						}
+						//							window.location.reload();
+						var jsfun = 'caozuo();';
+						api.execScript({
+							name : 'myApplicationwin',
+							script : jsfun
+						});
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误！");
+				}
+			});
+		};
+		function jujue(qingjiaid) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			if (juj()) {
+				var liyou = prompt("请输入拒绝理由：", "");
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_DenytJiaTiao_fdy",
+					data : {
+						id : qingjiaid,
+						token : token,
+						status : status,
+						yonghuid : studentid,
+						liyou : liyou,
+					},
+					dataType : 'text',
+					cache : false,
+					success : function(data) {
+						if (data) {
+							if (data == "success") {
+								alert("拒绝成功！");
+							} else {
+								alert("拒绝失败！");
+							}
+							//							window.location.reload();
+							var jsfun = 'caozuo();';
+							api.execScript({
+								name : 'myApplicationwin',
+								script : jsfun
+							});
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("错误！");
+					}
+				});
+			}
+		};
+		function xiaojia(qingjiaid) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			if (queren()) {
+				$.ajax({
+					type : "POST",
+					url : $api.getStorage('serverUrl') + "app_XiaoJiatJiaTiao_fdy",
+					data : {
+						id : qingjiaid,
+						token : token,
+						status : status,
+						yonghuid : studentid,
+					},
+					dataType : 'text',
+					cache : false,
+					success : function(data) {
+						if (data) {
+							if (data == "success") {
+								alert("销假成功！");
+							} else {
+								alert("销假失败！");
+							}
+							//							window.location.reload();
+							var jsfun = 'caozuo();';
+							api.execScript({
+								name : 'myApplicationwin',
+								script : jsfun
+							});
+						} else {
+							alert("已登出");
+							api.hideProgress();
+							var jsfun = 'logout();';
+							api.execScript({
+								name : 'index',
+								script : jsfun
+							});
+						}
+					},
+					error : function() {
+						alert("错误！");
+					}
+				});
+			}
+		};
+		function shangbao(qingjiaid) {
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var studentid = dataInfo.id;
+			var token = $api.getStorage("logintoken");
+			var status = dataInfo.status;
+			$.ajax({
+				type : "POST",
+				url : $api.getStorage('serverUrl') + "app_ShangBaotJiaTiao_fdy",
+				data : {
+					id : qingjiaid,
+					token : token,
+					status : status,
+					yonghuid : studentid,
+				},
+				dataType : 'text',
+				cache : false,
+				success : function(data) {
+					if (data) {
+						if (data == "success") {
+							alert("上报成功！");
+						} else {
+							alert("上报失败！");
+						}
+						//							window.location.reload();
+						var jsfun = 'caozuo();';
+						api.execScript({
+							name : 'myApplicationwin',
+							script : jsfun
+						});
+					} else {
+						alert("已登出");
+						api.hideProgress();
+						var jsfun = 'logout();';
+						api.execScript({
+							name : 'index',
+							script : jsfun
+						});
+					}
+				},
+				error : function() {
+					alert("错误！");
+				}
+			});
+		};
+		function queren() {
+			if (confirm("确认到校并销假？") == true) {
+				return true;
+			} else {
+				return false;
+			}
+		};
+		function juj() {
+			if (confirm("确认拒绝？") == true) {
+				return true;
+			} else {
+				return false;
+			}
+		};
+	</script>
+</html>

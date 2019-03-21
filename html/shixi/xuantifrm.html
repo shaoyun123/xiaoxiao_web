@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>chuangjian</title>
+		<link rel="stylesheet" type="text/css" href=" ../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+	</head>
+	<style>
+		.line-limit-length {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;/*文本不换行，这样超出一行的部分被截取，显示...*/
+			width: 50%;
+		}
+		.data {
+			width: 49%;
+		}
+		.container {
+			height: 50px;
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+			overflow: hidden;
+		}
+		.nav {
+			height: 100%;
+			overflow-x: scroll;
+			overflow-y: hidden;
+			background: rgb(240,240,240);
+		}
+		#con {
+			width: 370px;
+			height: 100%;
+			display: flex;
+			align-items: center;
+		}
+		#con > div {
+			text-align: center;
+			font-size: 18px;
+			width: 190px;
+			list-style: none;
+		}
+		.container ::-webkit-scrollbar {
+			display: none;
+		}
+		.aui-list .aui-list-item-media {
+			width: 4rem;
+		}
+		.items {
+			color: red;
+		}
+		a {
+			margin-right: 10px;
+			color: #0062CC;
+		}
+		#opacity {
+			opacity: 0.8;
+			background: #424242;
+			display: none;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+	<body style="background-color: #e7e7ef;">
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="background-color: white;padding-top:25px;position:fixed;top:0;display:none;" id="topbar">
+			<a class="aui-pull-left aui-btn" onclick="goback()"> <span class="aui-iconfont aui-icon-left" style="font-size:20px;color:gray;"></span> </a>
+			<div  class="aui-title  border-b"  id="title" name="richeng" style="font-size:20px;color:gray;"></div>
+			<a class="aui-pull-right border-b aui-btn" id="tianjia" style="display: none;" onclick="tianjia()"> <span class="aui-iconfont aui-icon-info aui-icon-plus" style="color:gray;font-size: 20px;"></span> </a>
+		</header>
+		<div class="aui-content" style="background: #fff;" id="alltimu"></div>
+		<div class="aui-content" style="background: #fff;" id="yixuanti"></div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin({
+				name : 'xuantifrm'
+			});
+		}
+
+		function loadData() {
+			api.showProgress({
+				title : '努力加载中...',
+				text : '先喝杯茶...',
+				modal : false
+			});
+		}
+
+		apiready = function() {
+			api.addEventListener({
+				name : 'keyback'
+			}, function(ret, err) {
+				$api.rmStorage('loginpages');
+			});
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				setTimeout(function() {
+					api.refreshHeaderLoadDone();
+				}, 2000)
+			});
+			api.addEventListener({
+				name : 'scrolltobottom',
+				extra : {
+					threshold : 0,
+				}
+			}, function(ret, err) {
+				goback();
+			});
+			var dataInfo = $api.getStorage('loginDataInfo');
+			var xueshengid = dataInfo.id;
+			var data = api.pageParam.data;
+//			alert($api.jsonToStr(data));
+			for (var i = 0; i < data.katilist.length; i++) {
+				var stu_id = data.katilist[i].xueShengID;
+				if (stu_id == '' || stu_id == null) {// 该课题没有学生加入
+				} else {
+					var stuid = stu_id.split(",");
+					for (var j = 1, stuid_len = stuid.length - 1; j < stuid_len; j++) {
+						if (stuid[j] == xueshengid) {// 学生已经选过课题
+							if (data.katilist[i].shiFouShenHe == 3) {
+								yixuanti(i);
+								return;
+//							} else if (data.katilist[i].shiFouShenHe == 4) {
+//								xuantiqueding(i);
+//								return;
+							}
+						}
+					}
+				}
+			}
+			xuanti();
+		};
+		function xuanti() {
+			var data = api.pageParam.data;
+			//			alert($api.jsonToStr(data));
+			var html = '';
+			for (var i = 0; i < data.katilist.length; i++) {
+				if (data.katilist[i].shiFouShenHe == 3) {
+					var kaotiid = data.katilist[i].kaotiid;
+					html += '<div style="height:60px;border-bottom:1px solid #ccc;">';
+					html += '<div style="height:70%;line-height:42px;font-size:16px;"><span>'
+					if (data.katilist[i].fabumingcheng == '' || data.katilist[i].fabumingcheng == null) {
+						html += data.katilist[i].kaotimingcheng + '</span>';
+					} else {
+						html += data.katilist[i].fabumingcheng + '</span>';
+					}
+					html += '<span style="float:right;color:blue;" onclick="add(' + kaotiid + ');">加入&nbsp&nbsp&nbsp&nbsp</span></div>';
+					html += '<div style="height:30%;line-height:18px;color:gray;font-size:14px;">';
+					html += '<span style="width:20%;">' + data.katilist[i].laoshixingming + '</span>';
+					//					html += '<span style="width:20%;">容量：' + data.katilist[i].rongLiang + '</span>';
+					if (data.katilist[i].xueshengxinxi.length == 0) {
+						html += '<span style="width:20%;">已加入：0</span>';
+					} else {
+						var xueshengid = data.katilist[i].xueShengID;
+						var xueshengid_arr = xueshengid.split(",");
+						html += '<span style="width:20%;">已加入：' + (xueshengid_arr.length - 2) + '</span>';
+					}
+					html += '</div>';
+					html += '</div>';
+				}
+			}
+			$("#alltimu").html(html);
+		}
+
+		function add(kaotiid) {
+			api.confirm({
+				title : '提醒',
+				msg : '确定要选择该题目？',
+				buttons : ['确定', '取消']
+			}, function(ret, err) {
+				var index = ret.buttonIndex;
+				if (index == 2) {
+				} else if (index == 1) {
+					var dataInfo = $api.getStorage('loginDataInfo');
+					var status = dataInfo.status;
+					var xueshengid = dataInfo.id;
+					var token = $api.getStorage("logintoken");
+					$.ajax({
+						type : "POST",
+						url : $api.getStorage('serverUrl') + "app_xuanti",
+						data : {
+							xueshengid : xueshengid,
+							status : status,
+							token : token,
+							kaotiid : kaotiid,
+						},
+						dataType : 'json',
+						cache : false,
+						success : function(datas) {
+							if (datas.status == "success") {
+								alert("成功");
+							}
+							var kechengid = api.pageParam.kechengid;
+							var jsfun = 'gettiku('+ kechengid +');';
+							api.execScript({
+								name : 'shouye_shijianke',
+								script : jsfun
+							});
+						},
+						error : function() {
+							console.log("app_xuanti");
+						}
+					})
+				}
+			})
+		}
+
+		function yixuanti(i) {
+			var data = api.pageParam.data;
+			var datas = data.katilist[i];
+			//			if (datas.shiFouShenHe == 3) {// 老师未反选，还不确定
+			var html = '';
+			html += '<div style="margin:10px;">';
+			html += '<span style="font-size:20px;"><b>' + datas.fabumingcheng + '</b></span>';
+			html += '<br><span style="font-size:18px;">指导老师：' + datas.laoshixingming + '</span>';
+			//			var stu_name = '';
+			//			for (var j = 0; j < datas.xueshengxinxi.length; j++) {
+			//				stu_name += '&nbsp&nbsp&nbsp&nbsp' + datas.xueshengxinxi[j].xingming + ',';
+			//			}
+			//			html += '<br><span>已加入：' + stu_name + '</span>';
+			for (var j = 0; j < datas.xueshengxinxi.length; j++) {
+				html += '<div style="border-bottom:1px solid #ccc;">';
+				html += '<span>' + datas.xueshengxinxi[j].xingming + '</span>';
+				html += '<span style="float:right;">' + datas.xueshengxinxi[j].banjimingcheng + '</span>';
+				html += '</div>';
+			}
+			html += '</div>';
+			$("#yixuanti").html(html);
+			//			} else if (datas.shiFouShenHe == 4) {// 老师反选过了，不能改变了
+			//				api.openWin({
+			//					name : 'shijianke',
+			//					url : "shijianke.html",
+			//					allowEdit : true,
+			//					reload : true,
+			//					//				pageParam : {
+			//					//					data : data,
+			//					//				}
+			//				});
+			//			}
+		}
+
+//		function xuantiqueding() {
+//			api.openWin({
+//				name : 'shijianke',
+//				url : "../shijianke/shijianke.html",
+//				allowEdit : true,
+//				reload : true,
+//				//				pageParam : {
+//				//					data : data,
+//				//				}
+//			});
+//		}
+	</script>
+</html>

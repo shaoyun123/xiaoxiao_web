@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="../../css/aui.2.0.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/style1.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css"/>
+		<script type="text/javascript" src="../../script/jquery-1.7.2.js"></script>
+		<script type="text/javascript" src="../../script/jquery.runner-min.js"></script>
+		<style>
+			body {
+			}
+			#video {
+				/*position: absolute;
+				 margin-top: 100px;*/
+				position: fixed;
+				margin-top: 98px;
+				background: #ccc;
+			}
+		</style>
+	</head>
+	<body>
+		<header class="aui-bar aui-bar-nav  aui-bar-light" style="border-bottom:1px solid #ccc;background-color: white;padding-top:25px;position:fixed;height:50px;line-height: 50px;" id="topbar">
+			<a class="aui-pull-left border-b aui-btn" onclick="goback()" style="height:50px;line-height: 50px;"> <span class="aui-iconfont aui-icon-info aui-icon-left" style="color:gray;font-size:20px;"></span> </a>
+			<div class="border-b " style="font-size:20px;color:gray;">
+				视频
+			</div>
+		</header>
+		<div style="margin-top:75px;position: fixed;background: #fff;opacity: 1;width: 100%;">
+			已观看<span id="seconds"></span>秒
+		</div>
+		<video id="video" src="" width="100%" height="240" controls="controls" poster="../../image/denglu.png" ></video>
+		<div id="content" style="padding-top:350px;"></div>
+	</body>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript">
+		function goback() {
+			api.closeWin();
+		}
+
+		var timer, i;
+		apiready = function() {
+			content();
+			api.readFile({//  先读一下本地有没有文件，如果有直接打开文件，否则新建文件夹，存观看的时间
+				path : 'fs://1.txt',
+			}, function(ret, err) {
+				//				alert($api.jsonToStr(ret));
+				if (ret.status) {
+					i = ret.data;
+				} else {// 写文件
+					i = 0
+				}
+			});
+			var video = document.getElementById("video");
+			video.addEventListener("play", function() {
+				timer = setInterval("Count()", 1000);
+			});
+			video.addEventListener("pause", function() {
+				clearInterval(timer);
+			});
+		};
+		function Count() {
+			i++;
+			$api.setStorage('time', i);
+			$("#seconds").html(i);
+			//	console.log(i);
+			write();
+		}
+
+		function write() {
+			var time = $api.getStorage("time");
+			api.writeFile({
+				path : 'fs://1.txt',
+				data : time,
+			}, function(ret, err) {
+				if (ret.status) {
+					//成功
+				} else {
+				}
+			});
+		}
+
+		function content() {
+			var html = '';
+			html += '<span>点击播放</span>';
+			for (var i = 1; i < 11; i++) {
+				html += '<li onclick="a()" style="border-bottom:1px solid #ccc;height:70px;line-height:70px;padding-left:20px;">' + i;
+				html += '<span style="padding-left:30%;">第' + i + '章&nbsp&nbsp&nbsp&nbsp循环语句</span>';
+				html += '</li>'
+			}
+			$("#content").html(html);
+		}
+
+		function a() {
+			$("#video").attr("src", "1.mp4");
+		}
+	</script>
+</html>
